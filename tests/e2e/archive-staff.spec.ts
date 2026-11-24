@@ -73,7 +73,7 @@ test.describe("historical staff categories and verified username lookup", () => 
     const admin = isMobile ? 70001 : 60001;
     const cookie = await seedSession(admin);
     await context.addCookies([cookie]);
-    await page.route("https://a.ppy.sh/**", (route) =>
+    await page.route("**/api/osu-images/avatar/*", (route) =>
       route.fulfill({
         contentType: "image/svg+xml",
         body: '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"><rect width="48" height="48" fill="#704594"/></svg>',
@@ -261,7 +261,7 @@ test.describe("historical staff categories and verified username lookup", () => 
       },
     ]);
     await context.addCookies([await seedSession(isMobile ? 70001 : 60001)]);
-    await page.route("https://a.ppy.sh/**", (route) =>
+    await page.route("**/api/osu-images/avatar/*", (route) =>
       route.fulfill({
         contentType: "image/svg+xml",
         body: '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"><rect width="48" height="48" fill="#704594"/></svg>',

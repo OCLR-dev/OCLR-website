@@ -95,7 +95,7 @@ test("menu, account dropdown and keyboard focus keep the phone header usable", a
   page,
 }) => {
   await page.setViewportSize({ width: 320, height: 568 });
-  await page.route("https://a.ppy.sh/**", (route) => route.abort());
+  await page.route("**/api/osu-images/avatar/*", (route) => route.abort());
   await page.goto("/header?user=staff");
   await page.locator(".menu-toggle").click();
   await scroll(page, 200);

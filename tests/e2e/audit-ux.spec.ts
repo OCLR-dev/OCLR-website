@@ -47,7 +47,7 @@ test.describe("automatic staff auditing", () => {
           answers: {},
         })),
       );
-    await context.route("https://a.ppy.sh/**", (route) =>
+    await context.route("**/api/osu-images/avatar/*", (route) =>
       route.fulfill({
         status: 200,
         contentType: "image/svg+xml",
@@ -92,7 +92,7 @@ test.describe("automatic staff auditing", () => {
       page.getByRole("img", { name: "Taiwan flag", exact: true }),
     ).toHaveCount(3);
     await expect(
-      page.locator('.captain-player-identity img[src^="https://a.ppy.sh/"]'),
+      page.locator('.captain-player-identity img[src^="/api/osu-images/avatar/"]'),
     ).toHaveCount(3);
     for (const id of [base, base + 1]) {
       const response = page.waitForResponse(

@@ -1,4 +1,5 @@
 "use client";
+import { cachedImageUrl } from "@/lib/osu-image-urls";
 import Image from "next/image";
 import { useState } from "react";
 export function Avatar({
@@ -10,19 +11,24 @@ export function Avatar({
   username: string;
   avatarUrl?: string;
 }) {
-  const [failed, setFailed] = useState(false);
+  const source =
+    !avatarUrl || /^https:\/\/a\.ppy\.sh\/guest\.png(?:\?|$)/.test(avatarUrl)
+      ? `https://a.ppy.sh/${osuId}`
+      : avatarUrl;
+  const src = cachedImageUrl(source);
+  const [failedSource, setFailedSource] = useState<string | null>(null);
   return (
     <div className="avatar">
-      {failed ? (
+      {failedSource === src ? (
         <span aria-hidden="true">{username.slice(0, 2)}</span>
       ) : (
         <Image
-          src={avatarUrl ?? `https://a.ppy.sh/${osuId}`}
+          src={src}
           alt=""
           width={88}
           height={88}
           unoptimized
-          onError={() => setFailed(true)}
+          onError={() => setFailedSource(src)}
         />
       )}
     </div>

@@ -80,7 +80,7 @@ test.describe("anonymous inline mappool browser", () => {
         });
       return id;
     }
-    await context.route("https://assets.ppy.sh/beatmaps/**", (route) =>
+    await context.route("**/api/osu-images/{cover,list}/*", (route) =>
       route.fulfill({
         contentType: "image/svg+xml",
         body: '<svg xmlns="http://www.w3.org/2000/svg" width="72" height="48"><rect width="72" height="48" fill="#593776"/></svg>',

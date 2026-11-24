@@ -117,6 +117,10 @@ const projection = sql`
     e.detail->'before', e.detail->'after', (e.detail - 'before' - 'after') || jsonb_build_object('reason', e.reason), e.created_at
   FROM result_audit_events e JOIN fixtures f ON f.id=e.fixture_id
   UNION ALL
+  SELECT 'osu_image', id, NULL::text, actor_id, 'osu_image_' || operation, 'site', kind,
+    COALESCE(details->>'imageId', kind), details->'before', details->'after',
+    details - 'before' - 'after', created_at FROM osu_image_events
+  UNION ALL
   SELECT 'site', id, NULL::text, actor_id, 'site_appearance_changed', 'site', 'site settings', '1',
     jsonb_build_object('defaultAppearance', before_appearance, 'revision', revision - 1),
     jsonb_build_object('defaultAppearance', after_appearance, 'revision', revision),

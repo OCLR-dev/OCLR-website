@@ -78,7 +78,7 @@ test.describe("compact About organizer cards", () => {
   test.beforeEach(async ({ context }) => {
     assertTestDatabase(process.env.TEST_DATABASE_URL);
     process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
-    await context.route("https://a.ppy.sh/**", (route) =>
+    await context.route("**/api/osu-images/avatar/*", (route) =>
       route.request().url().endsWith(String(base))
         ? route.abort()
         : route.fulfill({

@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { fixtureStatuses } from "../lib/fixture-status";
 import {
+  customType,
   pgEnum,
   doublePrecision,
   check,
@@ -3095,3 +3096,50 @@ export const pickemVisibility = pgTable(
   },
   (t) => [primaryKey({ columns: [t.editionSlug, t.userId] })],
 );
+
+export const osuImagePolicies = pgTable("osu_image_policies", {
+  kind: text("kind")
+    .$type<import("../lib/osu-image-urls").ImageKind>()
+    .primaryKey(),
+  ttlHours: integer("ttl_hours").notNull(),
+  capacityMiB: integer("capacity_mib").notNull(),
+  revision: integer("revision").notNull().default(0),
+});
+
+const imageBytes = customType<{ data: Buffer; driverData: Buffer }>({
+  dataType: () => "bytea",
+});
+export const osuCachedImages = pgTable(
+  "osu_cached_images",
+  {
+    variant: text("variant")
+      .$type<import("../lib/osu-image-urls").ImageVariant>()
+      .notNull(),
+    imageId: integer("image_id").notNull(),
+    kind: text("kind")
+      .notNull()
+      .references(() => osuImagePolicies.kind),
+    contentType: text("content_type").notNull(),
+    data: imageBytes("data").notNull(),
+    byteSize: integer("byte_size").notNull(),
+    etag: text("etag").notNull(),
+    fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.variant, t.imageId] }),
+    index("osu_images_eviction_idx").on(t.kind, t.fetchedAt),
+  ],
+);
+
+export const osuImageEvents = pgTable("osu_image_events", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  actorId: bigint("actor_id", { mode: "number" })
+    .notNull()
+    .references(() => users.osuId),
+  kind: text("kind").notNull(),
+  operation: text("operation").notNull(),
+  details: jsonb("details").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});

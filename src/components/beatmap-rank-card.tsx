@@ -1,4 +1,5 @@
 "use client";
+import { cachedImageUrl } from "@/lib/osu-image-urls";
 
 import Image from "next/image";
 import { useState, type CSSProperties } from "react";
@@ -179,8 +180,8 @@ export function BeatmapRankCard({ map }: { map: BeatmapRankCardData }) {
   const [listFailed, setListFailed] = useState(false);
   const coverSrc = beatmapCoverUrl(map.beatmapSetId);
   const listSrc = beatmapListCoverUrl(map.beatmapSetId);
-  const coverUrl = coverSrc && !coverFailed ? coverSrc : null;
-  const listUrl = listSrc && !listFailed ? listSrc : null;
+  const coverUrl = coverSrc && !coverFailed ? cachedImageUrl(coverSrc) : null;
+  const listUrl = listSrc && !listFailed ? cachedImageUrl(listSrc) : null;
 
   const fittedColor = starStat(map.fittedStars);
   const starsColor = starStat(map.stars);

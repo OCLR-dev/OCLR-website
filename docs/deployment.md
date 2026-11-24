@@ -677,3 +677,10 @@ installation, use the explicit [first-installation procedure](../operator/README
 and reviewed `scripts/install-backup-operator.sh`. The script leaves the service
 stopped until private operator configuration, matching database authorization
 and the website socket setting are ready.
+
+
+### osu! image cache
+
+Global Admins can manage the avatar and beatmap background caches independently in **Site settings** after migration `0116`. Avatars default to 24 hours and 64 MiB. Backgrounds default to 168 hours and 256 MiB, shared by covers and list thumbnails. The lifetime controls when the next read fetches fresh artwork. The capacity counts image payload bytes in PostgreSQL. Lowering it immediately evicts the oldest refreshed images in that category. Database indexes and backup size are additional to that limit.
+
+For an immediate update, enter the osu! user ID for an avatar or the beatmapset ID for a background. A successful background update also expires that set’s list thumbnail. Reopening the page revalidates cached images. If the upstream fetch fails, the previous image remains available.

@@ -146,6 +146,24 @@ const rows = files.map((file) => {
         "Publication, ownership, deadline, score settlement and remote rejection",
     };
   }
+  if (file === "src/app/api/osu-images/[variant]/[id]/route.ts") {
+    return {
+      file,
+      kind: "read-route",
+      authority: "static-or-local-interaction",
+      operations: [],
+      commands: "None",
+      metadata: "Official image by numeric ID",
+      services: ["src/lib/osu-image-cache.ts#readOsuImage"],
+      test: "integration/osu-image-cache.test.ts",
+      authorization: "Public osu! artwork",
+      adapter:
+        "Remote mode redirects to the official image without database access",
+      media: "Official avatar and beatmapset artwork",
+      requiredVerification:
+        "Public image response, per-image refresh and remote redirect",
+    };
+  }
   const beatmapCacheRoute = file.endsWith("/beatmap-cache/route.ts");
   if (beatmapCacheRoute || file.endsWith("/mappool-beatmap-cache.tsx")) {
     return {

@@ -87,7 +87,7 @@ test.describe("weekly awards review", () => {
       },
     });
     try {
-      await anonymous.route("https://a.ppy.sh/**", (route) => route.abort());
+      await anonymous.route("**/api/osu-images/avatar/*", (route) => route.abort());
       const publicPage = await anonymous.newPage();
       await publicPage.goto("/tournaments/test-cup/results/awards");
       await expect(publicPage.locator(".award-winners")).toBeVisible();

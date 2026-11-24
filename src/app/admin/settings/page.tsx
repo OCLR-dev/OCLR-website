@@ -1,3 +1,5 @@
+import { OsuImageSettings } from "@/components/osu-image-settings";
+import { imagePoliciesForAdmin } from "@/lib/osu-image-cache";
 import { SiteAppearanceForm } from "@/components/site-appearance-form";
 import { canManageBackups } from "@/lib/admin-backups";
 import { Action, PageHeading } from "@/components/ui";
@@ -17,6 +19,7 @@ async function Issue271Page() {
     const actor = await requireUser();
     const settings = await siteSettingsForAdmin(actor);
     const showBackups = await canManageBackups(actor);
+    const policies = await imagePoliciesForAdmin(actor);
     return (
       <>
         <PageHeading
@@ -34,6 +37,9 @@ async function Issue271Page() {
           initialAppearance={settings.defaultAppearance}
           revision={settings.revision}
         />
+        {policies.map((policy) => (
+          <OsuImageSettings key={policy.kind} initial={policy} />
+        ))}
       </>
     );
   });

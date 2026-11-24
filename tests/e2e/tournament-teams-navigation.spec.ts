@@ -50,7 +50,7 @@ test.describe("public tournament teams navigation", () => {
         identityPublished: true,
       })
       .returning();
-    await context.route("https://a.ppy.sh/**", (route) => route.abort());
+    await context.route("**/api/osu-images/avatar/*", (route) => route.abort());
 
     const navigation = page.getByRole("navigation", {
       name: "Tournament navigation",

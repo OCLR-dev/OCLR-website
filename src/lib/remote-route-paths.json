@@ -99,6 +99,7 @@
     "/api/admin/tournaments/[edition]/teams",
     "/api/admin/tournaments",
     "/api/me",
+    "/api/osu-images/[variant]/[id]",
     "/api/players/[osuId]",
     "/api/players",
     "/api/registrations",

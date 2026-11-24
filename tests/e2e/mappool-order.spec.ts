@@ -21,7 +21,7 @@ test.describe("quick paste and mappool ordering", () => {
       await seedSession(id),
       { name: "oclr-theme", value: "light", domain: "127.0.0.1", path: "/" },
     ]);
-    await context.route("https://assets.ppy.sh/beatmaps/**", (route) =>
+    await context.route("**/api/osu-images/{cover,list}/*", (route) =>
       route.abort(),
     );
     const round = await (

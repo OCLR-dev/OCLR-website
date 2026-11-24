@@ -68,7 +68,7 @@ test.describe("player identity, introduction and signed messages", () => {
       },
     );
     expect(unsignedEdit.status()).toBe(401);
-    await page.route("https://a.ppy.sh/**", (route) =>
+    await page.route("**/api/osu-images/avatar/*", (route) =>
       route.fulfill({
         contentType: "image/svg+xml",
         body: '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="88"><rect width="88" height="88" fill="#7650a0"/></svg>',
@@ -88,7 +88,7 @@ test.describe("player identity, introduction and signed messages", () => {
     );
     await expect(page.locator(".event-player-identity img")).toHaveAttribute(
       "src",
-      `https://a.ppy.sh/${base + 1}`,
+      `/api/osu-images/avatar/${base + 1}`,
     );
     await context.addCookies([cookie]);
     await page.reload();

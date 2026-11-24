@@ -21,7 +21,7 @@ test.describe("content-fitting account menu", () => {
       })),
     );
     await context.addCookies([await seedSession(isMobile ? 70001 : 60001)]);
-    await context.route("https://a.ppy.sh/**", (route) => route.abort());
+    await context.route("**/api/osu-images/avatar/*", (route) => route.abort());
     try {
       for (const width of isMobile ? [320, 390] : [1440]) {
         await page.setViewportSize({ width, height: 900 });

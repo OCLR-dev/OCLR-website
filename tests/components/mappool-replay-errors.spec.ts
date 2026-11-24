@@ -41,7 +41,7 @@ test("saved replays can set and clear the preferred replay", async ({
   };
   let preferredReplayId: string | null = null;
   let version = 7;
-  await page.route("https://assets.ppy.sh/**", (route) => route.abort());
+  await page.route("**/api/osu-images/{cover,list}/*", (route) => route.abort());
   await page.route("**/entries/entry-1/replays", (route) =>
     route.fulfill({
       json: [first, second].map((item) => ({
@@ -76,7 +76,7 @@ test("the open player follows attachment changes from another tab and keeps a su
   const second = { ...replay, id: "second", filename: "Second.osr" };
   const added = { ...replay, id: "added", filename: file.name };
   let items = [second, first];
-  await context.route("https://assets.ppy.sh/**", (route) => route.abort());
+  await context.route("**/api/osu-images/{cover,list}/*", (route) => route.abort());
   await context.route("**/entries/entry-1/replays", async (route) => {
     if (route.request().method() === "POST") {
       items = [added, ...items];
@@ -145,7 +145,7 @@ test("returning to the viewer clears the last replay when tab messages are unava
     Object.defineProperty(window, "BroadcastChannel", { value: undefined });
   });
   let items = [replay];
-  await page.route("https://assets.ppy.sh/**", (route) => route.abort());
+  await page.route("**/api/osu-images/{cover,list}/*", (route) => route.abort());
   await page.route("**/entries/entry-1/replays", (route) =>
     route.fulfill({ json: items }),
   );
@@ -174,7 +174,7 @@ for (const operation of ["upload", "delete"] as const) {
     let reads = 0;
     let writes = 0;
     const failure = "This pool changed. Refresh before confirming.";
-    await page.route("https://assets.ppy.sh/**", (route) => route.abort());
+    await page.route("**/api/osu-images/{cover,list}/*", (route) => route.abort());
     await page.route("**/api/**/replays**", async (route) => {
       if (route.request().method() === "GET") {
         reads++;
@@ -281,7 +281,7 @@ test("list and deletion failures stay visible together until manual reload, with
   let uploaded = false;
   const listFailure = "Could not load replays. Retry the list.";
   const deleteFailure = "This pool changed. Refresh before confirming.";
-  await page.route("https://assets.ppy.sh/**", (route) => route.abort());
+  await page.route("**/api/osu-images/{cover,list}/*", (route) => route.abort());
   await page.route("**/api/**/replays**", async (route) => {
     const method = route.request().method();
     if (method === "GET") {

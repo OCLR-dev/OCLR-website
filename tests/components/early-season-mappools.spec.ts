@@ -8,8 +8,8 @@ test("early saved maps share enriched titles, difficulty, counts and missing sta
     width: info.project.name === "mobile" ? 320 : 1280,
     height: 900,
   });
-  await page.route("https://assets.ppy.sh/**", (route) =>
-    route.request().url().includes("/293275/")
+  await page.route("**/api/osu-images/{cover,list}/*", (route) =>
+    route.request().url().endsWith("/293275")
       ? route.fulfill({
           status: 404,
           contentType: "text/plain",

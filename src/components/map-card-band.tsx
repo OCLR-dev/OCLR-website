@@ -1,4 +1,5 @@
 "use client";
+import { cachedImageUrl } from "@/lib/osu-image-urls";
 
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { useAppTranslations } from "@/i18n/shared";
@@ -279,7 +280,7 @@ export function MapCardBand({
       <div
         className="map-card-art"
         aria-hidden="true"
-        style={art ? { backgroundImage: `url("${art}")` } : undefined}
+        style={art ? { backgroundImage: `url("${cachedImageUrl(art)}")` } : undefined}
       />
       {variant === "band" ? identity : null}
       <div className="map-card-copy">

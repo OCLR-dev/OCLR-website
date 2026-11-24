@@ -57,7 +57,7 @@ test.describe("approved public About roster", () => {
           expectedPublished: true,
           confirmed: true,
         });
-      await page.route("https://a.ppy.sh/**", (route) =>
+      await page.route("**/api/osu-images/avatar/*", (route) =>
         route.fulfill({
           contentType: "image/svg+xml",
           body: '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"><rect width="48" height="48" fill="#704594"/></svg>',

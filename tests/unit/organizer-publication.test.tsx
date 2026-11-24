@@ -152,7 +152,7 @@ describe("organizer directory publication", () => {
     )?.[0];
     expect(section).toContain("Published Developer");
     expect(section).toContain('href="https://osu.ppy.sh/users/4243"');
-    expect(section).toContain('src="https://a.ppy.sh/4243"');
+    expect(section).toContain('src="/api/osu-images/avatar/4243"');
     expect(section).toContain("All editions");
     expect(section).not.toContain("Not announced");
     expect(html).not.toContain("Kite");

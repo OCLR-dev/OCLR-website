@@ -1053,7 +1053,7 @@ test.describe("historical archive browser workflow", () => {
     ).toHaveAttribute("href", new RegExp(`/players/\\d+\\?edition=${slug}$`));
     await expect(
       page.locator(".archive-player-card img").first(),
-    ).toHaveAttribute("src", /a\.ppy\.sh\/91001/);
+    ).toHaveAttribute("src", /\/api\/osu-images\/avatar\/91001/);
     await expectWorkflowFits(page);
     await page.goto(`/tournaments/${slug}/results`);
     await expect(page).toHaveURL(new RegExp(`/schedule\\?status=recorded$`));

@@ -4,7 +4,7 @@ test.beforeEach(async ({ page }) => {
   await page.route("**/api/tournaments/synthetic/players/*/messages", (route) =>
     route.fulfill({ json: [] }),
   );
-  await page.route("https://a.ppy.sh/**", (route) => route.abort());
+  await page.route("**/api/osu-images/avatar/*", (route) => route.abort());
 });
 
 test("a shared range stays editable when its last digit is erased", async ({

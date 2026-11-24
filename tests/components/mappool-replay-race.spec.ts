@@ -26,7 +26,7 @@ for (const stale of ["success", "error"]) {
       },
       verification: "matched",
     });
-    await page.route("https://assets.ppy.sh/**", (route) => route.abort());
+    await page.route("**/api/osu-images/{cover,list}/*", (route) => route.abort());
     await page.route("**/api/**/replays", async (route) => {
       if (route.request().method() !== "GET")
         writes.push(route.request().method());

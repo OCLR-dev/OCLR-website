@@ -20,7 +20,7 @@ test.describe("dense Admin mappool workspace", () => {
     await db().execute(sql`TRUNCATE edition_state, users CASCADE`);
     await context.addCookies([await seedSession(actor)]);
     await context.setExtraHTTPHeaders({ Origin: "http://127.0.0.1:3100" });
-    await context.route("https://assets.ppy.sh/beatmaps/**", (route) =>
+    await context.route("**/api/osu-images/{cover,list}/*", (route) =>
       route.abort(),
     );
     const api = "/api/admin/tournaments/test-cup/mappools";

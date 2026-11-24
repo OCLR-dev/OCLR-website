@@ -4,7 +4,7 @@ for (const reset of [false, true]) {
   test(`MRA changes direction on the first click after ${reset ? "resetting another sort" : "opening the leaderboard"}`, async ({
     page,
   }) => {
-    await page.route("https://a.ppy.sh/**", (route) => route.abort());
+    await page.route("**/api/osu-images/avatar/*", (route) => route.abort());
     await page.goto("/player-leaderboard");
     const cards = page.locator('[aria-label^="#"]');
     const mra = page

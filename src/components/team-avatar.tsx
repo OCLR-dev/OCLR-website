@@ -1,4 +1,5 @@
 "use client";
+import { cachedImageUrl } from "@/lib/osu-image-urls";
 import Image from "next/image";
 import { useState } from "react";
 export function TeamAvatar({
@@ -15,7 +16,9 @@ export function TeamAvatar({
   const custom = team.avatarKey
     ? `/api/teams/${team.id}/avatar?v=${team.avatarKey}`
     : null;
-  const captain = team.captainId ? `https://a.ppy.sh/${team.captainId}` : null;
+  const captain = team.captainId
+    ? cachedImageUrl(`https://a.ppy.sh/${team.captainId}`)
+    : null;
   const src = [custom, captain].find((url) => url && !failed.includes(url));
   return (
     <span className="team-monogram" aria-hidden="true">

@@ -9,7 +9,7 @@ for (const failure of ["http", "network"] as const) {
     const httpError = "The action could not be completed.";
     const networkError =
       "Connection interrupted. Refresh to check the saved state before retrying.";
-    await page.route("https://a.ppy.sh/**", (route) => route.abort());
+    await page.route("**/api/osu-images/avatar/*", (route) => route.abort());
     await page.route(
       "**/api/admin/tournaments/history-test/archive-staff",
       async (route) => {

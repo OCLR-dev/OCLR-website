@@ -16,7 +16,7 @@ test.describe("bulk assisted registrations", () => {
       sql`TRUNCATE edition_state, users, user_profile_cache CASCADE`,
     );
     await context.addCookies([await seedSession(isMobile ? 70001 : 60001)]);
-    await context.route("https://a.ppy.sh/**", (route) => route.abort());
+    await context.route("**/api/osu-images/avatar/*", (route) => route.abort());
   });
   test("previews mixed names in every locale, appearance and theme with keyboard access and responsive rows", async ({
     page,

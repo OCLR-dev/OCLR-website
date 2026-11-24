@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/**/replays", (route) => route.fulfill({ json: [] }));
-  await page.route("https://assets.ppy.sh/**", (route) => route.abort());
+  await page.route("**/api/osu-images/{cover,list}/*", (route) => route.abort());
 });
 
 const locale = "en";

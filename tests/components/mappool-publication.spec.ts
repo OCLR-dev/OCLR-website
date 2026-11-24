@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/**/replays", (route) => route.fulfill({ json: [] }));
-  await page.route("https://assets.ppy.sh/**", (route) => route.abort());
+  await page.route("**/api/osu-images/{cover,list}/*", (route) => route.abort());
 });
 
 test("publishes and unpublishes only after confirmation using the refreshed version", async ({

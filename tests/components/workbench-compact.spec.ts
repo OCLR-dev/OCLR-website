@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
   await page.route("**/api/**/mappools", (route) =>
     route.fulfill({ json: { rounds: [], pools: [], entries: [] } }),
   );
-  await page.route("https://assets.ppy.sh/**", (route) => route.abort());
+  await page.route("**/api/osu-images/{cover,list}/*", (route) => route.abort());
 });
 
 test("checks history before adding and confirms candidate deletion", async ({

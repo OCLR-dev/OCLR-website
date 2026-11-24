@@ -27,7 +27,7 @@ test.describe("current edition coaches", () => {
       sql`TRUNCATE edition_state, users, user_profile_cache CASCADE`,
     );
     await context.addCookies([await seedSession(isMobile ? 70001 : 60001)]);
-    await context.route("https://a.ppy.sh/**", (r) => r.abort());
+    await context.route("**/api/osu-images/avatar/*", (r) => r.abort());
     await db()
       .insert(users)
       .values({ osuId: 149001, username: "Synthetic Captain" });

@@ -167,3 +167,51 @@ export type StaffProfileLookupInput = z.input<
 export type SiteAppearanceInput = z.input<
   typeof updateSiteAppearanceWrite.request
 >;
+
+const cacheKind = z.enum(["avatar", "background"]);
+const ttlHours = z.number().int().min(1).max(8760);
+const capacityMiB = z.number().int().min(8).max(2048);
+const cacheRevision = z.number().int().nonnegative();
+export const manageOsuImagesWrite = {
+  id: "manageOsuImages",
+  path: "/api/admin/settings/osu-images",
+  method: "POST",
+  access: "browser",
+  maxBodyBytes: defaultJsonBodyLimit,
+  request: z.discriminatedUnion("action", [
+    z.strictObject({
+      action: z.literal("save"),
+      kind: cacheKind,
+      ttlHours,
+      capacityMiB,
+      expectedRevision: cacheRevision,
+    }),
+    z.strictObject({
+      action: z.literal("refresh"),
+      kind: cacheKind,
+      imageId: z.number().int().positive().max(2147483647),
+    }),
+  ]),
+  summary: "Manage osu! image caching",
+  description:
+    "A global Admin can save the lifetime and capacity of one image category or refresh one official avatar or beatmapset background. A refreshed background also invalidates its cached list thumbnail.",
+  successStatus: 200,
+  successDescription: "The current policy for the selected image category.",
+  successHeaders: noStore,
+  response: z.strictObject({
+    kind: cacheKind,
+    ttlHours,
+    capacityMiB,
+    revision: cacheRevision,
+  }),
+  errors: {
+    ...errors,
+    400: "Invalid cache policy or image ID.",
+    404: "Image not found.",
+    409: "Conflicting policy revision.",
+    502: "Official image unavailable.",
+  },
+  consumers: ["src/components/osu-image-settings.tsx"],
+} as const satisfies WriteApiOperation;
+export type OsuImageCommand = z.input<typeof manageOsuImagesWrite.request>;
+export type OsuImagePolicy = z.output<typeof manageOsuImagesWrite.response>;

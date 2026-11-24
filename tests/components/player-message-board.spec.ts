@@ -108,7 +108,7 @@ test("gallery displays the full history and edits older messages in place", asyn
     return json(route, {});
   });
 
-  await page.route("https://a.ppy.sh/*", (route) =>
+  await page.route("**/api/osu-images/avatar/*", (route) =>
     route.request().url().endsWith(`/${oldest.authorId}`)
       ? route.abort()
       : route.fulfill({
@@ -128,7 +128,7 @@ test("gallery displays the full history and edits older messages in place", asyn
     .getByRole("link", { name: history[0].author, exact: true });
   await expect(authorLink.locator("img")).toHaveAttribute(
     "src",
-    `https://a.ppy.sh/${history[0].authorId}`,
+    `/api/osu-images/avatar/${history[0].authorId}`,
   );
   await expect(authorLink.locator("img")).toHaveJSProperty("naturalWidth", 32);
   await rows.last().scrollIntoViewIfNeeded();
@@ -181,7 +181,7 @@ test("gallery composes replies beneath the selected original comment", async ({
     parentId: parent.id,
     text: "New reply",
   };
-  await page.route("https://a.ppy.sh/*", (route) => route.abort());
+  await page.route("**/api/osu-images/avatar/*", (route) => route.abort());
   await page.route(`**${gallery}`, (route) => {
     if (route.request().method() === "GET")
       return json(route, [existing, other, parent]);

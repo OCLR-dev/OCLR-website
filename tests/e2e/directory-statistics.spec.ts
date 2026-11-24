@@ -73,7 +73,7 @@ test.describe("compact public player statistics", () => {
           };
         }),
       );
-    await context.route("https://a.ppy.sh/**", (route) => route.abort());
+    await context.route("**/api/osu-images/avatar/*", (route) => route.abort());
   });
   test.afterEach(async () => {
     await db().execute(
@@ -218,7 +218,7 @@ test.describe("compact public player statistics", () => {
       await context.addCookies([
         { name: "oclr-locale", value: "en", url: "http://127.0.0.1:3100" },
       ]);
-      await context.route("https://a.ppy.sh/**", (route) => route.abort());
+      await context.route("**/api/osu-images/avatar/*", (route) => route.abort());
       const page = await context.newPage();
       await page.goto("http://127.0.0.1:3100" + path);
       await expect(page.locator(".event-player-row")).toHaveCount(8);

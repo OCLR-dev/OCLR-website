@@ -65,6 +65,7 @@ import {
   queueAdminBackupWrite,
   refreshStaffProfileWrite,
   updateSiteAppearanceWrite,
+  manageOsuImagesWrite,
 } from "../src/lib/admin-operations-write-contracts";
 import {
   moderateChessWrite,
@@ -208,6 +209,7 @@ const operations: readonly WriteApiOperation[] = [
   queueAdminBackupWrite,
   refreshStaffProfileWrite,
   updateSiteAppearanceWrite,
+  manageOsuImagesWrite,
   placeChessPixelWrite,
   moderateChessWrite,
   changePickemSettingsWrite,

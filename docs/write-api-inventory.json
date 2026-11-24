@@ -61,6 +61,24 @@
     }
   },
   {
+    "route": "/api/admin/settings/osu-images",
+    "source": "src/app/api/admin/settings/osu-images/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "manageOsuImages",
+        "access": "browser",
+        "actions": [
+          "save",
+          "refresh"
+        ],
+        "consumers": [
+          "src/components/osu-image-settings.tsx"
+        ]
+      }
+    }
+  },
+  {
     "route": "/api/admin/settings",
     "source": "src/app/api/admin/settings/route.ts",
     "methods": {

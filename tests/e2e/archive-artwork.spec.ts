@@ -36,8 +36,8 @@ test.describe("archive official covers", () => {
       },
     ]);
     let failedRequests = 0;
-    await context.route("https://assets.ppy.sh/beatmaps/**", (route) => {
-      if (route.request().url().includes("/42/")) {
+    await context.route("**/api/osu-images/{cover,list}/*", (route) => {
+      if (route.request().url().endsWith("/42")) {
         failedRequests++;
         return route.fulfill({ status: 404, body: "" });
       }
@@ -60,11 +60,11 @@ test.describe("archive official covers", () => {
     await expect(images).toHaveCount(2);
     await expect(images.nth(0)).toHaveAttribute(
       "src",
-      "https://assets.ppy.sh/beatmaps/1843515/covers/cover.jpg",
+      "/api/osu-images/cover/1843515",
     );
     await expect(images.nth(1)).toHaveAttribute(
       "src",
-      "https://assets.ppy.sh/beatmaps/2299790/covers/cover.jpg",
+      "/api/osu-images/cover/2299790",
     );
     for (const img of await images.all())
       await expect(img).toHaveJSProperty("naturalWidth", 900);

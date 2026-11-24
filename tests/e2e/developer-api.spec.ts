@@ -58,7 +58,7 @@ test.describe("Developer API local browser access", () => {
     test.setTimeout(180000);
     const id = isMobile ? 2682002 : 2682001;
     const cookie = await seedSession(id);
-    await context.route("https://a.ppy.sh/**", (route) => route.abort());
+    await context.route("**/api/osu-images/avatar/*", (route) => route.abort());
     await db()
       .insert(staffRoles)
       .values({ userId: id, role: "developer", grantedBy: id });

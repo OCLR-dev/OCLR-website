@@ -28,7 +28,7 @@ test.describe("assisted registration from the edition workspace", () => {
     const admin = isMobile ? 70001 : 60001,
       base = isMobile ? 982001 : 981001;
     await context.addCookies([await seedSession(admin)]);
-    await context.route("https://a.ppy.sh/**", (route) => route.abort());
+    await context.route("**/api/osu-images/avatar/*", (route) => route.abort());
     const url = "/api/admin/tournaments/test-cup/registrations";
     const anonymous = await browser.newContext({
       storageState: englishStorage,

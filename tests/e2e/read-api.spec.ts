@@ -178,7 +178,7 @@ test.describe("versioned read API and existing SSR", () => {
       expect(fetched.missingAuth.status).toBe(401);
       expect(fetched.invalid.status).toBe(400);
       expect(fetched.spec.body.openapi).toBe("3.1.0");
-      await context.route("https://a.ppy.sh/**", (route) => route.abort());
+      await context.route("**/api/osu-images/avatar/*", (route) => route.abort());
       if (isMobile) await page.setViewportSize({ width: 320, height: 844 });
       await page.goto("/tournaments/test-cup/players");
       const rows = page.locator(".event-player-row");

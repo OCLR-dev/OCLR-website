@@ -5,8 +5,8 @@ import { expect, test } from "@playwright/test";
 test("a reviewed alternative loads across views without changing the original map actions", async ({
   page,
 }) => {
-  await page.route("https://assets.ppy.sh/**", async (route) => {
-    if (route.request().url().includes("/beatmaps/743685/covers/cover.jpg"))
+  await page.route("**/api/osu-images/{cover,list}/*", async (route) => {
+    if (route.request().url().includes("/api/osu-images/cover/743685"))
       await route.fulfill({
         path: "public/archive/beatmaps/2314568/cover.jpg",
         contentType: "image/jpeg",
@@ -18,7 +18,7 @@ test("a reviewed alternative loads across views without changing the original ma
   const image = card.locator("img");
   await expect(image).toHaveAttribute(
     "src",
-    "https://assets.ppy.sh/beatmaps/743685/covers/cover.jpg",
+    "/api/osu-images/cover/743685",
   );
   await expect
     .poll(() =>
@@ -27,7 +27,7 @@ test("a reviewed alternative loads across views without changing the original ma
     .toBe(1920);
   await expect(card.locator(".map-card-art")).toHaveCSS(
     "background-image",
-    /\/beatmaps\/743685\/covers\/cover.jpg/,
+    /\/api\/osu-images\/cover\/743685/,
   );
   await expect(
     card.getByRole("link", { name: /Open on osu!/ }),
@@ -35,7 +35,7 @@ test("a reviewed alternative loads across views without changing the original ma
   await page.locator(".map-view-control button").nth(1).click();
   await expect(image).toHaveAttribute(
     "src",
-    "https://assets.ppy.sh/beatmaps/743685/covers/cover.jpg",
+    "/api/osu-images/cover/743685",
   );
   await expect
     .poll(() =>
@@ -46,7 +46,7 @@ test("a reviewed alternative loads across views without changing the original ma
   const detail = page.getByRole("dialog");
   await expect(detail.locator("img")).toHaveAttribute(
     "src",
-    "https://assets.ppy.sh/beatmaps/743685/covers/cover.jpg",
+    "/api/osu-images/cover/743685",
   );
   await expect
     .poll(() =>
@@ -91,7 +91,7 @@ for (const entry of [
   test(`${entry.season} recovered cover loads in card, compact and detail views`, async ({
     page,
   }) => {
-    await page.route("https://assets.ppy.sh/**", (route) =>
+    await page.route("**/api/osu-images/{cover,list}/*", (route) =>
       route.fulfill({ status: 404 }),
     );
     await page.goto(`/public-mappools?archive&${entry.query}`);

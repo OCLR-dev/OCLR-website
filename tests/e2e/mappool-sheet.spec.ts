@@ -114,8 +114,8 @@ test.describe("published mappool mainsheet", () => {
       expectedVersion: 1,
       published: true,
     });
-    await context.route("https://assets.ppy.sh/beatmaps/**", (route) =>
-      route.request().url().includes("/43/")
+    await context.route("**/api/osu-images/{cover,list}/*", (route) =>
+      route.request().url().endsWith("/43")
         ? route.abort()
         : route.fulfill({
             contentType: "image/svg+xml",

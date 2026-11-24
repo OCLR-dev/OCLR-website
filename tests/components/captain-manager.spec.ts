@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.route("https://a.ppy.sh/**", (route) => route.abort());
+  await page.route("**/api/osu-images/avatar/*", (route) => route.abort());
 });
 
 test("shows ten players per page and six on the final page without saving", async ({

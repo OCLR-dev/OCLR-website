@@ -1,4 +1,5 @@
 "use client";
+import { cachedImageUrl } from "@/lib/osu-image-urls";
 import { useAppTranslations } from "@/i18n/shared";
 
 import { beatmapCoverSources } from "@/lib/beatmap-artwork";
@@ -39,7 +40,7 @@ export function BeatmapCover({
         </span>
       ) : (
         <Image
-          src={src}
+          src={cachedImageUrl(src)}
           alt=""
           width={180}
           height={100}

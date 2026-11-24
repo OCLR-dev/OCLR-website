@@ -46,7 +46,7 @@ test.describe("private Pooler/Tester selection workbench", () => {
         },
       ]);
     await context.addCookies([cookie]);
-    await context.route("https://assets.ppy.sh/**", (route) => route.abort());
+    await context.route("**/api/osu-images/{cover,list}/*", (route) => route.abort());
     await seedEditions([
       {
         ...edition,

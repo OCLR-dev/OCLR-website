@@ -36,7 +36,7 @@ test.describe("compact Captain live state", () => {
         sameSite: "Lax",
       },
     ]);
-    await page.route("https://a.ppy.sh/**", (r) => r.abort());
+    await page.route("**/api/osu-images/avatar/*", (r) => r.abort());
     const initial = (await captainDraft(fixture.a, slug))!;
     let board: CaptainBoard = structuredClone(initial);
     let fail = false;

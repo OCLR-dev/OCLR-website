@@ -101,7 +101,7 @@ test("long remote account names fit on phones, tablets and desktop", async ({
   page,
 }) => {
   const username = "Synthetic Directory 2717000 Captain";
-  await page.route("https://a.ppy.sh/**", (route) => route.abort());
+  await page.route("**/api/osu-images/avatar/*", (route) => route.abort());
   for (const [width, appearance] of [
     [320, "default"],
     [768, "cute-pastel"],
@@ -134,7 +134,7 @@ test("long remote account names fit on phones, tablets and desktop", async ({
 test("phone menus retain focus and dismiss nested preferences", async ({
   page,
 }) => {
-  await page.route("https://a.ppy.sh/**", (route) => route.abort());
+  await page.route("**/api/osu-images/avatar/*", (route) => route.abort());
   for (const [width, appearance, locale, user] of [
     [320, "default", "en", ""],
     [390, "cute-pastel", "zh-Hant", "player"],

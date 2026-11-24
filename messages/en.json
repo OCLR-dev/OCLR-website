@@ -5121,6 +5121,19 @@
     "me372f20a5288": "Show {count} more",
     "m825e5abd0762": "Next match",
     "mdedb8fb6ebed": "No upcoming matches scheduled.",
-    "m5a71a8248d46": "{count} maps"
+    "m5a71a8248d46": "{count} maps",
+    "mdf1bc3c88e2c": "Cache settings saved.",
+    "m5b9844528cbf": "Avatar refreshed for osu! user {id}.",
+    "m2b7c4ca9196b": "Background refreshed for beatmapset {id}.",
+    "m20933b80a8f2": "osu! avatar cache",
+    "m312e7cd3c444": "Beatmap background cache",
+    "me19ed97a2467": "Cache lifetime (hours)",
+    "mf2900d21b434": "Capacity limit (MiB)",
+    "m4c9313b66ed7": "Refresh this avatar",
+    "mafd0fca57bae": "Refresh this background",
+    "mb5d6035a0a7c": "Could not refresh the official image.",
+    "m477f18c1021d": "Official image not found.",
+    "mc5d2b0962ffe": "Image cache is unavailable.",
+    "m38ac90efb434": "Invalid image cache settings or ID."
   }
 }

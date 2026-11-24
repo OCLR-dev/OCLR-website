@@ -61,7 +61,7 @@ test.describe("isolated multi-captain rehearsal", () => {
       ]);
     }
     const page = await context.newPage();
-    await page.route("https://a.ppy.sh/**", (route) =>
+    await page.route("**/api/osu-images/avatar/*", (route) =>
       route.fulfill({
         contentType: "image/svg+xml",
         body: '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="88"><rect width="88" height="88" rx="12" fill="#574066"/><circle cx="44" cy="32" r="14" fill="#d5b1eb"/><path d="M18 78a26 26 0 0 1 52 0" fill="#d5b1eb"/></svg>',
@@ -239,7 +239,7 @@ test.describe("isolated multi-captain rehearsal", () => {
     ).toHaveCount(1);
     await expect(choose.locator("img")).toHaveAttribute(
       "src",
-      `https://a.ppy.sh/${fixture.players[0].osuId}`,
+      `/api/osu-images/avatar/${fixture.players[0].osuId}`,
     );
     expect(
       (

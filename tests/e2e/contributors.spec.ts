@@ -27,7 +27,7 @@ test.describe("compact contributor management (#359)", () => {
         editionSlug: null,
         grantedBy: isMobile ? 70001 : 60001,
       });
-    await context.route("https://a.ppy.sh/**", (route) =>
+    await context.route("**/api/osu-images/avatar/*", (route) =>
       route.fulfill({
         contentType: "image/svg+xml",
         body: '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="88"><rect width="88" height="88" fill="#777"/></svg>',

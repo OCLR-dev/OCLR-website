@@ -33,7 +33,7 @@ test.describe("public draft results navigation", () => {
         archive: { ...historicalArchive, editionSlug: historical },
       },
     ]);
-    await context.route("https://a.ppy.sh/**", (route) => route.abort());
+    await context.route("**/api/osu-images/avatar/*", (route) => route.abort());
     const navigation = page.getByRole("navigation", {
       name: "Tournament navigation",
       exact: true,

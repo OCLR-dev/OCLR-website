@@ -34,7 +34,7 @@ test.describe("complete organizer portraits", () => {
         })
         .onConflictDoNothing();
     }
-    await page.route("https://a.ppy.sh/**", (route) => {
+    await page.route("**/api/osu-images/avatar/*", (route) => {
       const n = Number(route.request().url().split("/").at(-1)) - base;
       if (n === 3) return route.abort();
       return route.fulfill({
@@ -65,7 +65,7 @@ test.describe("complete organizer portraits", () => {
           for (let i = 0; i < 3; i++) {
             const image = cards
               .filter({
-                has: page.locator(`img[src="https://a.ppy.sh/${base + i}"]`),
+                has: page.locator(`img[src="/api/osu-images/avatar/${base + i}"]`),
               })
               .locator("img");
             await expect(image).toHaveCSS("object-fit", "contain");

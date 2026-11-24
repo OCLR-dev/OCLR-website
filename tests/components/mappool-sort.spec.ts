@@ -4,7 +4,7 @@ for (const sort of ["stars", "title"]) {
   test(`compact view preserves ${sort} order and detail navigation`, async ({
     page,
   }) => {
-    await page.route("https://assets.ppy.sh/**", (route) => route.abort());
+    await page.route("**/api/osu-images/{cover,list}/*", (route) => route.abort());
     await page.goto("/mappool-sort");
     const sorting = page.getByRole("combobox", { name: "Sort Exhibition 1" });
     await sorting.selectOption(sort);
@@ -71,7 +71,7 @@ for (const sort of ["stars", "title"]) {
 test("modded SR updates compact order and FM restrictions remain visible", async ({
   page,
 }) => {
-  await page.route("https://assets.ppy.sh/**", (route) => route.abort());
+  await page.route("**/api/osu-images/{cover,list}/*", (route) => route.abort());
   await page.goto("/mappool-sort?fm");
   await page
     .getByRole("combobox", { name: "Sort Exhibition 1" })

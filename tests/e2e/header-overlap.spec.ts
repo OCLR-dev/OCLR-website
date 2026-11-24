@@ -11,7 +11,7 @@ test("the authenticated header routes players directly and lets staff switch wor
   page,
   context,
 }) => {
-  await page.route("https://a.ppy.sh/**", (route) => route.abort());
+  await page.route("**/api/osu-images/avatar/*", (route) => route.abort());
   const origin = "http://127.0.0.1:3100";
   const player = await seedSession(8690002);
   const staff = await seedSession(60001);

@@ -60,7 +60,7 @@ async function seed(page: Page, count = 1) {
   })
     .png()
     .toBuffer();
-  await page.route("https://a.ppy.sh/**", (r) =>
+  await page.route("**/api/osu-images/avatar/*", (r) =>
     r.fulfill({ body: image, contentType: "image/png" }),
   );
   return (
@@ -180,7 +180,7 @@ test.describe("OBS identity and one-time transitions", () => {
       ).toEqual([]);
     }
     // Browser image failure must retain a neutral initials fallback.
-    await page.route("https://a.ppy.sh/**", (r) => r.abort());
+    await page.route("**/api/osu-images/avatar/*", (r) => r.abort());
     await page.reload();
     await expect(page.locator("[data-featured] img")).toHaveCount(0);
     await expect(page.locator("[data-featured]")).toContainText("A ");

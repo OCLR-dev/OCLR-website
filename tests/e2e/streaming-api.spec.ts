@@ -21,7 +21,7 @@ test.describe("streaming API credentials", () => {
       grantedBy: id,
     });
     await context.addCookies([cookie]);
-    await context.route("https://a.ppy.sh/**", (route) => route.abort());
+    await context.route("**/api/osu-images/avatar/*", (route) => route.abort());
     if (isMobile) await page.setViewportSize({ width: 320, height: 844 });
     await page.goto("/dashboard");
     await page.getByRole("button", { name: /Dashboard/ }).click();

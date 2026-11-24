@@ -57,10 +57,10 @@ test.describe("public and operational follow-ups", () => {
     await db().execute(
       sql`TRUNCATE edition_state, users, user_profile_cache CASCADE`,
     );
-    await context.route("https://assets.ppy.sh/**", (r) =>
+    await context.route("**/api/osu-images/{cover,list}/*", (r) =>
       r.fulfill({ contentType: "image/svg+xml", body: landscapeFixture }),
     );
-    await context.route("https://a.ppy.sh/**", (r) =>
+    await context.route("**/api/osu-images/avatar/*", (r) =>
       r.fulfill({ contentType: "image/svg+xml", body: landscapeFixture }),
     );
   });

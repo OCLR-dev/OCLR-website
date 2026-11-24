@@ -25,13 +25,13 @@ test.describe("Dashboard UID participation history", () => {
         sameSite: "Lax",
       },
     ]);
-    await context.route("https://a.ppy.sh/**", (r) =>
+    await context.route("**/api/osu-images/avatar/*", (r) =>
       r.fulfill({
         contentType: "image/svg+xml",
         body: '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><rect width="96" height="96" fill="#5865a8"/></svg>',
       }),
     );
-    await context.route("https://assets.ppy.sh/**", (r) => r.abort());
+    await context.route("**/api/osu-images/{cover,list}/*", (r) => r.abort());
   });
   test.afterAll(closeDb);
   test("shows history-only seasons, scoped links, separate teams and no private/unrelated records", async ({
