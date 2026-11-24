@@ -20,7 +20,7 @@ export default async function DeveloperPage() {
     const tr = await getAppTranslations();
     const context = await listDeveloperTokens(await requireBrowserSession());
     return (
-      <div className="container page auth-page">
+      <div className="container page auth-page api-access-page">
         <PageHeading title={tr("Developer API access")} />
         <DeveloperAccess
           backend={context.backend}

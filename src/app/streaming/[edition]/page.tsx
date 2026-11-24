@@ -27,7 +27,7 @@ export default async function Page({
         ? origin
         : undefined;
     return (
-      <div className="container page auth-page">
+      <div className="container page auth-page api-access-page">
         <PageHeading title={tr("Streaming API access")} />
         <StreamingAccess
           editionSlug={edition}
