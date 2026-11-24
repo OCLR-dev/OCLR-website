@@ -4259,15 +4259,45 @@ html[data-appearance]
 .draft-order-setup h3 {
   margin: 0;
 }
-.draft-captain-order {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1.5rem;
-  padding-left: 1.25rem;
-  margin: 0;
+.draft-order-card {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  background: var(--site-raised);
 }
-.draft-captain-order span {
+.draft-captain-order {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0.75rem 0 0;
+  list-style: none;
+}
+.draft-captain-order > li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: var(--color-surface);
+  overflow-wrap: anywhere;
+}
+.draft-captain-order .small {
   display: block;
+}
+.draft-order-position {
+  min-width: 1.65rem;
+  padding: 0.15rem 0.25rem;
+  border-radius: 0.45rem;
+  text-align: center;
+  font-size: var(--text-support);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  background: var(--site-tint);
+  color: var(--site-accent-strong);
 }
 .draft-order-fields {
   display: grid;

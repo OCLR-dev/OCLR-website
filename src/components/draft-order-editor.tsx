@@ -78,21 +78,28 @@ export function DraftOrderEditor({
   return (
     <ReadOnlyFields>
       <div className="draft-order-setup">
-        <h3>{tr("Pick order")}</h3>
-        <ol
-          className="draft-captain-order"
-          aria-label={tr("Reviewed captain order")}
-        >
-          {data.teams.map(({ team, captainName }) => (
-            <li key={team.id}>
-              <strong>{team.name}</strong>
-              <span className="muted small">
-                {tr("Captain ")}
-                {captainName}
-              </span>
-            </li>
-          ))}
-        </ol>
+        <section className="draft-order-card">
+          <h3>{tr("Pick order")}</h3>
+          <ol
+            className="draft-captain-order"
+            aria-label={tr("Reviewed captain order")}
+          >
+            {data.teams.map(({ team, captainName }, index) => (
+              <li key={team.id}>
+                <span className="draft-order-position" aria-hidden="true">
+                  {index + 1}
+                </span>
+                <div>
+                  <strong>{team.name}</strong>
+                  <span className="muted small">
+                    {tr("Captain ")}
+                    {captainName}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
         <div className="draft-order-fields">
           <label className="field">
             <span>{tr("Order mode")}</span>
