@@ -751,6 +751,39 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "beach-lifeguard": "R",
   "capsule-mechanic": "SSR",
   "mural-painter": "SR",
+  "lolita-pearl-swan": "UR",
+  "lolita-lime-badminton": "SR",
+  "lolita-golden-harp": "SSR",
+  "lolita-twilight-mushroom": "SR",
+  "lolita-indigo-resist-stars": "SR",
+  "lolita-cinnamon-apple": "R",
+  "lolita-lake-sea-glass": "SSR",
+  "lolita-amber-hourglass": "UR",
+  "lolita-blush-paper-crane": "SSR",
+  "lolita-mist-blue-rose": "SSR",
+  "lolita-black-cherry": "SSR",
+  "lolita-jade-peacock": "UR",
+  "lolita-wisteria-garden": "SSR",
+  "lolita-cream-black-cat": "SR",
+  "lolita-peach-carousel": "SSR",
+  "cream-lamb": "SR",
+  "cherry-blossom-bubbles": "R",
+  "sugar-star-ukulele": "SR",
+  "berry-yo-yo": "R",
+  "melon-soda": "R",
+  "penguin-stroll": "R",
+  "lemon-sorbet": "R",
+  "cream-bunny": "R",
+  "bluebell-wind-chime": "SR",
+  "tropical-florist": "SR",
+  "star-pajamas": "R",
+  "retro-bowler": "R",
+  "peach-bear-picnic": "R",
+  "jazz-saxophonist": "SSR",
+  "ink-calligrapher": "SR",
+  "future-botanist": "SR",
+  "duck-raincoat": "R",
+  "city-night-runner": "R",
 };
 
 export function liruGallery(tr: AppTranslator): {
@@ -2302,6 +2335,191 @@ export function liruGallery(tr: AppTranslator): {
       "mural-painter",
       tr("Mural painter"),
       tr("Liru in paint splattered denim overalls with a yellow roller."),
+    ],
+    [
+      "lolita-pearl-swan",
+      tr("Pearl swan"),
+      tr("Liru in a blue dress with pearl trim and a swan bag."),
+    ],
+    [
+      "lolita-lime-badminton",
+      tr("Lime badminton"),
+      tr("Liru in a lime green dress with a racket and shuttlecock."),
+    ],
+    [
+      "lolita-golden-harp",
+      tr("Golden harp"),
+      tr("Liru in a burgundy dress with gold embroidery and a harp."),
+    ],
+    [
+      "lolita-twilight-mushroom",
+      tr("Twilight mushrooms"),
+      tr("Liru in an olive and mauve dress with a mushroom bag."),
+    ],
+    [
+      "lolita-indigo-resist-stars",
+      tr("Indigo dyed stars"),
+      tr(
+        "Liru in an indigo dress with pale stars and a matching fabric swatch.",
+      ),
+    ],
+    [
+      "lolita-cinnamon-apple",
+      tr("Cinnamon apple"),
+      tr(
+        "Liru in a brown plaid dress with an embroidered apron and a red apple.",
+      ),
+    ],
+    [
+      "lolita-lake-sea-glass",
+      tr("Lakeside sea glass"),
+      tr(
+        "Liru in a layered aqua dress with sea glass ornaments and a round pendant.",
+      ),
+    ],
+    [
+      "lolita-amber-hourglass",
+      tr("Amber hourglass"),
+      tr(
+        "Liru in a plum dress with gold hourglass motifs and an amber hourglass.",
+      ),
+    ],
+    [
+      "lolita-blush-paper-crane",
+      tr("Blush paper crane"),
+      tr("Liru in a pink dress with blossom embroidery and a paper crane."),
+    ],
+    [
+      "lolita-mist-blue-rose",
+      tr("Mist blue rose"),
+      tr("Liru in a mist blue dress with pink bows and a rose."),
+    ],
+    [
+      "lolita-black-cherry",
+      tr("Black cherry"),
+      tr("Liru in a burgundy and dark brown dress with cherry embroidery."),
+    ],
+    [
+      "lolita-jade-peacock",
+      tr("Jade peacock"),
+      tr("Liru in a jade green dress with gold embroidery and a peacock fan."),
+    ],
+    [
+      "lolita-wisteria-garden",
+      tr("Wisteria garden"),
+      tr("Liru in a lavender dress with gold trim and a cluster of wisteria."),
+    ],
+    [
+      "lolita-cream-black-cat",
+      tr("Cream and black cat"),
+      tr("Liru in a cream and charcoal dress with a black cat plush."),
+    ],
+    [
+      "lolita-peach-carousel",
+      tr("Peach carousel"),
+      tr(
+        "Liru in a peach dress with a mint bow and a miniature carousel horse.",
+      ),
+    ],
+    [
+      "cream-lamb",
+      tr("Cream lamb"),
+      tr(
+        "Liru in a cream cable knit coat and lavender shorts with a lamb plush.",
+      ),
+    ],
+    [
+      "cherry-blossom-bubbles",
+      tr("Cherry blossom bubbles"),
+      tr("Liru in a pink blossom dress with a bubble wand and bottle."),
+    ],
+    [
+      "sugar-star-ukulele",
+      tr("Sugar star ukulele"),
+      tr("Liru in a lavender jacket with a star decorated ukulele."),
+    ],
+    [
+      "berry-yo-yo",
+      tr("Berry yo-yo"),
+      tr("Liru in a pink cardigan and berry red shorts with a yo-yo."),
+    ],
+    [
+      "melon-soda",
+      tr("Melon soda"),
+      tr("Liru in a mint gingham dress with a cup of melon soda."),
+    ],
+    [
+      "penguin-stroll",
+      tr("Penguin stroll"),
+      tr("Liru in a blue toggle coat with a penguin plush."),
+    ],
+    [
+      "lemon-sorbet",
+      tr("Lemon sorbet"),
+      tr("Liru in a yellow dress with a mint bow and a lemon sorbet cone."),
+    ],
+    [
+      "cream-bunny",
+      tr("Cream bunny"),
+      tr("Liru in a cream fleece coat with bunny ears and a rabbit plush."),
+    ],
+    [
+      "bluebell-wind-chime",
+      tr("Bluebell wind chime"),
+      tr(
+        "Liru in a periwinkle dress with bluebell embroidery and a glass wind chime.",
+      ),
+    ],
+    [
+      "tropical-florist",
+      tr("Tropical florist"),
+      tr("Liru in a coral apron with hibiscus and bird of paradise flowers."),
+    ],
+    [
+      "star-pajamas",
+      tr("Star pajamas"),
+      tr("Liru in lavender star pajamas with a yellow star cushion."),
+    ],
+    [
+      "retro-bowler",
+      tr("Retro bowler"),
+      tr("Liru in a cream and burgundy bowling shirt with a matching ball."),
+    ],
+    [
+      "peach-bear-picnic",
+      tr("Peach bear picnic"),
+      tr("Liru in a peach gingham dress with a bear lunch box."),
+    ],
+    [
+      "jazz-saxophonist",
+      tr("Jazz saxophonist"),
+      tr("Liru in a mustard jacket and plum trousers with a brass saxophone."),
+    ],
+    [
+      "ink-calligrapher",
+      tr("Ink calligrapher"),
+      tr(
+        "Liru in a charcoal robe with a gold sash, calligraphy brush and scroll.",
+      ),
+    ],
+    [
+      "future-botanist",
+      tr("Future botanist"),
+      tr("Liru in a white lab coat with a seedling in a clear case."),
+    ],
+    [
+      "duck-raincoat",
+      tr("Duck raincoat"),
+      tr(
+        "Liru in a yellow raincoat with duck pockets and matching rain boots.",
+      ),
+    ],
+    [
+      "city-night-runner",
+      tr("City night runner"),
+      tr(
+        "Liru in navy running gear with lavender trim and a lime green bottle.",
+      ),
     ],
   ];
   // Saved draws still refer to these images by their original URLs.
