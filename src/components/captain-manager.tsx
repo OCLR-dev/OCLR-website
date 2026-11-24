@@ -40,6 +40,10 @@ export function CaptainManager({
   const [notice, setNotice] = useState("");
   const [dragging, setDragging] = useState<number | null>(null);
   const dragged = useRef<number | null>(null);
+  const [over, setOver] = useState<number | "end" | null>(null);
+  const [pointerName, setPointerName] = useState("");
+  const preview = useRef<HTMLSpanElement>(null);
+  const zone = useRef<HTMLDivElement>(null);
   const { refreshing, refresh } = usePendingRefresh();
   const [revision, setRevision] = useState(setup.version);
   const [published, setPublished] = useState(
@@ -53,6 +57,8 @@ export function CaptainManager({
     setRevision(setup.version);
     setOrder(setup.captains.map((c) => c.userId));
     setDragging(null);
+    setOver(null);
+    setPointerName("");
     setPublished(
       setup.captains.length > 0 && setup.captains.every((c) => c.published),
     );
@@ -133,41 +139,56 @@ export function CaptainManager({
       setPending(false);
     }
   }
-  function drop(target?: number) {
-    const id = dragged.current;
+  function clearDrag() {
     dragged.current = null;
     setDragging(null);
-    if (id === null || !editable) return;
+    setOver(null);
+    setPointerName("");
+  }
+  function drop(target?: number) {
+    const id = dragged.current;
+    clearDrag();
+    if (id === null || id === target || !editable) return;
     if (order.includes(id)) move(id, target);
     else void appoint(id);
   }
-  function pointerStart(event: PointerEvent<HTMLElement>, id: number) {
-    if (!editable || event.button !== 0) return;
-    event.preventDefault();
-    dragged.current = id;
-    setDragging(id);
-    event.currentTarget.setPointerCapture(event.pointerId);
+  function destination(hit: Element | null) {
+    if (!hit || !zone.current?.contains(hit)) return null;
+    const target = hit.closest<HTMLElement>("[data-captain-id]");
+    return target && order.includes(dragged.current!)
+      ? Number(target.dataset.captainId)
+      : "end";
   }
-  function pointerEnd(event: PointerEvent<HTMLElement>) {
-    const hit = document.elementFromPoint(event.clientX, event.clientY);
-    const target = hit?.closest<HTMLElement>("[data-captain-id]");
-    if (target) drop(Number(target.dataset.captainId));
-    else if (hit?.closest("[data-captain-drop]")) drop();
-    else {
-      dragged.current = null;
-      setDragging(null);
-    }
+  function pointAt(event: PointerEvent<HTMLElement>) {
+    if (preview.current)
+      preview.current.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0)`;
+    return destination(document.elementFromPoint(event.clientX, event.clientY));
   }
-  const handle = (id: number) => (
+  const handle = (id: number, username: string) => (
     <span
       className="captain-drag-handle"
       aria-hidden="true"
-      onPointerDown={(event) => pointerStart(event, id)}
-      onPointerUp={pointerEnd}
-      onPointerCancel={() => {
-        dragged.current = null;
-        setDragging(null);
+      onPointerDown={(event) => {
+        if (!editable || !event.isPrimary || event.button !== 0) return;
+        event.preventDefault();
+        dragged.current = id;
+        setDragging(id);
+        setPointerName(username);
+        setOver(pointAt(event));
+        event.currentTarget.setPointerCapture(event.pointerId);
       }}
+      onPointerMove={(event) => {
+        if (event.currentTarget.hasPointerCapture(event.pointerId))
+          setOver(pointAt(event));
+      }}
+      onPointerUp={(event) => {
+        if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+        const target = pointAt(event);
+        if (target === null) clearDrag();
+        else drop(target === "end" ? undefined : target);
+      }}
+      onLostPointerCapture={clearDrag}
+      onPointerCancel={clearDrag}
     >
       ⠿
     </span>
@@ -204,7 +225,15 @@ export function CaptainManager({
       <p className="sr-only" role="status" aria-live="polite">
         {notice}
       </p>
-      <div className="captain-board">
+      <span
+        ref={preview}
+        className={styles.dragPreview}
+        hidden={!dragging || !pointerName || !editable}
+        aria-hidden="true"
+      >
+        {pointerName}
+      </span>
+      <div className={`captain-board ${styles.board}`}>
         <section
           className="panel form-stack"
           aria-labelledby="captain-order-heading"
@@ -231,11 +260,29 @@ export function CaptainManager({
           </p>
           <div
             className={`captain-drop-zone${dragging !== null ? " is-dragging" : ""}`}
+            ref={zone}
+            data-placement={
+              dragging !== null && over === "end" ? "end" : undefined
+            }
             data-captain-drop
             role="group"
             aria-label={tr("Captain appointment area")}
             onDragOver={(event) => {
-              if (editable) event.preventDefault();
+              if (!editable || dragged.current === null) return;
+              event.preventDefault();
+              event.dataTransfer.dropEffect = "move";
+              setOver(
+                destination(
+                  event.target instanceof Element ? event.target : null,
+                ),
+              );
+            }}
+            onDragLeave={(event) => {
+              if (
+                !(event.relatedTarget instanceof Node) ||
+                !event.currentTarget.contains(event.relatedTarget)
+              )
+                setOver(null);
             }}
             onDrop={(event) => {
               event.preventDefault();
@@ -251,8 +298,19 @@ export function CaptainManager({
                   <li
                     key={c.userId}
                     data-captain-id={c.userId}
+                    data-drag-source={dragging === c.userId || undefined}
+                    data-placement={
+                      over === c.userId &&
+                      dragging !== null &&
+                      c.userId !== dragging
+                        ? order.indexOf(dragging) < index
+                          ? "after"
+                          : "before"
+                        : undefined
+                    }
                     draggable={editable}
                     onDragStart={(event) => {
+                      event.dataTransfer.effectAllowed = "move";
                       dragged.current = c.userId;
                       setDragging(c.userId);
                       event.dataTransfer.setData(
@@ -260,20 +318,14 @@ export function CaptainManager({
                         String(c.userId),
                       );
                     }}
-                    onDragEnd={() => {
-                      dragged.current = null;
-                      setDragging(null);
-                    }}
-                    onDragOver={(event) => {
-                      if (editable) event.preventDefault();
-                    }}
+                    onDragEnd={clearDrag}
                     onDrop={(event) => {
                       event.preventDefault();
                       event.stopPropagation();
                       drop(c.userId);
                     }}
                   >
-                    {editable && handle(c.userId)}
+                    {editable && handle(c.userId, c.username)}
                     <span className="captain-position">{index + 1}</span>
                     <CaptainPlayerCard
                       userId={c.userId}
@@ -434,18 +486,17 @@ export function CaptainManager({
                   className="captain-player-card"
                   key={p.userId}
                   data-player-id={p.userId}
+                  data-drag-source={dragging === p.userId || undefined}
                   draggable={editable && !changed}
                   onDragStart={(event) => {
+                    event.dataTransfer.effectAllowed = "move";
                     dragged.current = p.userId;
                     setDragging(p.userId);
                     event.dataTransfer.setData("text/plain", String(p.userId));
                   }}
-                  onDragEnd={() => {
-                    dragged.current = null;
-                    setDragging(null);
-                  }}
+                  onDragEnd={clearDrag}
                 >
-                  {editable && !changed && handle(p.userId)}
+                  {editable && !changed && handle(p.userId, p.username)}
                   <CaptainPlayerCard
                     userId={p.userId}
                     username={p.username}

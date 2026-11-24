@@ -253,3 +253,25 @@ test("publication switches and pagination fit a narrow screen", async ({
     expect(bounds!.height).toBeGreaterThanOrEqual(44);
   }
 });
+
+test("previews an appointment at the end of the list and cancels outside the board", async ({
+  page,
+}) => {
+  await page.goto("/captain-manager?count=1&publication");
+  const player = page.locator("[data-player-id]").first();
+  const handle = player.locator(".captain-drag-handle");
+  const zone = page.getByRole("group", { name: "Captain appointment area" });
+  await handle.scrollIntoViewIfNeeded();
+  await handle.hover();
+  await page.mouse.down();
+  await expect(player).toHaveAttribute("data-drag-source", "true");
+  await zone.scrollIntoViewIfNeeded();
+  const box = (await zone.boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await expect(zone).toHaveAttribute("data-placement", "end");
+  await page.mouse.move(1, 1);
+  await page.mouse.up();
+  await expect(zone).not.toHaveAttribute("data-placement");
+  await expect(player).not.toHaveAttribute("data-drag-source");
+  await expect(zone.locator("[data-captain-id]")).toHaveCount(1);
+});
