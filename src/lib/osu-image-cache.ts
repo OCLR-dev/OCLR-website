@@ -17,9 +17,9 @@ import {
   type ImageKind,
   type ImageVariant,
 } from "./osu-image-urls";
-import type {
-  OsuImageCommand,
-  OsuImagePolicy,
+import {
+  manageOsuImagesWrite,
+  type OsuImagePolicy,
 } from "./admin-operations-write-contracts";
 
 type Transaction = Parameters<
@@ -223,9 +223,13 @@ export async function imagePoliciesForAdmin(actor: User) {
   return db().select().from(osuImagePolicies).orderBy(osuImagePolicies.kind);
 }
 
-export async function manageOsuImages(actor: User, command: OsuImageCommand) {
+export async function manageOsuImages(actor: User, input: unknown) {
   assertUserWriteChannel();
   await assertCapability(actor, "configure_tournament");
+  const parsed = manageOsuImagesWrite.request.safeParse(input);
+  if (!parsed.success)
+    throw new HttpError(400, "Invalid image cache settings or ID.");
+  const command = parsed.data;
   return db().transaction(async (tx) => {
     const { kind } = command;
     if (command.action === "refresh") {
