@@ -5,6 +5,8 @@ import {
 } from "@/db/schema";
 import { and, asc, eq, gt, lte } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
+import { fetch as discordFetch } from "undici";
+import { z } from "zod";
 import { getPublicEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { discordWebhookUrl } from "./discord-result-contract";
@@ -23,6 +25,33 @@ type Outcome =
   | { status: "attention" | "cancelled"; failure: Failure }
   | { status: "retry"; failure: Failure; delay: number }
   | { status: "superseded" };
+
+type WebhookResponse = {
+  ok: boolean;
+  status: number;
+  headers: Pick<Headers, "get">;
+  body: { cancel(): Promise<void> } | null;
+  json(): Promise<unknown>;
+};
+type WebhookFetch = (
+  url: string,
+  init: {
+    method: "PATCH" | "POST";
+    headers: Record<string, string>;
+    body: string;
+    signal: AbortSignal;
+    redirect: "error";
+  },
+) => Promise<WebhookResponse>;
+
+const messageReceipt = z.object({ id: z.string().regex(/^[1-9]\d{16,19}$/) });
+const rateLimitReceipt = z.object({ retry_after: z.number().nonnegative() });
+function retryMilliseconds(seconds: number) {
+  const delay = Math.ceil(seconds * 1000);
+  return Number.isSafeInteger(delay) && Date.now() + delay <= 8.64e15
+    ? Math.max(1_000, delay)
+    : 30_000;
+}
 
 const claimKey = (job: Job) =>
   and(
@@ -81,32 +110,31 @@ async function claimDiscordResult(now: Date): Promise<Job | null> {
   });
 }
 
-async function retryDelay(response: Response) {
+async function retryDelay(response: WebhookResponse) {
   const header = response.headers.get("retry-after");
   const seconds = header === null ? NaN : Number(header);
   if (seconds >= 0 && Number.isFinite(seconds)) {
     await response.body?.cancel().catch(() => undefined);
-    return Math.max(1000, Math.ceil(seconds * 1000));
+    return retryMilliseconds(seconds);
   }
   const at = header ? Date.parse(header) : NaN;
   if (Number.isFinite(at)) {
     await response.body?.cancel().catch(() => undefined);
-    return Math.max(1000, at - Date.now());
+    return retryMilliseconds((at - Date.now()) / 1000);
   }
-  const payload = await response.json().catch(() => null);
-  const value = payload?.retry_after;
-  return typeof value === "number" && value >= 0 && Number.isFinite(value)
-    ? Math.max(1000, Math.ceil(value * 1000))
-    : 30_000;
+  const parsed = rateLimitReceipt.safeParse(
+    await response.json().catch(() => null),
+  );
+  return parsed.success ? retryMilliseconds(parsed.data.retry_after) : 30_000;
 }
 
 async function deliver(
   url: string,
   payload: ReturnType<typeof discordResultMessage>,
   messageId: string | null,
-  request: typeof fetch,
+  request: WebhookFetch,
 ): Promise<Outcome> {
-  let response: Response;
+  let response: WebhookResponse;
   try {
     response = await request(
       messageId ? `${url}/messages/${messageId}` : `${url}?wait=true`,
@@ -135,11 +163,11 @@ async function deliver(
       : { status: "attention", failure: "uncertain" };
   }
   if (response.ok) {
-    const value = await response.json().catch(() => null);
-    return typeof value?.id === "string" &&
-      /^[1-9]\d{16,19}$/.test(value.id) &&
-      (!messageId || value.id === messageId)
-      ? { status: "sent", messageId: value.id }
+    const parsed = messageReceipt.safeParse(
+      await response.json().catch(() => null),
+    );
+    return parsed.success && (!messageId || parsed.data.id === messageId)
+      ? { status: "sent", messageId: parsed.data.id }
       : { status: "attention", failure: "uncertain" };
   }
   if (response.status === 429)
@@ -165,7 +193,7 @@ type Runtime = NonNullable<ReturnType<typeof discordResultRuntime>>;
 async function sendDiscordResult(
   job: Job,
   runtime: Runtime,
-  request: typeof fetch,
+  request: WebhookFetch,
 ): Promise<Outcome> {
   const edition =
     job.publishedRevision === null
@@ -288,7 +316,10 @@ async function completeDiscordResult(job: Job, outcome: Outcome) {
   });
 }
 
-export async function drainDiscordResults(request: typeof fetch = fetch) {
+// Direct Undici avoids Next's fetch tracing, which records complete URLs.
+export async function drainDiscordResults(
+  request: WebhookFetch = discordFetch,
+) {
   const runtime = discordResultRuntime();
   if (!runtime || remoteMode() || !process.env.DATABASE_URL) return;
   for (let index = 0; index < 8; index++) {
