@@ -1,4 +1,5 @@
 import type { UIMessage } from "ai";
+import { messageText } from "./chat-turn-context";
 import { z } from "zod";
 
 const turnLimit = 20;
@@ -65,16 +66,11 @@ export function saveLiruTurn(key: string, messages: UIMessage[]) {
   const question = messages.at(-2);
   const answer = messages.at(-1);
   if (question?.role !== "user" || answer?.role !== "assistant") return;
-  const text = (m: UIMessage) =>
-    m.parts
-      .filter((p) => p.type === "text")
-      .map((p) => p.text)
-      .join("\n");
   const result = turn.safeParse({
     questionId: question.id,
-    question: text(question),
+    question: messageText(question),
     answerId: answer.id,
-    answer: text(answer),
+    answer: messageText(answer),
     sources: answer.parts
       .filter(
         (p) => p.type === "source-url" && sourceUrl.safeParse(p.url).success,

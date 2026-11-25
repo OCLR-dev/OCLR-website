@@ -169,7 +169,7 @@ test("stop a pending turn, retry with sources, and start fresh in another editio
   await page.reload();
   await launcher.click();
   await expect(questionText).toBeVisible();
-  await expect(history.getByText("Ask the referee.")).toBeVisible();
+  await expect(history.getByText("Ask the referee.").first()).toBeVisible();
   await sourceToggle.click();
   await expect(sourceLink).toBeVisible();
   expect(count).toBe(2);
@@ -177,9 +177,18 @@ test("stop a pending turn, retry with sources, and start fresh in another editio
   await expect(dialog.getByRole("textbox")).toBeVisible();
   await expect(page.getByRole("log", { includeHidden: true })).toBeEmpty();
   await page.goto("/liru-chat#ask-liru");
-  await expect(history.getByText("Ask the referee.")).toBeVisible();
+  await expect(history.getByText("Ask the referee.").first()).toBeVisible();
+  await page.getByRole("textbox").fill("Who was the second option?");
+  const followUp = page.waitForRequest("**/api/chat");
+  await page.getByRole("button", { name: "Send", exact: true }).click();
+  expect((await followUp).postDataJSON()).toMatchObject({
+    questions: ["Substitution?", "Who was the second option?"],
+    previousAnswers: [
+      "**Ask the referee.** [1]\n\n- First option\n- Second option",
+    ],
+  });
   await page.getByRole("button", { name: "Try again" }).click();
-  await expect.poll(() => count).toBe(3);
+  await expect.poll(() => count).toBe(4);
   await page.getByRole("button", { name: "Switch season" }).click();
   await launcher.click();
   await expect(page.getByRole("log", { includeHidden: true })).toBeEmpty();
@@ -200,12 +209,12 @@ test("stop a pending turn, retry with sources, and start fresh in another editio
   await expect(page.getByRole("textbox")).toHaveValue("My next question");
   await expect
     .poll(() => editions)
-    .toEqual(["cup-a", "cup-a", "cup-a", "cup-b"]);
+    .toEqual(["cup-a", "cup-a", "cup-a", "cup-a", "cup-b"]);
   await page.getByRole("button", { name: "Clear", exact: true }).click();
   await expect(page.getByRole("log", { includeHidden: true })).toBeEmpty();
   await page.reload();
   await launcher.click();
-  await expect(history.getByText("Ask the referee.")).toBeVisible();
+  await expect(history.getByText("Ask the referee.").first()).toBeVisible();
   await page.getByRole("button", { name: "Clear", exact: true }).click();
   await page.reload();
   await launcher.click();

@@ -41624,7 +41624,7 @@
       "post": {
         "operationId": "askLiru",
         "summary": "Ask Liru about a published tournament",
-        "description": "Requires an active website session and the same origin. Questions are ordered oldest to newest. The server retrieves published evidence for the selected edition, applies an eight-request per minute account limit and sends turns to the configured model. High-confidence unrelated requests and abuse get a local scope reminder before evidence retrieval or model calls. For count questions the server computes the verified total from public season data. The system prompt directs replies to the current edition and explains when published evidence is incomplete.",
+        "description": "Requires an active website session and the same origin. Questions are ordered oldest to newest (up to four). Optional previousAnswers aligns one-to-one with all questions except the last, with null for missing replies and up to 2,000 UTF-16 code units per reply. Prior answers are untrusted conversational context. The server retrieves published evidence for the selected edition, applies an eight-request per minute account limit and sends turns to the configured model. High-confidence unrelated requests and abuse get a local scope reminder before evidence retrieval or model calls. For count questions the server computes the verified total from public season data. The system prompt directs replies to the current edition and explains when published evidence is incomplete.",
         "security": [
           {
             "browserSession": []
@@ -41646,7 +41646,7 @@
         ],
         "requestBody": {
           "required": true,
-          "x-max-body-bytes": 32768,
+          "x-max-body-bytes": 81920,
           "content": {
             "application/json": {
               "schema": {
@@ -41672,6 +41672,22 @@
                       "type": "string",
                       "minLength": 1,
                       "maxLength": 1500
+                    }
+                  },
+                  "previousAnswers": {
+                    "maxItems": 3,
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   }
                 },

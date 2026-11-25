@@ -79,7 +79,7 @@ export function LiruChatLauncher({
           <>
             <p className={styles.disclosure}>
               {tr(
-                "Your question, recent questions and relevant public tournament information are sent to the configured AI provider.",
+                "This device keeps your last 20 completed turns. Your question, up to 3 recent question-and-answer pairs and relevant public tournament information are sent to the configured AI provider.",
               )}
             </p>
             <Suspense fallback={null}>

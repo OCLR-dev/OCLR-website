@@ -49,16 +49,22 @@ export async function POST(request: Request) {
     stage = "retrieval";
     const retrievalStarted = performance.now();
     const question = questions.at(-1)!;
-    const previousQuestions = questions
+    const previousTurns = questions
       .slice(0, -1)
-      .filter((previous) => !chatRequestBlockReason(previous));
+      .map((question, i) => ({
+        question,
+        answer: input.data.previousAnswers?.[i] ?? null,
+      }))
+      .filter((turn) => !chatRequestBlockReason(turn.question));
+    const lastTurn = previousTurns.at(-1);
     const evidence = await chatEvidence(
       edition,
       question,
-      previousQuestions.at(-1) ?? "",
+      lastTurn?.question ?? "",
       Date.now(),
       request.signal,
       (error) => trace("embedding_fallback", undefined, safeChatError(error)),
+      lastTurn?.answer ?? "",
     );
     if (evidence.blocked) {
       stage = "scope_filter";
@@ -96,7 +102,8 @@ export async function POST(request: Request) {
       config,
       evidence,
       locale,
-      questions: [...previousQuestions, question],
+      question,
+      previousTurns,
       signal: request.signal,
     });
   } catch (error) {
