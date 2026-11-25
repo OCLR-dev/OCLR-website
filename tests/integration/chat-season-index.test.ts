@@ -587,6 +587,7 @@ it.skipIf(!url)(
       mode: "osu" as const,
       ar: 9,
       bpm: 170,
+      duration: 90,
       stars: 5.5,
     };
     await db()
