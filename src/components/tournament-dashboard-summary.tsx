@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { competitionStageLabel } from "@/lib/competition-stage";
 import type { AppTranslator } from "@/i18n/translate";
 import type { captainSetup } from "@/lib/captain-reads";
 import type { MappoolWorkspace } from "@/lib/mappool-reads";
@@ -22,6 +23,25 @@ function nextScheduled<
     }
   }
   return next;
+}
+
+function poolsByStage(workspace: MappoolWorkspace) {
+  // Workspace rounds follow the stage and the organizer's saved round order.
+  const rounds = new Map(
+    workspace.rounds.map((round, index) => [
+      round.id,
+      { stage: round.stage, index },
+    ]),
+  );
+  const ordered = workspace.pools.toSorted(
+    (a, b) =>
+      (rounds.get(a.roundId)?.index ?? rounds.size) -
+      (rounds.get(b.roundId)?.index ?? rounds.size),
+  );
+  return Map.groupBy(
+    ordered,
+    (pool) => rounds.get(pool.roundId)?.stage ?? "unknown",
+  );
 }
 
 export function TournamentDashboardSummary({
@@ -149,24 +169,29 @@ export function TournamentDashboardSummary({
             <span className="badge">{pools.pools.length}</span>
           </h2>
           {pools.pools.length ? (
-            <ul className={styles.list}>
-              {pools.pools.map((p) => (
-                <li key={p.id} className={styles.pool}>
-                  <strong>{p.name}</strong>
-                  <small>
-                    {tr("{count} maps", {
-                      count: mapCounts.get(p.id) ?? 0,
-                    })}
-                  </small>
-                  <span
-                    className={styles.status}
-                    data-published={p.publishedAt ? true : undefined}
-                  >
-                    {p.publishedAt ? tr("Published") : tr("Unpublished")}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            Array.from(poolsByStage(pools), ([stage, group]) => (
+              <div className={styles.stage} key={stage}>
+                <h3>{tr(competitionStageLabel(stage))}</h3>
+                <ul className={styles.list}>
+                  {group.map((p) => (
+                    <li key={p.id} className={styles.pool}>
+                      <strong>{p.name}</strong>
+                      <small>
+                        {tr("{count} maps", {
+                          count: mapCounts.get(p.id) ?? 0,
+                        })}
+                      </small>
+                      <span
+                        className={styles.status}
+                        data-published={p.publishedAt ? true : undefined}
+                      >
+                        {p.publishedAt ? tr("Published") : tr("Unpublished")}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
           ) : (
             <p className="muted">{tr("No mappools recorded.")}</p>
           )}

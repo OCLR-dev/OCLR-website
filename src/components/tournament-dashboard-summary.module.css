@@ -109,3 +109,12 @@
   background: color-mix(in srgb, var(--site-success) 12%, var(--color-surface));
   color: var(--site-success);
 }
+.stage + .stage {
+  margin-block-start: 1rem;
+}
+.stage h3 {
+  margin: 0;
+  padding-block: 0.75rem 0.25rem;
+  color: var(--color-muted);
+  font-size: var(--text-support);
+}
