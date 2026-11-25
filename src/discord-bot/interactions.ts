@@ -42,7 +42,6 @@ const deferred = {
   status: 200,
   body: {
     type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-    data: ephemeral,
   },
 };
 

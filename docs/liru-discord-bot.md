@@ -4,7 +4,8 @@ Liru lets members of the configured Discord server query published OCLR records
 with `/oclr profile`, `/oclr history`, `/oclr tournament`, and `/oclr mra`.
 Player arguments accept an osu! username, numeric ID, or canonical osu! player
 URL. Season arguments use the last segment of the OCLR tournament URL, such as
-`s11`. Replies are visible to the invoking member and include links to the source.
+`s11`. Query replies appear in the Discord channel and link to the source.
+Invalid-command and rate-limit notices are visible only to the invoking member.
 Discord uses the member's language for English, Traditional Chinese, and
 Simplified Chinese. Other languages receive the site's Simplified Chinese default.
 

@@ -458,7 +458,7 @@ describe("Liru Discord interactions", () => {
     expect(request).not.toHaveBeenCalled();
   });
 
-  it("acknowledges before reading, edits only the original ephemeral message, and limits each user", async () => {
+  it("acknowledges publicly before reading, edits the original response, and keeps rate limits private", async () => {
     const request = vi.fn<Fetch>(async (input) => {
       const url = target(input);
       if (url.origin === "https://discord.com")
@@ -474,7 +474,7 @@ describe("Liru Discord interactions", () => {
     const payload = (id: number) =>
       signed({ ...invocation, id: `1234567890123456${id}` });
     const first = await handler(payload(81));
-    expect(first.body).toEqual({ type: 5, data: { flags: 64 } });
+    expect(first.body).toEqual({ type: 5 });
     expect(request).not.toHaveBeenCalled();
     expect((await handler(payload(81))).finish).toBeUndefined();
     await first.finish?.();
