@@ -28,6 +28,8 @@ import { edition } from "../fixtures/edition";
 import { historicalArchive } from "../fixtures/historical-archive";
 import { assertTestDatabase } from "../database";
 
+vi.mock("server-only", () => ({}));
+
 const url = process.env.TEST_DATABASE_URL;
 const archived = {
   ...edition,
@@ -310,7 +312,11 @@ it.skipIf(!url)(
 
     expect((await refreshChatIndex()).failed).toBe(0);
     const stored = await db()
-      .select({ url: vectors.url, content: vectors.content })
+      .select({
+        url: vectors.url,
+        content: vectors.content,
+        title: vectors.title,
+      })
       .from(vectors)
       .where(eq(vectors.editionSlug, slug));
     for (const section of ["teams", "draft", "schedule"])
@@ -390,16 +396,32 @@ it.skipIf(!url)(
         target: otrRatingCache.osuId,
         set: { rating: sql`excluded.rating` },
       });
+    const indicator = {
+      name: "HD",
+      value: -2.1,
+      sr: 5.2,
+      pp: 40,
+      globalRank: 8,
+      countryRank: 2,
+      accuracy: 0.75,
+      combo: 0.25,
+    };
+    const snapshot = {
+      rating: indicator,
+      modifications: { Hidden: indicator },
+      skillsets: { Aim: { ...indicator, name: "Aim", value: 0 } },
+    };
     await db()
       .insert(sipRatingCache)
       .values({
         osuId: accepted.osuId,
         value: -2.1,
+        snapshot,
         fetchedAt: savedAt,
       })
       .onConflictDoUpdate({
         target: sipRatingCache.osuId,
-        set: { value: -2.1, fetchedAt: savedAt },
+        set: { value: -2.1, snapshot, fetchedAt: savedAt },
       });
     await db()
       .insert(importedPlayerRatings)
@@ -409,6 +431,9 @@ it.skipIf(!url)(
           userId: player.osuId,
           source: "etx" as const,
           value: 9,
+          provisional: false,
+          outdated: false,
+          etxMods: { HR: 3.9 },
         })),
       );
     await db()
@@ -416,7 +441,12 @@ it.skipIf(!url)(
       .values([
         {
           osuId: accepted.osuId,
-          rating: { value: 5.8, provisional: true, outdated: false },
+          rating: {
+            value: 5.8,
+            provisional: true,
+            outdated: false,
+            mods: { HD: 4.7 },
+          },
           fetchedAt: savedAt,
           attemptedOn: "2026-11-25",
         },
@@ -462,7 +492,11 @@ it.skipIf(!url)(
 
     const indexed = () =>
       db()
-        .select({ url: vectors.url, content: vectors.content })
+        .select({
+          url: vectors.url,
+          content: vectors.content,
+          title: vectors.title,
+        })
         .from(vectors)
         .where(
           and(
@@ -473,8 +507,54 @@ it.skipIf(!url)(
     expect((await refreshChatIndex()).failed).toBe(0);
     const first = await indexed();
     expect(calls.flat().join(" ")).not.toContain(pending.username);
+    const ratingContent = (title: string) =>
+      JSON.parse(first.find((row) => row.title === title)!.content);
+    expect(ratingContent(accepted.username + " · ETX MOD")).toMatchObject({
+      mods: { HD: 4.7 },
+      source: "api",
+      provisional: true,
+    });
+    expect(ratingContent(second.username + " · ETX MOD")).toMatchObject({
+      mods: { HR: 3.9 },
+      source: "csv",
+    });
+    expect(
+      ratingContent(accepted.username + " · SIP MOD · Hidden (HD)"),
+    ).toMatchObject({
+      value: -2.1,
+      modelComboShare: 0.25,
+      globalRank: 8,
+    });
+    expect(
+      ratingContent(accepted.username + " · SIP skillset · Aim"),
+    ).toMatchObject({ value: 0 });
+    const linkedRatings = await chatEvidence(
+      "s11",
+      "他的 SIP HD 評分呢？",
+      "https://oclr.org/players/" + accepted.osuId,
+    );
+    expect(
+      JSON.parse(linkedRatings.sources[0].text).publishedRatings.sip.snapshot
+        .modifications.Hidden,
+    ).toMatchObject(indicator);
+    expect(
+      (
+        await searchSeasonIndex(
+          s11,
+          accepted.username + " SIP HD",
+          "",
+          undefined,
+          "players",
+        )
+      ).some(
+        (source) =>
+          source.title === accepted.username + " · SIP MOD · Hidden (HD)",
+      ),
+    ).toBe(true);
     const doc = first.find(
-      (row) => row.url === `/players/${accepted.osuId}?edition=s11`,
+      (row) =>
+        row.url === `/players/${accepted.osuId}?edition=s11` &&
+        row.title === accepted.username,
     );
     expect(JSON.parse(doc!.content)).toMatchObject({
       rank: 5000,
@@ -486,8 +566,11 @@ it.skipIf(!url)(
     });
     expect(
       JSON.parse(
-        first.find((row) => row.url === `/players/${second.osuId}?edition=s11`)!
-          .content,
+        first.find(
+          (row) =>
+            row.url === `/players/${second.osuId}?edition=s11` &&
+            row.title === second.username,
+        )!.content,
       ),
     ).toMatchObject({
       etx: null,
@@ -509,8 +592,17 @@ it.skipIf(!url)(
         },
       })
       .where(eq(otrRatingCache.osuId, accepted.osuId));
+    await db()
+      .update(sipRatingCache)
+      .set({ snapshot: { ...snapshot, modifications: null } })
+      .where(eq(sipRatingCache.osuId, accepted.osuId));
     const refreshed = await refreshChatIndex();
     expect(refreshed.failed).toBe(0);
+    expect(
+      (await indexed()).some(
+        (row) => row.title === accepted.username + " · SIP MOD · Hidden (HD)",
+      ),
+    ).toBe(false);
     expect(refreshed.updated).toBeGreaterThan(0);
     expect(refreshed.removed).toBeGreaterThan(0);
     expect(

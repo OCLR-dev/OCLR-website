@@ -1,3 +1,8 @@
+import { readOnlyData } from "@/db";
+import { playerRatingSources } from "./chat-rating-sources";
+import { readListedPlayerRatings } from "./listed-player-ratings";
+import { eventPreview } from "./event-preview";
+import { importedRatingsEdition } from "./player-rating-import-contract";
 import { artworkSources } from "./chat-artwork";
 import { registrationCount } from "./chat-registration";
 import type { Edition } from "./editions";
@@ -108,16 +113,26 @@ export async function seasonContent(
       break;
     }
     case "players": {
-      const total = await registrationCount(e);
-      if (total) rows.push(total.source);
-      const players = await chatDirectoryPlayers(e);
-      rows.push(...chatPlayerDirectorySources(e.slug, players));
-      for (const player of players)
-        add(`/players/${player.id}?edition=${e.slug}`, player.name, {
-          category: "player",
-          ...player,
-        });
-      break;
+      return readOnlyData(async () => {
+        const total = await registrationCount(e);
+        if (total) rows.push(total.source);
+        const players = await chatDirectoryPlayers(e);
+        rows.push(...chatPlayerDirectorySources(e.slug, players));
+        const ratings = eventPreview(e.slug)
+          ? null
+          : await readListedPlayerRatings(
+              players.map((player) => player.id),
+              e.slug === importedRatingsEdition && !archive,
+            );
+        for (const player of players) {
+          const url = `/players/${player.id}?edition=${e.slug}`;
+          add(url, player.name, { category: "player", ...player });
+          const details = ratings?.get(player.id);
+          if (details)
+            rows.push(...playerRatingSources(player.name, url, details));
+        }
+        return rows;
+      });
     }
     case "teams": {
       const teams = archive

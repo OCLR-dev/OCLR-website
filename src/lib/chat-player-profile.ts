@@ -11,6 +11,11 @@ function playerTarget(question: string) {
     .trim()
     .replace(/[?？!！。]+$/, "")
     .trim();
+  // A rating question may include a public profile link next to the question.
+  const ratingLink = query.match(
+    /(?:^|\s)https:\/\/oclr\.org\/players\/([1-9]\d*)(?:\/)?(?:\?edition=[a-z0-9-]+)?(?=[\s，。]|$)/i,
+  );
+  if (ratingLink && /\b(?:ETX|SIP)\b/i.test(query)) return ratingLink[1];
   const link = query.match(
     /^(?:https:\/\/oclr\.org)?\/players\/([^/?#]+)\/?(?:\?edition=[a-z0-9-]+)?$/i,
   )?.[1];
@@ -24,6 +29,10 @@ function playerTarget(question: string) {
   const name =
     query.match(
       /^(?:請問|请问)?\s*(.+?)\s*(?:是[誰谁]|的(?:[個个]人[資资]料|[資资]料|[隊队]伍|排名|[賽赛]果|[戰战][績绩]|[參参][賽赛][紀纪記记][錄录]|pp)|打[過过]哪些[賽赛]季)$/i,
+    )?.[1] ??
+    query.match(/^(?:請問|请问)?\s*(.+?)\s*的\s*(?:ETX|SIP)\b/i)?.[1] ??
+    query.match(
+      /^(?:(?:what (?:is|are)|show me)\s+)?(.+?)[’']s\s+(?:ETX|SIP)\b/i,
     )?.[1] ??
     query.match(/^(?:who is|who's|tell me about)\s+(.+)$/i)?.[1] ??
     query.match(
@@ -39,7 +48,12 @@ export async function chatPlayerProfile(
 ): Promise<ChatSource | null> {
   const followUp =
     /^(?:是的?|[對对](?:的)?|yes|correct|(?:那)?(?:他|她)(?:的)?(?:排名|[戰战][績绩]|[隊队]伍|pp)(?:呢)?|(?:what about |and )?(?:their|his|her) (?:team|rank|pp|record))\s*[?？!！。.]?$/i;
+  const ratingFollowUp =
+    /^(?:(?:那)?[他她]的?\s*|(?:what about |and )?(?:their|his|her)\s+)(?:ETX|SIP)\b/i.test(
+      question.trim(),
+    );
   const target =
+    (ratingFollowUp ? playerTarget(previous) : null) ??
     playerTarget(question) ??
     (followUp.test(question.trim()) ? playerTarget(previous) : null);
   if (!target || !addressableUsername(target)) return null;
@@ -126,6 +140,9 @@ export async function chatPlayerProfile(
           sip: ratings.sip.api && {
             value: ratings.sip.api.value,
             fetchedAt: ratings.sip.api.fetchedAt,
+            ...(/\bSIP\b/i.test(question + " " + previous) && {
+              snapshot: ratings.sip.api.snapshot,
+            }),
           },
           s11SipImport: ratings.sip.csv,
           etx: ratings.etx,
