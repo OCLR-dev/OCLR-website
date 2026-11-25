@@ -153,6 +153,7 @@ createServer((request, response) => {
     response.setHeader("Content-Type", "text/css; charset=utf-8");
     response.end(readFileSync(resolve("public", `.${request.url}`)));
   } else if (
+    request.url === "/mascot/liru/chat-launcher.webp" ||
     request.url === "/mascot/liru/chat-icon.webp" ||
     request.url === "/mascot/liru/chat-wink.webp" ||
     themeAssets.has(request.url ?? "") ||

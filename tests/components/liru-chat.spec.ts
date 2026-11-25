@@ -119,10 +119,17 @@ test("stop a pending turn, retry with sources, and start fresh in another editio
       portrait.evaluate((image: HTMLImageElement) => image.naturalWidth),
     )
     .toBe(160);
-  await expect(launcher.locator("[aria-hidden=true]")).toHaveCSS(
-    "mask-image",
-    /chat-icon\.webp/,
+  const launcherPortrait = launcher.locator(
+    'img[src$="/mascot/liru/chat-launcher.webp"]',
   );
+  await expect(launcherPortrait).toBeVisible();
+  await expect
+    .poll(() =>
+      launcherPortrait.evaluate(
+        (image: HTMLImageElement) => image.naturalWidth,
+      ),
+    )
+    .toBeGreaterThan(0);
   const sourceToggle = page.getByText("Source", { exact: true });
   const sourceLink = page.getByRole("link", { name: "Substitution" });
   await expect(sourceToggle).toBeVisible();
