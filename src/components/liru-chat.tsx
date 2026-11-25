@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Markdown, { defaultUrlTransform } from "react-markdown";
 import type { Root, Parents } from "mdast";
-import { useMemo } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import {
@@ -16,6 +16,11 @@ import {
 import { useAISDKRuntime } from "@assistant-ui/ai-sdk";
 import { useAppTranslations } from "@/i18n/shared";
 import type { User } from "@/lib/auth/sessions";
+import {
+  clearLiruHistory,
+  restoreLiruHistory,
+  saveLiruTurn,
+} from "@/lib/liru-chat-history";
 import { Avatar } from "./avatar";
 import styles from "./liru-chat.module.css";
 
@@ -119,15 +124,31 @@ function UserMessage({ viewer }: { viewer: User }) {
   );
 }
 
-export function LiruChat({
-  edition,
-  suggestions,
-  viewer,
-}: {
+type ChatProps = {
   edition: string;
   suggestions: readonly string[];
   viewer: User;
-}) {
+};
+
+const subscribeToHydration = () => () => {};
+export function LiruChat(props: ChatProps) {
+  const mounted = useSyncExternalStore(
+    subscribeToHydration,
+    () => true,
+    () => false,
+  );
+  const historyKey = `oclr:liru:v1:${props.viewer.osuId}:${props.edition}`;
+  return mounted ? (
+    <LocalChat key={historyKey} {...props} historyKey={historyKey} />
+  ) : null;
+}
+
+function LocalChat({
+  edition,
+  suggestions,
+  viewer,
+  historyKey,
+}: ChatProps & { historyKey: string }) {
   const tr = useAppTranslations();
   const locale = tr.locale;
   const transport = useMemo(
@@ -157,7 +178,22 @@ export function LiruChat({
       }),
     [edition, locale],
   );
-  const chat = useChat({ id: edition, transport });
+  const [messages] = useState(() => restoreLiruHistory(historyKey));
+  const chat = useChat({
+    id: historyKey,
+    messages,
+    transport,
+    onFinish: ({ messages, isAbort, isDisconnect, isError, finishReason }) => {
+      if (
+        !isAbort &&
+        !isDisconnect &&
+        !isError &&
+        finishReason !== "interrupted" &&
+        finishReason !== "error"
+      )
+        saveLiruTurn(historyKey, messages);
+    },
+  });
   const runtime = useAISDKRuntime(chat);
   const busy = chat.status === "submitted" || chat.status === "streaming";
   const last = chat.messages.at(-1);
@@ -225,6 +261,19 @@ export function LiruChat({
               rows={2}
             />
             <div className={styles.actions}>
+              {!busy && chat.messages.length > 0 && (
+                <button
+                  type="button"
+                  className={styles.retry}
+                  onClick={() => {
+                    clearLiruHistory(historyKey);
+                    chat.setMessages([]);
+                    chat.clearError();
+                  }}
+                >
+                  {tr("Clear")}
+                </button>
+              )}
               {busy ? (
                 <ComposerPrimitive.Cancel>
                   {tr("Stop")}
