@@ -2,8 +2,6 @@
   display: inline-block;
   flex: none;
   vertical-align: middle;
-  background-color: currentColor;
-  mask: url("/mascot/liru/chat-icon.webp") center / contain no-repeat;
 }
 .chat {
   display: flex;

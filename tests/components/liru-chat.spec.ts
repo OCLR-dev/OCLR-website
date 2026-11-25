@@ -62,6 +62,11 @@ test("stop a pending turn, retry with sources, and start fresh in another editio
   const launcher = page.getByRole("button", { name: "Ask Liru" });
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeInViewport();
+  await expect(
+    dialog
+      .getByRole("heading", { name: "Ask Liru" })
+      .locator('img[src$="/mascot/liru/chat-launcher.webp"]'),
+  ).toBeVisible();
   await expect(dialog.getByRole("textbox")).toBeVisible();
   await expect(dialog.getByRole("status")).toHaveCount(0);
   const suggestions = page.getByRole("button", { name: /^How many / });
