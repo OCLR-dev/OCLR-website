@@ -90,6 +90,51 @@ capture_oclr() {
   fi
 }
 
+configure_liru_service() {
+  local bot_service_file="${service_file%/*}/oclr-liru-bot.service" unit
+  # Retain existing local units, masks and explicit enable/disable choices.
+  [[ ! -e "$bot_service_file" && ! -L "$bot_service_file" ]] || return 0
+  unit=$(mktemp)
+  cat > "$unit" <<'UNIT'
+[Unit]
+Description=OCLR Liru Discord Bot
+Wants=network-online.target
+After=network-online.target oclr.service
+PartOf=oclr.service
+ConditionPathExists=/etc/oclr/liru-bot.env
+ConditionPathExists=/opt/oclr/current/scripts/liru-discord-bot.ts
+
+[Service]
+Type=exec
+User=oclr
+Group=oclr
+WorkingDirectory=/opt/oclr/current
+Environment=NODE_ENV=production
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+EnvironmentFile=/etc/oclr/liru-bot.env
+UnsetEnvironment=LIRU_DISCORD_BOT_TOKEN
+ExecStart=/usr/bin/env node --import tsx scripts/liru-discord-bot.ts serve
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+
+[Install]
+WantedBy=oclr.service
+UNIT
+  install -o root -g root -m 0644 "$unit" "$bot_service_file"
+  rm -f -- "$unit"
+  # A failed enable can be retried by rerunning the installer.
+  if ! systemctl enable oclr-liru-bot.service; then
+    rm -f -- "$bot_service_file"
+    fail 'Could not enable the Liru Bot systemd service.'
+  fi
+}
+
 configure_service() {
   # Existing local units are preserved; the engine also checks User/WorkingDirectory.
   [[ ! -L "$service_file" && ! -L "$sudoers_file" ]] || fail 'Preserve and review custom linked service/sudo policy files before deployment.'
@@ -137,6 +182,7 @@ UNIT
   if ! visudo -cf "$policy"; then rm -f -- "$policy"; fail 'Service sudo policy validation failed.'; fi
   install -o root -g root -m 0440 "$policy" "$sudoers_file"
   rm -f -- "$policy"
+  configure_liru_service
 }
 
 # Install the trusted invocation, even when a subsequent deployment fails.
@@ -198,6 +244,7 @@ main() {
     printf '%s\n' "$action preview only; no commands or files changed." \
       'Load /etc/oclr/runtime.env as oclr; preserve the existing database and Nginx.' \
       'Prepare the app account, dependencies, matching PostgreSQL clients and systemd permissions.' \
+      'Install and enable the optional Liru Bot unit at first provisioning; start it with OCLR when configured.' \
       'Fetch main into /opt/oclr/repository and pin its SHA; prompt for migration username/password.' \
       'Build a new release, verify backup, apply pending migrations, activate and check local/public health.' \
       'Install the oclr command before deployment; retain backups and previous releases for recovery.'

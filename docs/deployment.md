@@ -44,6 +44,11 @@ Root handles packages and service configuration only. It does not source `runtim
 
 The root-owned shortcut and fixed service definition come from the trusted installer invocation, not the app-writable checkout. Ordinary site updates do not silently replace privileged bootstrap code. To upgrade that bootstrap itself, review a new installer checkout and explicitly invoke it with sudo. Existing local service units are retained, and conflicting managed sudo policies are preserved/rejected. Nonstandard paths/services can continue using the advanced commands below.
 
+The installer also provisions the optional Liru Discord Bot daemon. Set its
+environment file before deployment to start it with the website service. See
+[Liru Bot setup](liru-discord-bot.md#run-on-the-oclr-server) for the private
+listener, Nginx route and Discord command registration.
+
 Preview either action safely with `sudo bash scripts/oclr.sh deploy --dry-run` or `sudo oclr update --dry-run`; previews perform no configuration reads, downloads or writes. `deploy` refuses to overwrite an installed release. `update` refuses to restart a stopped installation from an uncertain previous failure. On errors, read the reported private log and follow [recovery](#routine-whole-site-updates); no automatic database restore/down migration is attempted. See [recorded release evidence](#recorded-release-evidence--2026-10-23) for the organizer's completed #10 rehearsal.
 
 ## Clean up old release instances

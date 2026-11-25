@@ -259,13 +259,17 @@ capture_oclr echo ignored
     existingUnit = "",
     existingPolicy = "",
     invalidPolicy = false,
+    existingBot = "",
   ) {
     const root = mkdtempSync(join(tmpdir(), "oclr-unit-policy-"));
     try {
       const unit = join(root, "oclr.service"),
-        policy = join(root, "oclr-site");
+        policy = join(root, "oclr-site"),
+        bot = join(root, "oclr-liru-bot.service"),
+        log = join(root, "systemctl.log");
       if (existingUnit) writeFileSync(unit, existingUnit);
       if (existingPolicy) writeFileSync(policy, existingPolicy);
+      if (existingBot) writeFileSync(bot, existingBot);
       const result = spawnSync(
         "/bin/bash",
         [
@@ -275,13 +279,15 @@ source "$1"
 service_file="$2"
 sudoers_file="$3"
 invalid_policy="$4"
+systemctl_log="$5"
 install() {
   local args=()
   while [[ $# -gt 0 ]]; do case "$1" in -o|-g) shift 2 ;; *) args+=("$1"); shift ;; esac; done
   /usr/bin/install "\${args[@]}"
 }
-systemctl() { :; }
+systemctl() { printf '%s\\n' "$*" >> "$systemctl_log"; }
 visudo() { [[ "$invalid_policy" != invalid ]]; }
+configure_service
 configure_service
 `,
           "test",
@@ -289,6 +295,7 @@ configure_service
           unit,
           policy,
           invalidPolicy ? "invalid" : "valid",
+          log,
         ],
         { encoding: "utf8", env: { ...process.env } },
       );
@@ -296,6 +303,10 @@ configure_service
         result,
         unit: existsSync(unit) ? readFileSync(unit, "utf8") : "",
         policy: existsSync(policy) ? readFileSync(policy, "utf8") : "",
+        bot: existsSync(bot) ? readFileSync(bot, "utf8") : "",
+        calls: existsSync(log)
+          ? readFileSync(log, "utf8").trim().split("\n")
+          : [],
       };
     } finally {
       rmSync(root, { recursive: true, force: true });
@@ -318,6 +329,30 @@ configure_service
     );
     expect(run.policy).not.toContain("NOPASSWD: ALL");
   });
+  it("installs and enables the release-managed Liru daemon only once", () => {
+    const run = configure();
+    expect(run.result.status, run.result.stderr).toBe(0);
+    const documented = readFileSync(
+      new URL("../../docs/examples/oclr-liru-bot.service", import.meta.url),
+      "utf8",
+    )
+      .replace(/^#.*\n/gm, "")
+      .trim();
+    expect(run.bot.trim()).toBe(documented);
+    expect(run.calls).toEqual([
+      "daemon-reload",
+      "enable oclr-liru-bot.service",
+    ]);
+    expect(run.policy).not.toContain("oclr-liru-bot.service");
+  });
+
+  it("retains an existing Liru unit and its enablement", () => {
+    const run = configure("existing site unit", "", false, "local Liru unit");
+    expect(run.result.status, run.result.stderr).toBe(0);
+    expect(run.bot).toBe("local Liru unit");
+    expect(run.calls).toEqual([]);
+  });
+
   it("refuses an invalid sudo policy without installing it", () => {
     const run = configure("existing local service", "", true);
     expect(run.result.status).toBe(1);

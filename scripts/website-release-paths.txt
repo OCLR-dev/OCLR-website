@@ -8,6 +8,7 @@ docs/developer-api.md
 docs/examples
 docs/historical-season.v1.schema.json
 docs/imports
+docs/liru-discord-bot.md
 docs/read-api.md
 docs/read-api.openapi.json
 docs/remote-coverage.json

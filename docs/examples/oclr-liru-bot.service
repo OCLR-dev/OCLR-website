@@ -1,0 +1,30 @@
+# Installed and enabled by the trusted scripts/oclr.sh deploy/update invocation.
+[Unit]
+Description=OCLR Liru Discord Bot
+Wants=network-online.target
+After=network-online.target oclr.service
+PartOf=oclr.service
+ConditionPathExists=/etc/oclr/liru-bot.env
+ConditionPathExists=/opt/oclr/current/scripts/liru-discord-bot.ts
+
+[Service]
+Type=exec
+User=oclr
+Group=oclr
+WorkingDirectory=/opt/oclr/current
+Environment=NODE_ENV=production
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+EnvironmentFile=/etc/oclr/liru-bot.env
+UnsetEnvironment=LIRU_DISCORD_BOT_TOKEN
+ExecStart=/usr/bin/env node --import tsx scripts/liru-discord-bot.ts serve
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+
+[Install]
+WantedBy=oclr.service
