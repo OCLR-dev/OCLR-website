@@ -7,10 +7,10 @@ export type ChatSource = { title: string; url: string; text: string };
 export function linksToSeasonSection(
   text: string,
   slug: string,
-  section: "players" | "mappools",
+  section: "players" | "mappools" | "teams" | "draft" | "schedule",
 ) {
   const links = text.matchAll(
-    /(?:^|[\s<(]|\[)(?:https:\/\/(?:www\.)?oclr\.org)?\/tournaments\/([a-z0-9-]+)\/(players|mappools)(?=\/?(?:$|[?#\s>),，。]))/gi,
+    /(?:^|[\s<(]|\[)(?:https:\/\/(?:www\.)?oclr\.org)?\/tournaments\/([a-z0-9-]+)\/(players|mappools|teams|draft|schedule)(?=\/?(?:$|[?#\s>),，。]))/gi,
   );
   return Array.from(links).some(
     (match) => match[1] === slug && match[2] === section,
@@ -39,6 +39,7 @@ const concepts = [
   ["排名", "排行", "積分", "积分", "standings", "leaderboard", "rank"],
   ["預測", "预测", "pickem"],
   ["賽果", "赛果", "比分", "result", "score"],
+  ["賽程", "赛程", "賽事安排", "赛事安排", "schedule", "fixtures"],
   ["獎項", "奖项", "獎勵", "奖励", "awards"],
   ["工作人員", "工作人员", "staff"],
   ["對陣", "对阵", "bracket"],

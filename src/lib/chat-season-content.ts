@@ -17,8 +17,14 @@ import { publicCompetition } from "./public-competition";
 import { publicBracket } from "./brackets";
 import { publicStaff } from "./public-staff";
 import { pickemEnabled, pickemRead } from "./pickem";
+import { recordedArchiveMatch } from "./historical-archive";
 import { HttpError } from "./http-error";
-import { matches, poolSources } from "./chat-competition-sources";
+import {
+  matches,
+  matchSource,
+  poolSources,
+  scheduleOverview,
+} from "./chat-competition-sources";
 import {
   publishedRuleChapters,
   ruleExcerpts,
@@ -114,23 +120,35 @@ export async function seasonContent(
       break;
     }
     case "teams": {
-      if (archive) {
-        for (const t of archive.teams)
-          add("/teams/" + t.id, t.name, {
-            category: "team",
+      const teams = archive
+        ? archive.teams.map((team) => ({
+            id: team.id,
+            name: team.name,
+            captain: archive.players.find(
+              (player) =>
+                player.teamId === team.id && player.role === "captain",
+            )?.username,
             members: archive.players
-              .filter((p) => p.teamId === t.id)
-              .map((p) => [p.username, p.role]),
-          });
-      } else {
-        for (const t of await publishedTeams(e.slug))
-          add("/teams/" + t.id, t.name, {
-            category: "team",
-            captain: t.captainName,
-            members: t.members?.map((p) => p.username),
-            coaches: t.coaches.map((p) => p.username),
-          });
-      }
+              .filter((player) => player.teamId === team.id)
+              .map((player) => [player.username, player.role]),
+            coaches: undefined,
+          }))
+        : (await publishedTeams(e.slug)).map((team) => ({
+            id: team.id,
+            name: team.name,
+            captain: team.captainName,
+            members: team.members?.map((player) => player.username) ?? null,
+            coaches: team.coaches.map((player) => player.username),
+          }));
+      add("/teams", "Published teams", {
+        teamCount: teams.length,
+        teams: teams.slice(0, 24).map((team) => team.name),
+      });
+      for (const { id, name, ...details } of teams)
+        add("/teams/" + encodeURIComponent(id), name, {
+          category: "team",
+          ...details,
+        });
       break;
     }
     case "draft": {
@@ -139,7 +157,17 @@ export async function seasonContent(
           archive.players.map((p) => [p.osuId, p.username]),
         );
         const teams = new Map(archive.teams.map((t) => [t.id, t.name]));
-        for (const p of archive.picks)
+        add("/draft", "Published draft", {
+          format:
+            archive.draftMode === "final-tiers"
+              ? "final tiers"
+              : "pick history",
+          publishedPicks:
+            archive.draftMode === "final-tiers" ? null : archive.picks.length,
+        });
+        for (const p of archive.draftMode === "final-tiers"
+          ? []
+          : archive.picks)
           add("/draft", "Draft · " + players.get(p.osuId), {
             player: players.get(p.osuId),
             round: p.round,
@@ -155,12 +183,13 @@ export async function seasonContent(
             });
       } else {
         const draft = await publicDraft(e.slug);
+        add("/draft", "Published draft", {
+          state: draft?.state ?? "unpublished",
+          publishedPicks: draft?.picks.length ?? null,
+          nextPick: draft?.activeTeam ? draft.turnIndex + 1 : null,
+          totalTurns: draft?.turnCount ?? null,
+        });
         if (draft) {
-          add("/draft", "Draft", {
-            state: draft.state,
-            turn: draft.turnIndex + 1,
-            total: draft.turnCount,
-          });
           for (const p of draft.picks)
             add("/draft", "Draft · " + p.player.username, {
               pick: p.turnIndex + 1,
@@ -173,9 +202,14 @@ export async function seasonContent(
       }
       break;
     }
-    case "matches":
-      for (const m of archive?.matches ?? []) {
-        add("/matches/" + m.id, m.label, {
+    case "matches": {
+      const fixtures = await matches(e);
+      rows.push(
+        scheduleOverview(e, fixtures),
+        ...fixtures.map((fixture) => matchSource(e, fixture)),
+      );
+      for (const m of archive?.matches.filter(recordedArchiveMatch) ?? []) {
+        add("/matches/" + encodeURIComponent(m.id), m.label, {
           stage: m.stage,
           referee: m.referee,
           streamer: m.streamer,
@@ -186,16 +220,8 @@ export async function seasonContent(
           recording: m.vodUrl,
         });
       }
-      for (const f of await matches(e))
-        add("/matches/" + encodeURIComponent(f.id), f.label + " · " + f.teams, {
-          category: "match schedule result",
-          teams: f.teams,
-          scheduledAt: f.time,
-          timeZone: e.timeZone,
-          publishedScore: f.score,
-          cancelled: f.cancelled,
-        });
       break;
+    }
     case "artwork":
       return artworkSources(e);
     case "mappools":

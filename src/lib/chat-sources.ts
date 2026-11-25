@@ -7,11 +7,14 @@ import {
 import { chatPlayerProfile } from "./chat-player-profile";
 import { artworkQuery, artworkSources } from "./chat-artwork";
 import { seasonCount, seasonCountIntent } from "./chat-season-counts";
+import { seasonContent } from "./chat-season-content";
 import { searchSeasonIndex } from "./chat-vectors";
 import {
   isUpcomingMatch,
   matches,
+  matchSource,
   poolSources,
+  scheduleOverview,
 } from "./chat-competition-sources";
 import { getPublicEdition } from "./content";
 import { HttpError } from "./http-error";
@@ -23,6 +26,10 @@ import {
 } from "./chat-retrieval";
 import { informationPreview } from "./tournament-information";
 import { tournamentTimeline } from "./tournament-timeline";
+function nextMatchQuestion(question: string) {
+  return /下一[場场]|\bnext\b/i.test(question);
+}
+
 export async function chatEvidence(
   slug: string,
   question: string,
@@ -112,6 +119,42 @@ export async function chatEvidence(
       ],
     };
   }
+  const competitionPage = (["teams", "draft", "schedule"] as const).find(
+    (section) => linksToSeasonSection(question, slug, section),
+  );
+  if (competitionPage) {
+    const context = question + " " + previous;
+    if (competitionPage === "schedule" && nextMatchQuestion(context)) {
+      const fixtures = await matches(edition);
+      const next = fixtures
+        .filter((match) => isUpcomingMatch(match, now))
+        .sort((a, b) => Date.parse(a.time!) - Date.parse(b.time!))[0];
+      const overview = scheduleOverview(edition, fixtures);
+      return {
+        edition: edition.name,
+        competitionPage: true as const,
+        total: null,
+        sources: next
+          ? [overview, matchSource(edition, next)]
+          : [
+              {
+                ...overview,
+                text: overview.text + "\nNo upcoming published match.",
+              },
+            ],
+      };
+    }
+    const [overview, ...details] = await seasonContent(
+      edition,
+      competitionPage === "schedule" ? "matches" : competitionPage,
+    );
+    return {
+      edition: edition.name,
+      competitionPage: true as const,
+      total: null,
+      sources: [overview, ...rankedSources(details, context, 6, true)],
+    };
+  }
   const player = await chatPlayerProfile(edition, question, previous);
   if (player)
     return {
@@ -167,7 +210,7 @@ export async function chatEvidence(
     (timing && (edition.archive || !sources.length))
   ) {
     let fixtures = await matches(edition);
-    const next = /下一[場场]|\bnext\b/i.test(intentText);
+    const next = nextMatchQuestion(intentText);
     if (next)
       fixtures = fixtures
         .filter((f) => isUpcomingMatch(f, now))
@@ -181,16 +224,7 @@ export async function chatEvidence(
         (a, b) =>
           (Date.parse(b.time ?? "") || 0) - (Date.parse(a.time ?? "") || 0),
       );
-    const candidates = fixtures.map((f) => ({
-      title: [f.label, f.teams].join(" · "),
-      url: `${base}/matches/${encodeURIComponent(f.id)}`,
-      text: JSON.stringify({
-        scheduledAt: f.time,
-        timeZone: edition.timeZone,
-        publishedScore: f.score,
-        cancelled: f.cancelled ?? false,
-      }),
-    }));
+    const candidates = fixtures.map((fixture) => matchSource(edition, fixture));
     sources.push(
       ...(candidates.length
         ? rankedSources(candidates, questionWithContext, next ? 1 : 4, true)
