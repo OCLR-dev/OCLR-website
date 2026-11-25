@@ -1,4 +1,9 @@
 import { afterEach, expect, it, vi } from "vitest";
+import { chatWrite } from "../../src/lib/chat-write-contract";
+import {
+  chatTurnContext,
+  rememberCompletedAnswer,
+} from "../../src/lib/chat-turn-context";
 import type { UIMessage } from "ai";
 import {
   restoreLiruHistory,
@@ -38,4 +43,36 @@ it("starts empty with damaged or unavailable storage and can still finish a turn
   });
   expect(restoreLiruHistory("x")).toEqual([]);
   expect(() => saveLiruTurn("x", pair(1))).not.toThrow();
+});
+
+it("aligns completed answer excerpts to the previous three questions and excludes unfinished text", () => {
+  const completed = new Map<string, string>();
+  const pairs = Array.from({ length: 5 }, (_, i) => pair(i, "x".repeat(2050)));
+  pairs.forEach(([q, a], i) => {
+    if (i !== 2) rememberCompletedAnswer(completed, q, a);
+  });
+  const context = chatTurnContext(pairs.flat(), completed);
+  expect(context.questions).toEqual([
+    "Question 1",
+    "Question 2",
+    "Question 3",
+    "Question 4",
+  ]);
+  expect(context.previousAnswers).toEqual([
+    "x".repeat(2000),
+    null,
+    "x".repeat(2000),
+  ]);
+  const body = { edition: "s11", locale: "en", ...context };
+  expect(chatWrite.request.safeParse(body).success).toBe(true);
+  expect(
+    chatWrite.request.safeParse({ ...body, previousAnswers: ["mismatched"] })
+      .success,
+  ).toBe(false);
+  expect(
+    chatWrite.request.safeParse({
+      ...body,
+      previousAnswers: ["x".repeat(2001), null, null],
+    }).success,
+  ).toBe(false);
 });

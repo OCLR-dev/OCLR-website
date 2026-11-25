@@ -375,11 +375,14 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       expect(String(url)).toBe("https://provider.example/v1/chat/completions");
       const { messages } = JSON.parse(String(init.body));
       const prompt = JSON.parse(messages.at(-1).content);
-      expect(prompt.previousQuestions).toEqual([history[0]]);
-      expect(prompt.currentQuestion).toBe("換人需要經過裁判同意嗎？");
+      expect(prompt.previousTurns).toEqual([
+        { question: history[0], answer: "First: Alpha. Second: Beta." },
+      ]);
+      expect(JSON.stringify(prompt)).not.toContain("blocked reply");
+      expect(prompt.currentQuestion).toBe("你剛才說的第二位是誰？");
       expect(JSON.stringify(prompt)).not.toContain(history[1]);
       expect(JSON.stringify(prompt)).not.toContain(history[2]);
-      return completion("Ask the referee. [1]");
+      return completion("The second name in my previous reply was Beta.");
     });
     vi.stubGlobal("fetch", upstream);
     const log = vi.spyOn(console, "info");
@@ -414,8 +417,16 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       (await ask([history[1]], { edition: "unpublished-test" })).status,
     ).toBe(404);
     expect(
-      await (await ask([...history, "換人需要經過裁判同意嗎？"])).text(),
-    ).toContain("Ask the referee.");
+      await (
+        await ask([...history, "你剛才說的第二位是誰？"], {
+          previousAnswers: [
+            "First: Alpha. Second: Beta.",
+            "blocked reply",
+            "blocked reply",
+          ],
+        })
+      ).text(),
+    ).toContain("The second name in my previous reply was Beta.");
     expect(upstream).toHaveBeenCalledOnce();
   });
 
@@ -567,7 +578,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       expect(instructions).toContain("The current message is a greeting");
       expect(prompt).toMatchObject({
         currentQuestion: greeting,
-        previousQuestions: [],
+        previousTurns: [],
         evidence: [],
       });
       const chunks = [
@@ -592,6 +603,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     vi.stubGlobal("fetch", upstream);
     for (const [locale, question] of greetings) {
       const response = await ask(["Earlier question about rules", question], {
+        previousAnswers: ["Previous answer"],
         locale,
       });
       expect(response.status).toBe(200);

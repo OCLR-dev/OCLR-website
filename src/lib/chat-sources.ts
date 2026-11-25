@@ -37,6 +37,7 @@ export async function chatEvidence(
   now = Date.now(),
   signal?: AbortSignal,
   onEmbeddingFallback?: (error: unknown) => void,
+  previousAnswer = "",
 ) {
   const edition = await getPublicEdition(slug);
   if (!edition) throw new HttpError(404, "Tournament not found.");
@@ -71,6 +72,14 @@ export async function chatEvidence(
       ],
     };
   }
+  // Prior answers can supply search terms for references, but only current
+  // publication-checked hits are returned as evidence.
+  const refersBack =
+    /剛[才剛刚]|刚[才剛刚]|第[一二三四五六七八九十0-9]+[个位個名項项隊队場场]|[他她它]的|那[个位個隊队張张]|前面|上述|\b(?:first|second|third|fourth|latter|former|they|their|that one|you mentioned)\b/i.test(
+      question,
+    );
+  const previousSearch =
+    refersBack && previousAnswer ? previous + "\n" + previousAnswer : previous;
   const mappoolLink = linksToSeasonSection(question, slug, "mappools");
   const mappoolContext =
     mappoolLink || linksToSeasonSection(previous, slug, "mappools");
@@ -175,7 +184,7 @@ export async function chatEvidence(
       sources: await searchSeasonIndex(
         edition,
         question,
-        previous,
+        previousSearch,
         signal,
         "players",
         onEmbeddingFallback,
@@ -265,7 +274,7 @@ export async function chatEvidence(
   const indexed = await searchSeasonIndex(
     edition,
     question,
-    previous,
+    previousSearch,
     signal,
     undefined,
     onEmbeddingFallback,

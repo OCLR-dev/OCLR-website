@@ -21,6 +21,10 @@ import {
   restoreLiruHistory,
   saveLiruTurn,
 } from "@/lib/liru-chat-history";
+import {
+  rememberCompletedAnswer,
+  chatTurnContext,
+} from "@/lib/chat-turn-context";
 import { Avatar } from "./avatar";
 import styles from "./liru-chat.module.css";
 
@@ -151,6 +155,13 @@ function LocalChat({
 }: ChatProps & { historyKey: string }) {
   const tr = useAppTranslations();
   const locale = tr.locale;
+  const [messages] = useState(() => restoreLiruHistory(historyKey));
+  const [completed] = useState(() => {
+    const answers = new Map<string, string>();
+    for (let i = 1; i < messages.length; i += 2)
+      rememberCompletedAnswer(answers, messages[i - 1], messages[i]);
+    return answers;
+  });
   const transport = useMemo(
     () =>
       new DefaultChatTransport({
@@ -159,15 +170,7 @@ function LocalChat({
           body: {
             edition,
             locale,
-            questions: messages
-              .filter((m) => m.role === "user")
-              .slice(-4)
-              .map((m) =>
-                m.parts
-                  .filter((p) => p.type === "text")
-                  .map((p) => p.text)
-                  .join("\n"),
-              ),
+            ...chatTurnContext(messages, completed),
           },
         }),
         fetch: async (input, init) => {
@@ -176,9 +179,8 @@ function LocalChat({
           return response;
         },
       }),
-    [edition, locale],
+    [edition, locale, completed],
   );
-  const [messages] = useState(() => restoreLiruHistory(historyKey));
   const chat = useChat({
     id: historyKey,
     messages,
@@ -190,8 +192,10 @@ function LocalChat({
         !isError &&
         finishReason !== "interrupted" &&
         finishReason !== "error"
-      )
+      ) {
+        rememberCompletedAnswer(completed, messages.at(-2), messages.at(-1));
         saveLiruTurn(historyKey, messages);
+      }
     },
   });
   const runtime = useAISDKRuntime(chat);
@@ -267,6 +271,7 @@ function LocalChat({
                   className={styles.retry}
                   onClick={() => {
                     clearLiruHistory(historyKey);
+                    completed.clear();
                     chat.setMessages([]);
                     chat.clearError();
                   }}
