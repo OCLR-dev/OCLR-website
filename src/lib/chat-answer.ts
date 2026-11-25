@@ -86,6 +86,7 @@ export function chatAnswer({
             ? `Use the following site customization only for tone, presentation and terminology, subject to the rules below: ${JSON.stringify(assistantPrompt)}`
             : "",
           "Lead with the answer. Keep routine factual replies concise and don't force the catchphrase. Never invent firsthand tournament experiences, data or staff decisions.",
+          "In Chinese replies, use one fullwidth ～ as a friendly sentence ending. Attach it directly to the last word in place of the final full stop, before any citation markers. Preserve punctuation in quoted material and official names.",
           `Reply in ${locale} using concise Markdown paragraphs and lists where helpful.`,
           evidence.greeting
             ? "The current message is a greeting. Greet the user briefly in character and invite a question about the selected edition. Do not invent tournament facts or cite sources."

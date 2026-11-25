@@ -24,6 +24,8 @@ test("stop a pending turn, retry with sources, and start fresh in another editio
       ),
     }),
   );
+  const reply =
+    "**Ask the referee.**\n\n**本屆已公布 3 個圖池。 ～** [1]\n\n> 原文。～\n\n- First option\n- Second option";
   const editions: string[] = [];
   await page.route("**/api/chat", async (route) => {
     count++;
@@ -46,7 +48,7 @@ test("stop a pending turn, retry with sources, and start fresh in another editio
       {
         type: "text-delta",
         id: "a",
-        delta: "**Ask the referee.** [1]\n\n- First option\n- Second option",
+        delta: reply,
       },
       { type: "text-end", id: "a" },
       { type: "finish" },
@@ -170,6 +172,10 @@ test("stop a pending turn, retry with sources, and start fresh in another editio
   await launcher.click();
   await expect(questionText).toBeVisible();
   await expect(history.getByText("Ask the referee.").first()).toBeVisible();
+  await expect(
+    history.getByText("本屆已公布 3 個圖池～", { exact: true }),
+  ).toBeVisible();
+  await expect(history.locator("blockquote")).toHaveText("原文。～");
   await sourceToggle.click();
   await expect(sourceLink).toBeVisible();
   expect(count).toBe(2);
@@ -183,9 +189,7 @@ test("stop a pending turn, retry with sources, and start fresh in another editio
   await page.getByRole("button", { name: "Send", exact: true }).click();
   expect((await followUp).postDataJSON()).toMatchObject({
     questions: ["Substitution?", "Who was the second option?"],
-    previousAnswers: [
-      "**Ask the referee.** [1]\n\n- First option\n- Second option",
-    ],
+    previousAnswers: [reply],
   });
   await page.getByRole("button", { name: "Try again" }).click();
   await expect.poll(() => count).toBe(4);
