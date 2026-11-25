@@ -5,7 +5,7 @@ import {
   playerDirectoryRequest,
 } from "./chat-player-directory";
 import { chatPlayerProfile } from "./chat-player-profile";
-import { artworkQuery } from "./chat-artwork";
+import { artworkQuery, artworkSources } from "./chat-artwork";
 import { seasonCount, seasonCountIntent } from "./chat-season-counts";
 import { searchSeasonIndex } from "./chat-vectors";
 import {
@@ -16,6 +16,7 @@ import {
 import { getPublicEdition } from "./content";
 import { HttpError } from "./http-error";
 import {
+  linksToSeasonSection,
   rankedSources,
   publishedRuleChapters,
   ruleExcerpts,
@@ -63,22 +64,33 @@ export async function chatEvidence(
       ],
     };
   }
-  const visual = artworkQuery(question);
-  if (visual !== null)
+  const mappoolLink = linksToSeasonSection(question, slug, "mappools");
+  const mappoolContext =
+    mappoolLink || linksToSeasonSection(previous, slug, "mappools");
+  const visual =
+    artworkQuery(question, mappoolContext) ??
+    (mappoolLink ? artworkQuery(previous, true) : null);
+  if (visual !== null) {
+    const indexed = visual
+      ? await searchSeasonIndex(
+          edition,
+          visual,
+          "",
+          signal,
+          "artwork",
+          onEmbeddingFallback,
+        )
+      : [];
+    const sources = indexed.length ? indexed : await artworkSources(edition);
     return {
       edition: edition.name,
       total: null,
-      sources: visual
-        ? await searchSeasonIndex(
-            edition,
-            visual,
-            "",
-            signal,
-            "artwork",
-            onEmbeddingFallback,
-          )
-        : [],
+      sources:
+        indexed.length || !visual
+          ? sources.slice(0, 8)
+          : rankedSources(sources, visual, 8),
     };
+  }
   const countIntent = seasonCountIntent(question);
   if (countIntent) {
     const total = await seasonCount(edition, countIntent, now);
@@ -86,6 +98,18 @@ export async function chatEvidence(
       edition: edition.name,
       total,
       sources: total ? [total.source] : [],
+    };
+  }
+  if (mappoolLink) {
+    const [overview, ...maps] = await poolSources(edition);
+    return {
+      edition: edition.name,
+      mappoolDirectory: true as const,
+      total: null,
+      sources: [
+        overview,
+        ...rankedSources(maps, question + " " + previous, 6, true),
+      ],
     };
   }
   const player = await chatPlayerProfile(edition, question, previous);
@@ -183,17 +207,7 @@ export async function chatEvidence(
   }
   if (poolIntent.test(intentText)) {
     const maps = await poolSources(edition);
-    sources.push(
-      ...(maps.length
-        ? rankedSources(maps, questionWithContext, 16, true)
-        : [
-            {
-              title: edition.name,
-              url: base + "/mappools",
-              text: "No published mappools.",
-            },
-          ]),
-    );
+    sources.push(...rankedSources(maps, questionWithContext, 16, true));
   }
   const indexed = await searchSeasonIndex(
     edition,

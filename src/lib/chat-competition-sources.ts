@@ -102,11 +102,29 @@ export async function poolSources(edition: Edition): Promise<ChatSource[]> {
           ].join(" "),
         ),
       }));
-  return pools.flatMap((p) =>
-    p.maps.map((text) => ({
-      url: `/tournaments/${edition.slug}/mappools/${encodeURIComponent(p.id)}`,
-      title: p.name,
-      text,
-    })),
-  );
+  const url = `/tournaments/${edition.slug}/mappools`;
+  return [
+    {
+      url,
+      title: "Published mappools",
+      text: JSON.stringify({
+        publishedPools: pools.length,
+        publishedSlots: pools.reduce(
+          (count, pool) => count + pool.maps.length,
+          0,
+        ),
+        pools: pools.slice(0, 24).map(({ name, maps }) => ({
+          name,
+          slots: maps.length,
+        })),
+      }),
+    },
+    ...pools.flatMap((pool) =>
+      pool.maps.map((text) => ({
+        url: `${url}/${encodeURIComponent(pool.id)}`,
+        title: pool.name,
+        text,
+      })),
+    ),
+  ];
 }

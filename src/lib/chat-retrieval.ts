@@ -4,6 +4,19 @@ import { historicalRulebook } from "./historical-rulebooks";
 import { informationPreview } from "./tournament-information";
 
 export type ChatSource = { title: string; url: string; text: string };
+export function linksToSeasonSection(
+  text: string,
+  slug: string,
+  section: "players" | "mappools",
+) {
+  const links = text.matchAll(
+    /(?:^|[\s<(]|\[)(?:https:\/\/(?:www\.)?oclr\.org)?\/tournaments\/([a-z0-9-]+)\/(players|mappools)(?=\/?(?:$|[?#\s>),，。]))/gi,
+  );
+  return Array.from(links).some(
+    (match) => match[1] === slug && match[2] === section,
+  );
+}
+
 const concepts = [
   [
     "換人",
