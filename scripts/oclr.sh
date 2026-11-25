@@ -90,6 +90,61 @@ capture_oclr() {
   fi
 }
 
+register_liru_bot() {
+  local env_file=$1 release=$2
+  [[ -f "$env_file" && ! -L "$env_file" ]] || fail 'Create a regular /etc/oclr/liru-bot.env first.'
+  [[ -f "$release/scripts/liru-discord-bot.ts" ]] || fail 'Update OCLR to a release containing Liru Bot first.'
+  [[ $(id -u oclr) =~ ^[1-9][0-9]*$ ]] || fail 'An existing unprivileged oclr account is required.'
+
+  # Parse the config as data and give only registration settings to the app user.
+  env -i PATH="$PATH" node --input-type=module - "$env_file" "$release" 3<&0 <<'NODE'
+import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { parseEnv } from 'node:util';
+
+function fail(message) {
+  console.error(message);
+  process.exit(1);
+}
+
+const [envFile, release] = process.argv.slice(2);
+const settings = parseEnv(readFileSync(envFile, 'utf8'));
+const { LIRU_DISCORD_APPLICATION_ID, LIRU_DISCORD_GUILD_ID } = settings;
+if (!LIRU_DISCORD_APPLICATION_ID || !LIRU_DISCORD_GUILD_ID) {
+  fail('Configure LIRU_DISCORD_APPLICATION_ID and LIRU_DISCORD_GUILD_ID in /etc/oclr/liru-bot.env first.');
+}
+
+let token = settings.LIRU_DISCORD_BOT_TOKEN;
+if (!token?.trim()) {
+  const readToken = `
+    IFS= read -r -s -p 'Liru Discord Bot Token: ' token || exit 1
+    printf '\\n' >&2
+    printf '%s' "$token"
+  `;
+  const prompt = spawnSync('bash', ['-c', readToken], {
+    stdio: [3, 'pipe', 'inherit'],
+    encoding: 'utf8',
+  });
+  if (prompt.status !== 0 || !prompt.stdout) fail('A Discord Bot Token is required.');
+  token = prompt.stdout;
+}
+
+const args = ['--pty', '-u', 'oclr', '--', 'npm', 'run', 'bot:liru:register'];
+const registration = spawnSync('runuser', args, {
+  cwd: release,
+  env: {
+    PATH: process.env.PATH,
+    LIRU_DISCORD_APPLICATION_ID,
+    LIRU_DISCORD_GUILD_ID,
+    LIRU_DISCORD_BOT_TOKEN: token,
+  },
+  stdio: ['ignore', 'inherit', 'inherit'],
+});
+if (registration.status === null) fail('Could not run Liru Bot registration.');
+process.exitCode = registration.status;
+NODE
+}
+
 configure_liru_service() {
   local bot_service_file="${service_file%/*}/oclr-liru-bot.service" unit
   # Retain existing local units, masks and explicit enable/disable choices.
@@ -208,6 +263,12 @@ install_command() {
 }
 
 main() {
+  if [[ ${1-} == bot ]]; then
+    [[ $# == 2 && $2 == register && $EUID -eq 0 ]] || fail 'Usage: sudo oclr bot register'
+    export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+    register_liru_bot /etc/oclr/liru-bot.env /opt/oclr/current
+    return
+  fi
   if [[ ${1-} == cleanup ]]; then
     shift
     [[ $EUID -eq 0 ]] || fail 'Run with sudo: sudo oclr cleanup [--dry-run|--apply] [--keep N]'
@@ -235,7 +296,7 @@ main() {
     return
   fi
   local action=${1-} option=${2-} sha server_major dump_version restore_version architecture working_tree origin
-  [[ $# -ge 1 && $# -le 2 && ( "$action" == deploy || "$action" == update || "$action" == install-command ) && ( -z "$option" || "$option" == --dry-run ) ]] || fail 'Usage: sudo bash scripts/oclr.sh deploy|update|install-command [--dry-run], or cleanup [--dry-run|--apply] [--keep N]'
+  [[ $# -ge 1 && $# -le 2 && ( "$action" == deploy || "$action" == update || "$action" == install-command ) && ( -z "$option" || "$option" == --dry-run ) ]] || fail 'Usage: sudo oclr deploy|update|install-command [--dry-run], cleanup [--dry-run|--apply] [--keep N], or bot register'
   if [[ "$option" == --dry-run ]]; then
     if [[ "$action" == install-command ]]; then
       printf '%s\n' 'Install command preview only; no commands or files changed.' 'Install this reviewed script as /usr/local/bin/oclr without changing the application, service or database.'

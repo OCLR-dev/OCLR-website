@@ -11,7 +11,7 @@ import {
   symlinkSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 const script = fileURLToPath(new URL("../../scripts/oclr.sh", import.meta.url));
 const sha = "6".repeat(40);
@@ -160,6 +160,86 @@ describe("simple deploy/update shell entry point", () => {
     const run = worker("deploy", "");
     expect(run.result.status).toBe(1);
     expect(run.observed).toBeNull();
+  });
+});
+
+describe("Liru slash command registration", () => {
+  function registerBot(tokenSetting: string, input = "") {
+    const root = mkdtempSync(join(tmpdir(), "oclr-liru-register-"));
+    const bin = join(root, "bin");
+    const release = join(root, "current");
+    const envFile = join(root, "liru-bot.env");
+    try {
+      mkdirSync(bin);
+      mkdirSync(join(release, "scripts"), { recursive: true });
+      writeFileSync(join(release, "scripts/liru-discord-bot.ts"), "");
+      writeFileSync(
+        envFile,
+        `LIRU_DISCORD_APPLICATION_ID="123456789012345678"\nLIRU_DISCORD_GUILD_ID='234567890123456789'\nUNRELATED=\$(touch marker)\n${tokenSetting}\n`,
+        { mode: 0o600 },
+      );
+      writeFileSync(
+        join(bin, "runuser"),
+        `#!${process.execPath}
+const { env, argv } = process;
+if (argv.slice(2).join(' ') !== '--pty -u oclr -- npm run bot:liru:register') process.exit(2);
+if (require('node:path').basename(process.cwd()) !== 'current') process.exit(3);
+if (env.LIRU_DISCORD_APPLICATION_ID !== '123456789012345678' || env.LIRU_DISCORD_GUILD_ID !== '234567890123456789') process.exit(4);
+if (env.LIRU_DISCORD_BOT_TOKEN !== 'synthetic.token' || env.UNRELATED || env.INHERITED_SECRET) process.exit(5);
+console.log('Registered test command.');
+`,
+        { mode: 0o700 },
+      );
+      const result = spawnSync(
+        "/bin/bash",
+        [
+          "-c",
+          'source "$1"; id() { printf "1001\\n"; }; register_liru_bot "$2" "$3"',
+          "test",
+          script,
+          envFile,
+          release,
+        ],
+        {
+          cwd: root,
+          input,
+          encoding: "utf8",
+          env: {
+            PATH: `${bin}:${dirname(process.execPath)}:/usr/bin:/bin`,
+            INHERITED_SECRET: "excluded",
+          },
+        },
+      );
+      expect(existsSync(join(root, "marker"))).toBe(false);
+      return result;
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  it.each([
+    [
+      "reads a configured token without prompting",
+      'LIRU_DISCORD_BOT_TOKEN="synthetic.token"',
+      "",
+    ],
+    [
+      "reads the token from standard input when missing from the file",
+      "",
+      "synthetic.token\n",
+    ],
+  ])("%s", (_label, tokenSetting, input) => {
+    const result = registerBot(tokenSetting, input);
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout).toContain("Registered test command.");
+    expect(result.stdout + result.stderr).not.toContain("synthetic.token");
+  });
+
+  it("stops before registration when the token is unavailable", () => {
+    const result = registerBot("");
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("A Discord Bot Token is required.");
+    expect(result.stdout).not.toContain("Registered test command.");
   });
 });
 

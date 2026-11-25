@@ -21,8 +21,8 @@ workspace.
 Create a Discord application named **Liru** and install it in the intended
 server using **Guild Install**. Select `applications.commands` and `bot`.
 Liru requires zero guild permissions and zero privileged intents. Copy the
-**Application ID**, **Public Key**, and Discord server ID. Keep the Bot Token
-in the registration operator's secret store.
+**Application ID**, **Public Key**, and Discord server ID. Have the app's Bot
+Token ready when you register `/oclr`.
 
 ## Run on the OCLR server
 
@@ -36,12 +36,14 @@ in the registration operator's secret store.
    LIRU_OCLR_ORIGIN=https://oclr.example.com
    LIRU_BOT_HOST=192.0.2.20
    LIRU_BOT_PORT=9312
+   # Optional for sudo oclr bot register:
+   # LIRU_DISCORD_BOT_TOKEN=YOUR_BOT_TOKEN
    ```
 
    Set `LIRU_OCLR_ORIGIN` to the public OCLR site origin. With separate Nginx,
    set `LIRU_BOT_HOST` to the Rocky host's private IP and permit the port only
    from the Nginx host. For Nginx on the same host, use the default listener
-   `127.0.0.1:9312`. Keep the registration token in the operator terminal.
+   `127.0.0.1:9312`.
 
 2. Run the reviewed [OCLR installer](deployment.md#simple-deployment-and-update).
    Fresh installs use `sudo bash scripts/oclr.sh deploy`. On an existing site
@@ -68,11 +70,25 @@ startup and stop it. The installer retains existing unit and enablement choices.
 
 ## Register the slash commands once
 
-From a checkout with the locked dependencies installed, set
-`LIRU_DISCORD_APPLICATION_ID` and `LIRU_DISCORD_GUILD_ID` in the operator
-terminal. Supply `LIRU_DISCORD_BOT_TOKEN` only to
-`npm run bot:liru:register`. This command registers or updates `/oclr` in
-the selected server.
+After Discord verifies the endpoint, run this on the OCLR application host.
+
+```sh
+sudo oclr bot register
+```
+
+The command reads the Application ID and Guild ID from `/etc/oclr/liru-bot.env`
+and registers or updates `/oclr` in that server. It uses `LIRU_DISCORD_BOT_TOKEN`
+from the same file when configured. Otherwise it prompts once with input hidden.
+The token goes to the one-time registration process. The systemd daemon excludes
+it from its environment.
+
+If the host has Liru Bot but an older `oclr` command, run
+`sudo bash scripts/oclr.sh install-command` from the reviewed installer checkout
+that includes `bot register`, then run the registration command. Refreshing the
+command this way does not require a site update or restart.
+
+On a development machine with dependencies installed, you can also run
+`npm run bot:liru:register` with the two IDs and token in the environment.
 
 For local development, use the same serving variables with
 `npm run bot:liru` and forward a public HTTPS test URL to the listener.
