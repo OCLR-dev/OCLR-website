@@ -374,7 +374,6 @@
           "pool_publish",
           "pool_selection_lock",
           "pool_showcase",
-          "pool_showcase_replays",
           "entry_save",
           "entry_remove",
           "entry_refresh",

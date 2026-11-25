@@ -276,14 +276,14 @@ export function readApiSpecification() {
       path: "/{poolId}/replays",
       versionRequired: true,
       description:
-        "List the preferred replay for each slot in this Showcase pool version. Slots without a preferred replay have an empty array. Requires a separate replay grant.",
+        "List the preferred replay for each slot in the granted Showcase pool version. Slots without a preferred replay have an empty array.",
     },
     {
       operationId: "showcaseReplayFile",
       path: "/{poolId}/replays/{replayId}",
       versionRequired: true,
       description:
-        "Download a slot's preferred original private .osr for this Showcase pool version. Unselected attachments are unavailable. Requires a separate replay grant.",
+        "Download a slot's preferred original private .osr for the granted Showcase pool version. Unselected attachments are unavailable.",
       contentTypes: ["application/octet-stream"],
     },
   ];
@@ -328,15 +328,10 @@ export function readApiSpecification() {
         parameters,
         responses: {
           ...responses,
-          ...(replayList || replayFile
-            ? {
-                "403": {
-                  ...responses["403"],
-                  description:
-                    "Streamer or participant check failed, or SHOWCASE_REPLAYS_FORBIDDEN for a pool-only grant.",
-                },
-              }
-            : {}),
+          "403": {
+            ...responses["403"],
+            description: "Streamer or participant check failed.",
+          },
           ...(cover
             ? {
                 "502": {

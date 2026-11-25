@@ -28,6 +28,7 @@ import {
   sessions,
   mappools,
   mappoolEntries,
+  mappoolShowcaseAccess,
   registrations,
   captains,
   refereeSessions,
@@ -899,27 +900,13 @@ describe.skipIf(!url)("streaming read channel #540", () => {
       fetchCover.mockRestore();
     }
   });
-  it("lists every Showcase slot and downloads original replays only for the separately approved version", async () => {
+  it("lists and downloads preferred replays with the current Showcase grant", async () => {
     await configureShowcaseAdmin();
     await db().delete(fixtureStreams);
     const media = await realpath(
       await mkdtemp(join(tmpdir(), "oclr-1189-media-")),
     );
     vi.stubEnv("OCLR_MEDIA_DIR", media);
-    const replayAccess = (
-      poolId: string,
-      expectedVersion: number,
-      enabled = true,
-    ) =>
-      mappoolCommand(showcaseAdmin, slug, {
-        action: "pool_showcase_replays",
-        poolId,
-        expectedVersion,
-        userId: ownerId,
-        enabled,
-        confirmed: true,
-      });
-
     const [pool, other] = await db()
       .insert(mappools)
       .values(
@@ -1011,20 +998,11 @@ describe.skipIf(!url)("streaming read channel #540", () => {
           preferred: true,
         },
       );
-      await expect(replayAccess(pool.id, version)).rejects.toMatchObject({
-        status: 409,
-      });
+      await expectDenied(version, firstReplay.id, 404);
       await grant(pool.id, version);
       expect(
         (await detailShowcase(pool.id, `?version=${version}`)).status,
       ).toBe(200);
-      await expectDenied(
-        version,
-        firstReplay.id,
-        403,
-        "SHOWCASE_REPLAYS_FORBIDDEN",
-      );
-      await replayAccess(pool.id, version);
       const workspace = await poolsModule.mappoolWorkspace(showcaseAdmin, slug);
       expect(
         workspace.pools.find(({ id }) => id === pool.id)?.showcaseGrants,
@@ -1077,8 +1055,18 @@ describe.skipIf(!url)("streaming read channel #540", () => {
       expect(await head.text()).toBe("");
 
       await lock(other.id, 0);
-      await grant(other.id, 1);
-      await replayAccess(other.id, 1);
+      const [lockedOther] = await db()
+        .select({ selectionLockedAt: mappools.selectionLockedAt })
+        .from(mappools)
+        .where(eq(mappools.id, other.id));
+      await db().insert(mappoolShowcaseAccess).values({
+        poolId: other.id,
+        userId: ownerId,
+        approvedVersion: 1,
+        approvedLockAt: lockedOther.selectionLockedAt!,
+        allowReplays: false,
+      });
+      expect((await listReplays(other.id, 1)).status).toBe(200);
       expect((await downloadReplay(other.id, firstReplay.id, 1)).status).toBe(
         404,
       );
@@ -1112,34 +1100,18 @@ describe.skipIf(!url)("streaming read channel #540", () => {
         .spyOn(replayStorage, "readReplay")
         .mockImplementationOnce(async (...args) => {
           const original = await readReplay(...args);
-          await replayAccess(pool.id, version, false);
+          await grant(pool.id, version, false);
           return original;
         });
       try {
         const denied = await downloadReplay(pool.id, firstReplay.id, version);
-        expect(denied.status).toBe(403);
-        expect((await denied.json()).error.code).toBe(
-          "SHOWCASE_REPLAYS_FORBIDDEN",
-        );
+        expect(denied.status).toBe(404);
       } finally {
         revokeDuringRead.mockRestore();
       }
-      await expectDenied(
-        version,
-        firstReplay.id,
-        403,
-        "SHOWCASE_REPLAYS_FORBIDDEN",
-      );
-      expect((await detailShowcase(pool.id)).status).toBe(200);
-
-      await replayAccess(pool.id, version);
-      await grant(pool.id, version, false);
       await expectDenied(version, firstReplay.id, 404);
-      await expect(replayAccess(pool.id, version)).rejects.toMatchObject({
-        status: 409,
-      });
+      expect((await detailShowcase(pool.id)).status).toBe(404);
       await grant(pool.id, version);
-      await replayAccess(pool.id, version);
       expect(await upload(many.id, version)).toMatchObject({
         duplicate: true,
         version,
@@ -1149,13 +1121,6 @@ describe.skipIf(!url)("streaming read channel #540", () => {
       await expectDenied(version, added.id, 404);
       await expectDenied(added.version, added.id, 404);
       await grant(pool.id, added.version);
-      await expectDenied(
-        added.version,
-        added.id,
-        403,
-        "SHOWCASE_REPLAYS_FORBIDDEN",
-      );
-      await replayAccess(pool.id, added.version);
       await expectDenied(version, added.id, 409, "SHOWCASE_VERSION_CHANGED");
       expect(
         (await downloadReplay(pool.id, added.id, added.version)).status,
@@ -1173,7 +1138,6 @@ describe.skipIf(!url)("streaming read channel #540", () => {
       expect(deleted).toEqual({ removed: true, version: added.version + 1 });
       await expectDenied(added.version, secondReplay.id, 404);
       await grant(pool.id, deleted.version);
-      await replayAccess(pool.id, deleted.version);
       expect(
         (await downloadReplay(pool.id, firstReplay.id, deleted.version)).status,
       ).toBe(404);
@@ -1190,7 +1154,6 @@ describe.skipIf(!url)("streaming read channel #540", () => {
       await lock(pool.id, deleted.version + 1);
       const relockedVersion = deleted.version + 2;
       await grant(pool.id, relockedVersion);
-      await replayAccess(pool.id, relockedVersion);
       await mappoolCommand(showcaseAdmin, slug, {
         action: "pool_publish",
         poolId: pool.id,
