@@ -1,51 +1,11 @@
-import { and, eq } from "drizzle-orm";
 import { db, readOnlyData } from "@/db";
-import {
-  importedPlayerRatings,
-  registrations,
-  sipRatingCache,
-} from "@/db/schema";
 import { eventPreview } from "./event-preview";
-import { readEtxRatingSnapshots } from "./etx-rating";
 import { getOtrRating } from "./otr-rating";
 import { importedRatingsEdition as s11 } from "./player-rating-import-contract";
 import { publicPlayerStillListed } from "./players";
-import {
-  legacyProfileEtxSchema,
-  profileCsvTotalSchema,
-  profileEtxSchema,
-  profileOtrSchema,
-  profileSipApiSchema,
-  type ProfileRatings,
-} from "./profile-ratings-model";
+import { profileOtrSchema, type ProfileRatings } from "./profile-ratings-model";
+import { readListedPlayerRatings } from "./listed-player-ratings";
 import { readTournament } from "./tournament-reads";
-
-async function acceptedCsv(osuId: number) {
-  return db()
-    .select({
-      source: importedPlayerRatings.source,
-      value: importedPlayerRatings.value,
-      importedAt: importedPlayerRatings.importedAt,
-      provisional: importedPlayerRatings.provisional,
-      outdated: importedPlayerRatings.outdated,
-      mods: importedPlayerRatings.etxMods,
-    })
-    .from(importedPlayerRatings)
-    .innerJoin(
-      registrations,
-      and(
-        eq(registrations.editionSlug, importedPlayerRatings.editionSlug),
-        eq(registrations.userId, importedPlayerRatings.userId),
-        eq(registrations.status, "accepted"),
-      ),
-    )
-    .where(
-      and(
-        eq(importedPlayerRatings.editionSlug, s11),
-        eq(importedPlayerRatings.userId, osuId),
-      ),
-    );
-}
 
 /** The supplied public participations are candidates, not authority. Neither a
  * self-ID, a staff capability, nor a row left in a rating table grants access.
@@ -77,67 +37,15 @@ export async function readPublishedProfileRatings(
       )
         continue;
 
-      const csv =
-        slug === s11 && !tournament.edition.archive
-          ? await acceptedCsv(osuId)
-          : [];
-      const sip = csv.find((row) => row.source === "sip");
-      const etx = csv.find((row) => row.source === "etx");
-      const etxSnapshot = (await readEtxRatingSnapshots([osuId])).get(osuId);
-      const [cache] = await db()
-        .select({
-          value: sipRatingCache.value,
-          snapshot: sipRatingCache.snapshot,
-          fetchedAt: sipRatingCache.fetchedAt,
-        })
-        .from(sipRatingCache)
-        .where(eq(sipRatingCache.osuId, osuId));
-      const api = profileSipApiSchema.safeParse(
-        cache && {
-          value: cache.value,
-          snapshot: cache.snapshot,
-          fetchedAt: cache.fetchedAt.toISOString(),
-        },
+      const ratings = await readListedPlayerRatings(
+        [osuId],
+        slug === s11 && !tournament.edition.archive,
+        legacy,
       );
-      const csvTotal = profileCsvTotalSchema.safeParse(
-        sip && {
-          value: sip.value,
-          importedAt: sip.importedAt?.toISOString() ?? null,
-        },
-      );
-      const etxSchema = legacy ? legacyProfileEtxSchema : profileEtxSchema;
-      const saved = etxSnapshot?.rating;
-      const providerStars = etxSchema.safeParse(
-        saved && {
-          value: saved.value,
-          provisional: saved.provisional ?? null,
-          outdated: saved.outdated ?? null,
-          importedAt: etxSnapshot.fetchedAt.toISOString(),
-          mods: saved.mods ?? null,
-          ...(!legacy && { source: "api" }),
-        },
-      );
-      // The older wire format cannot represent an unknown provider flag.
-      const stars = providerStars.success
-        ? providerStars
-        : etxSchema.safeParse(
-            etx && {
-              value: etx.value,
-              provisional: etx.provisional,
-              outdated: etx.outdated,
-              importedAt: etx.importedAt?.toISOString() ?? null,
-              mods: etx.mods,
-              ...(!legacy && { source: "csv" }),
-            },
-          );
       const otr = profileOtrSchema.safeParse(await getOtrRating(osuId));
       return {
         otr: otr.success ? otr.data : null,
-        sip: {
-          api: api.success ? api.data : null,
-          csv: csvTotal.success ? csvTotal.data : null,
-        },
-        etx: stars.success ? stars.data : null,
+        ...ratings.get(osuId)!,
       };
     }
     return undefined;

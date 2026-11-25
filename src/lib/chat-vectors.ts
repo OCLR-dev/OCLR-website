@@ -59,7 +59,7 @@ export async function searchSeasonIndex(
   question: string,
   previous: string,
   signal?: AbortSignal,
-  collection?: "artwork",
+  collection?: "artwork" | "players",
   onEmbeddingFallback?: (error: unknown) => void,
 ) {
   const metadata = {

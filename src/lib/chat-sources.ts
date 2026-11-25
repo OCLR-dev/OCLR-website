@@ -163,6 +163,25 @@ export async function chatEvidence(
       total: null,
       sources: [player],
     };
+  if (
+    /\b(?:ETX|SIP)\b/i.test(question) &&
+    /\b(?:mods?|skillsets?|sr|pp|nm|hd|hr|dt|fm|no ?mod|hidden|hard ?rock|double ?time|free ?mod|aim|(?:low|high) ar|high bpm|tapping|precision|technical)\b|分[項项]|技能/i.test(
+      question,
+    )
+  ) {
+    return {
+      edition: edition.name,
+      total: null,
+      sources: await searchSeasonIndex(
+        edition,
+        question,
+        previous,
+        signal,
+        "players",
+        onEmbeddingFallback,
+      ),
+    };
+  }
   const metrics = playerDirectoryRequest(slug, question, previous);
   if (metrics !== null)
     return {
