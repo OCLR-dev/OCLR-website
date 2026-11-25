@@ -16,7 +16,10 @@ function Fixture() {
           viewer={
             location.search.includes("guest")
               ? null
-              : { osuId: 1425010, username: "Synthetic player" }
+              : {
+                  osuId: location.search.includes("other") ? 1425011 : 1425010,
+                  username: "Synthetic player",
+                }
           }
         />
       </main>

@@ -166,6 +166,18 @@ test("stop a pending turn, retry with sources, and start fresh in another editio
   await expect(suggestions).toHaveCount(3);
   await expect.poll(() => suggestions.allTextContents()).not.toEqual(initial);
   expect(new Set(await suggestions.allTextContents()).size).toBe(3);
+  await page.reload();
+  await launcher.click();
+  await expect(questionText).toBeVisible();
+  await expect(history.getByText("Ask the referee.")).toBeVisible();
+  await sourceToggle.click();
+  await expect(sourceLink).toBeVisible();
+  expect(count).toBe(2);
+  await page.goto("/liru-chat?other#ask-liru");
+  await expect(dialog.getByRole("textbox")).toBeVisible();
+  await expect(page.getByRole("log", { includeHidden: true })).toBeEmpty();
+  await page.goto("/liru-chat#ask-liru");
+  await expect(history.getByText("Ask the referee.")).toBeVisible();
   await page.getByRole("button", { name: "Try again" }).click();
   await expect.poll(() => count).toBe(3);
   await page.getByRole("button", { name: "Switch season" }).click();
@@ -189,6 +201,16 @@ test("stop a pending turn, retry with sources, and start fresh in another editio
   await expect
     .poll(() => editions)
     .toEqual(["cup-a", "cup-a", "cup-a", "cup-b"]);
+  await page.getByRole("button", { name: "Clear", exact: true }).click();
+  await expect(page.getByRole("log", { includeHidden: true })).toBeEmpty();
+  await page.reload();
+  await launcher.click();
+  await expect(history.getByText("Ask the referee.")).toBeVisible();
+  await page.getByRole("button", { name: "Clear", exact: true }).click();
+  await page.reload();
+  await launcher.click();
+  await expect(dialog.getByRole("textbox")).toBeVisible();
+  await expect(page.getByRole("log", { includeHidden: true })).toBeEmpty();
 });
 
 test("visitors can open the fixed launcher after scrolling and sign in for the current season", async ({
