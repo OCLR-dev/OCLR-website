@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { lazy, Suspense, useEffect, useId, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { User } from "@/lib/auth/sessions";
@@ -44,13 +43,7 @@ export function LiruChatLauncher({
         aria-label={label}
         title={label}
       >
-        <Image
-          src="/mascot/liru/chat-launcher.webp"
-          alt=""
-          width={36}
-          height={36}
-          unoptimized
-        />
+        <LiruChatIcon size={36} />
       </button>
       <section
         ref={panel}

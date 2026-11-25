@@ -88,7 +88,6 @@ const bundle = await build({
     "/themes/*",
     "/fonts/*",
     "/branding/*",
-    "/mascot/liru/chat-icon.webp",
   ],
   bundle: true,
   write: false,
@@ -154,7 +153,6 @@ createServer((request, response) => {
     response.end(readFileSync(resolve("public", `.${request.url}`)));
   } else if (
     request.url === "/mascot/liru/chat-launcher.webp" ||
-    request.url === "/mascot/liru/chat-icon.webp" ||
     request.url === "/mascot/liru/chat-wink.webp" ||
     themeAssets.has(request.url ?? "") ||
     /^\/mascot\/liru\/gallery\/(elegant-maid|purple-punk)(-640)?\.webp$/.test(
