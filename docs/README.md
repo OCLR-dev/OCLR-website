@@ -24,6 +24,7 @@ Project overview and setup choices are available in [English](../README.md), [ç®
 - [Remote frontend setup](remote-development.md) describes read-only development against an existing backend. See [coverage and service boundaries](remote-coverage.md) and the [generated inventory](remote-coverage.json).
 - [Developer access](developer-api.md) covers grants, credentials, and origins. See the [website permission audit](developer-permissions.md) for direct sessions and delegated reads.
 - [Read API](read-api.md) and [OpenAPI](read-api.openapi.json) describe saved-data resources and browser/SSR clients.
+- [Liru Discord Bot](liru-discord-bot.md) covers public slash commands and Discord test server setup.
 - [Write API inventory and contracts](write-api.md) describes existing browser-session write routes.
 
 ## Public pages, design, and ratings

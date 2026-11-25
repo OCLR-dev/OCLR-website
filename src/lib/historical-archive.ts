@@ -767,7 +767,11 @@ Both source identities are Tier 4. ${pair.people
   });
 }
 
-export function recordedArchiveMatch(m: HistoricalArchive["matches"][number]) {
+export function recordedArchiveMatch(m: {
+  score: HistoricalArchive["matches"][number]["score"];
+  forfeitWinner?: 0 | 1;
+  review?: { status: "pending" | "approved" };
+}) {
   return (
     m.review?.status !== "pending" &&
     (m.score !== null || m.forfeitWinner !== undefined)
