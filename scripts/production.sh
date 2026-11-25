@@ -106,7 +106,10 @@ if [[ "$action" == setup || "$action" == prepare ]]; then
   if [[ "$action" == setup ]]; then
     run 'npm run release:check' preparation_command run release:check
   else
-    run 'npm run check' preparation_command run check
+    # Next.js checks application types during build. CI also checks test types.
+    run 'npm run lint' preparation_command run lint
+    run 'npm run archive:relations:check' preparation_command run archive:relations:check
+    run 'npm run write-api:check' preparation_command run write-api:check
   fi
   run 'npm run build' preparation_command run build
   if "$dry_run"; then

@@ -82,7 +82,9 @@ exit 0
     expect(result.status).toBe(0);
     expect(calls).toEqual([
       "ci --include=dev|runtime|unset",
-      "run check|runtime|unset",
+      "run lint|runtime|unset",
+      "run archive:relations:check|runtime|unset",
+      "run write-api:check|runtime|unset",
       "run build|runtime|unset",
     ]);
   });
@@ -114,7 +116,9 @@ exit 0
       expect(result.status).toBe(0);
       expect(heaps).toEqual([
         `ci --include=dev|${options}`,
-        `run check|${options}`,
+        `run lint|${options}`,
+        `run archive:relations:check|${options}`,
+        `run write-api:check|${options}`,
         `run build|${options}`,
       ]);
     }
@@ -125,7 +129,9 @@ exit 0
     expect(result.status).toBe(0);
     expect(heaps).toEqual([
       "ci --include=dev|--no-warnings --max-old-space-size=1024",
-      "run check|--no-warnings --max-old-space-size=1024 --max-old-space-size=4096",
+      "run lint|--no-warnings --max-old-space-size=1024 --max-old-space-size=4096",
+      "run archive:relations:check|--no-warnings --max-old-space-size=1024 --max-old-space-size=4096",
+      "run write-api:check|--no-warnings --max-old-space-size=1024 --max-old-space-size=4096",
       "run build|--no-warnings --max-old-space-size=1024 --max-old-space-size=4096",
     ]);
   });
@@ -149,14 +155,16 @@ exit 0
       expect(result.stderr).toContain("OCLR_BUILD_HEAP_MB must be an integer");
     }
   });
-  it("keeps check failures fatal and never starts the build", () => {
+  it("keeps contract check failures fatal and never starts the build", () => {
     const { result, calls } = simulatedSetup(false, "prepare", {
-      FAIL_COMMAND: "check",
+      FAIL_COMMAND: "write-api:check",
     });
     expect(result.status).toBe(134);
     expect(calls).toEqual([
       "ci --include=dev|runtime|unset",
-      "run check|runtime|unset",
+      "run lint|runtime|unset",
+      "run archive:relations:check|runtime|unset",
+      "run write-api:check|runtime|unset",
     ]);
     expect(result.stderr).toContain("later steps were not run");
   });
