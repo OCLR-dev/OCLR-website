@@ -1,9 +1,19 @@
 import { afterAll, beforeAll, expect, it, vi } from "vitest";
-import { eq, sql } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { closeDb, db } from "@/db";
-import { chatSourceVectors as vectors } from "@/db/schema";
+import {
+  chatSourceVectors as vectors,
+  etxRatingCache,
+  importedPlayerRatings,
+  otrRatingCache,
+  registrations,
+  sipRatingCache,
+  userProfileCache,
+  users,
+} from "@/db/schema";
 import { refreshChatIndex } from "@/lib/chat-index-worker";
 import { chatEvidence } from "@/lib/chat-sources";
+import { normalizeOsuProfile } from "@/lib/osu-profile-model";
 import { searchSeasonIndex } from "@/lib/chat-vectors";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
@@ -139,6 +149,227 @@ it.skipIf(!url)(
         .from(vectors)
         .where(eq(vectors.editionSlug, archived.slug)),
     ).toEqual([]);
+  },
+);
+
+it.skipIf(!url)(
+  "indexes the complete public directory and answers metric rankings from its current saved values",
+  async () => {
+    const s11 = { ...edition, slug: "s11" };
+    const accepted = { osuId: 1431543, username: "Directory Released" };
+    const second = { osuId: 1431544, username: "Directory Second" };
+    const pending = { osuId: 1431545, username: "Directory Pending" };
+    const players = [accepted, second, pending];
+    const savedAt = new Date("2026-11-25T00:00:00Z");
+    await seedEditions([s11]);
+    await db().insert(users).values(players).onConflictDoNothing();
+    await db()
+      .insert(registrations)
+      .values(
+        players.map((player) => ({
+          editionSlug: s11.slug,
+          userId: player.osuId,
+          status:
+            player === pending ? ("pending" as const) : ("accepted" as const),
+          answers: {},
+        })),
+      );
+    for (const [index, player] of players.entries()) {
+      const profile = normalizeOsuProfile(
+        {
+          id: player.osuId,
+          username: player.username,
+          statistics: {
+            global_rank: [5000, 2000, 100][index],
+            pp: 4321 - index,
+          },
+        },
+        player.osuId,
+        "osu",
+        savedAt.toISOString(),
+      );
+      await db()
+        .insert(userProfileCache)
+        .values({
+          osuId: player.osuId,
+          mode: "osu",
+          profile,
+          attemptedAt: savedAt,
+          retryAt: savedAt,
+        })
+        .onConflictDoUpdate({
+          target: [userProfileCache.osuId, userProfileCache.mode],
+          set: { profile },
+        });
+    }
+    await db()
+      .insert(otrRatingCache)
+      .values(
+        players.map((player, index) => ({
+          osuId: player.osuId,
+          retryAt: savedAt,
+          rating: {
+            value: [1234, 1100, 9999][index],
+            fetchedAt: savedAt.toISOString(),
+            profileUrl: `https://synthetic.invalid/player/${player.osuId}`,
+          },
+        })),
+      )
+      .onConflictDoUpdate({
+        target: otrRatingCache.osuId,
+        set: { rating: sql`excluded.rating` },
+      });
+    await db()
+      .insert(sipRatingCache)
+      .values({
+        osuId: accepted.osuId,
+        value: -2.1,
+        fetchedAt: savedAt,
+      })
+      .onConflictDoUpdate({
+        target: sipRatingCache.osuId,
+        set: { value: -2.1, fetchedAt: savedAt },
+      });
+    await db()
+      .insert(importedPlayerRatings)
+      .values(
+        [accepted, second].map((player) => ({
+          editionSlug: s11.slug,
+          userId: player.osuId,
+          source: "etx" as const,
+          value: 9,
+        })),
+      );
+    await db()
+      .insert(etxRatingCache)
+      .values([
+        {
+          osuId: accepted.osuId,
+          rating: { value: 5.8, provisional: true, outdated: false },
+          fetchedAt: savedAt,
+          attemptedOn: "2026-11-25",
+        },
+        {
+          osuId: second.osuId,
+          rating: null,
+          fetchedAt: savedAt,
+          attemptedOn: "2026-11-25",
+        },
+      ])
+      .onConflictDoUpdate({
+        target: etxRatingCache.osuId,
+        set: { rating: sql`excluded.rating`, fetchedAt: savedAt },
+      });
+
+    const directoryUrl = "https://oclr.org/tournaments/s11/players";
+    calls.length = 0;
+    const comparison = await chatEvidence(
+      "s11",
+      directoryUrl + "\n這個就是了",
+      "哪個選手的全球排名最好？",
+    );
+    expect(comparison.playerDirectory).toBe(true);
+    expect(
+      comparison.sources.every(
+        (source) => source.url === "/tournaments/s11/players",
+      ),
+    ).toBe(true);
+    expect(JSON.parse(comparison.sources[1].text)).toMatchObject({
+      totalPlayers: 2,
+      playersWithValue: 2,
+      top: [
+        { name: second.username, value: 2000 },
+        { name: accepted.username, value: 5000 },
+      ],
+    });
+    expect(calls).toHaveLength(0);
+    const otr = await chatEvidence("s11", "這屆選手的 o!TR 排名", "");
+    expect(otr.sources.map((source) => source.title)).toEqual([
+      "Public player directory",
+      "Players · o!TR (OTR)",
+    ]);
+
+    const indexed = () =>
+      db()
+        .select({ url: vectors.url, content: vectors.content })
+        .from(vectors)
+        .where(
+          and(
+            eq(vectors.editionSlug, s11.slug),
+            eq(vectors.collection, "players"),
+          ),
+        );
+    expect((await refreshChatIndex()).failed).toBe(0);
+    const first = await indexed();
+    expect(calls.flat().join(" ")).not.toContain(pending.username);
+    const doc = first.find(
+      (row) => row.url === `/players/${accepted.osuId}?edition=s11`,
+    );
+    expect(JSON.parse(doc!.content)).toMatchObject({
+      rank: 5000,
+      pp: 4321,
+      otr: 1234,
+      sip: -2.1,
+      etx: 5.8,
+      etxProvisional: true,
+    });
+    expect(
+      JSON.parse(
+        first.find((row) => row.url === `/players/${second.osuId}?edition=s11`)!
+          .content,
+      ),
+    ).toMatchObject({
+      etx: null,
+      sip: null,
+    });
+    expect(await refreshChatIndex()).toMatchObject({
+      updated: 0,
+      removed: 0,
+      failed: 0,
+    });
+
+    await db()
+      .update(otrRatingCache)
+      .set({
+        rating: {
+          value: 900,
+          fetchedAt: savedAt.toISOString(),
+          profileUrl: "https://synthetic.invalid/player",
+        },
+      })
+      .where(eq(otrRatingCache.osuId, accepted.osuId));
+    const refreshed = await refreshChatIndex();
+    expect(refreshed.failed).toBe(0);
+    expect(refreshed.updated).toBeGreaterThan(0);
+    expect(refreshed.removed).toBeGreaterThan(0);
+    expect(
+      (await indexed()).some((row) => row.content.includes('"otr":900')),
+    ).toBe(true);
+
+    await db()
+      .update(registrations)
+      .set({ status: "withdrawn" })
+      .where(
+        and(
+          eq(registrations.editionSlug, s11.slug),
+          eq(registrations.userId, accepted.osuId),
+        ),
+      );
+    const current = await chatEvidence("s11", "這屆選手的 ETX 排行", "");
+    expect(JSON.parse(current.sources[1].text)).toMatchObject({
+      totalPlayers: 1,
+      playersWithValue: 0,
+      top: [],
+    });
+    expect(
+      (await searchSeasonIndex(s11, accepted.username, "")).every(
+        (row) => !row.text.includes(accepted.username),
+      ),
+    ).toBe(true);
+    expect((await refreshChatIndex()).removed).toBeGreaterThan(0);
+    expect(
+      (await indexed()).some((row) => row.url.includes(String(accepted.osuId))),
+    ).toBe(false);
   },
 );
 
