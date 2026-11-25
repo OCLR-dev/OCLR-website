@@ -95,7 +95,9 @@ const archivedTournament = z.object({
             })
             .extend({
               review: z
-                .object({ status: z.enum(["pending", "approved"]) })
+                .object({
+                  status: archiveMatch.shape.review.unwrap().shape.status,
+                })
                 .optional(),
             })
             .strip(),
