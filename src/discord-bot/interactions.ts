@@ -28,7 +28,7 @@ const commandInteraction = z.object({
   type: z.literal(InteractionType.APPLICATION_COMMAND),
   application_id: snowflake,
   guild_id: snowflake,
-  token: z.string().regex(/^[a-z0-9_-]{1,512}$/i),
+  token: z.string().min(1).max(1024),
   locale: z.string().max(20).optional(),
   member: z.object({ user: z.object({ id: snowflake }) }),
   data: z.unknown(),
@@ -166,7 +166,7 @@ export function interactionHandler(
             now,
           });
           outcome = result.outcome;
-          const url = `https://discord.com/api/v10/webhooks/${settings.applicationId}/${interaction.token}/messages/@original`;
+          const url = `https://discord.com/api/v10/webhooks/${settings.applicationId}/${encodeURIComponent(interaction.token)}/messages/@original`;
           const response = await request(url, {
             method: "PATCH",
             headers: { "content-type": "application/json" },

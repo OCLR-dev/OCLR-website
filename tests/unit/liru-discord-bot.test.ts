@@ -405,7 +405,7 @@ describe("Liru Discord interactions", () => {
     guild_id: settings.guildId,
     type: 2,
     locale: "zh-TW",
-    token: "synthetic-token",
+    token: "synthetic-token:example.token",
     member: { user: { id: "123456789012345680" } },
     data: {
       type: 1,
@@ -479,7 +479,7 @@ describe("Liru Discord interactions", () => {
     expect((await handler(payload(81))).finish).toBeUndefined();
     await first.finish?.();
     expect(String(request.mock.calls[2][0])).toBe(
-      "https://discord.com/api/v10/webhooks/123456789012345678/synthetic-token/messages/@original",
+      "https://discord.com/api/v10/webhooks/123456789012345678/synthetic-token%3Aexample.token/messages/@original",
     );
     expect(request.mock.calls[2][1]).toMatchObject({ method: "PATCH" });
     expect(JSON.parse(String(request.mock.calls[2][1]?.body))).toMatchObject({
