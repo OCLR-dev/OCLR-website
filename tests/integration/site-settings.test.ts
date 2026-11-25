@@ -84,12 +84,16 @@ describe.skipIf(!url)("global site appearance settings", () => {
     vi.unstubAllEnvs();
   });
   it("saves and clears a prompt with global authorization, revisions and redacted audit history", async () => {
-    const savePrompt = (prompt: string, expectedRevision: number) =>
+    const savePrompt = (
+      prompt: string,
+      expectedRevision: number,
+      maxOutputTokens?: unknown,
+    ) =>
       PATCH_CHAT(
         new Request(origin + "/api/admin/settings/chat", {
           method: "PATCH",
           headers: { origin, "content-type": "application/json" },
-          body: JSON.stringify({ prompt, expectedRevision }),
+          body: JSON.stringify({ prompt, expectedRevision, maxOutputTokens }),
         }),
       );
     vi.mocked(requireUser).mockResolvedValue(operator);
@@ -98,9 +102,13 @@ describe.skipIf(!url)("global site appearance settings", () => {
     vi.mocked(requireUser).mockResolvedValue(admin);
     expect(await chatPromptForAdmin(admin)).toEqual({
       prompt: "",
+      maxOutputTokens: 2048,
       revision: 0,
     });
     expect((await savePrompt("x".repeat(3001), 0)).status).toBe(400);
+    for (const invalid of [0, 16385, 1.5, "2048", null]) {
+      expect((await savePrompt("", 0, invalid)).status).toBe(400);
+    }
     const prompt = "Synthetic prompt with unique instructions.";
     const response = await savePrompt(" " + prompt + " ", 0);
     expect(response.status).toBe(200);
@@ -112,11 +120,33 @@ describe.skipIf(!url)("global site appearance settings", () => {
       prompt: "",
       revision: 2,
     });
+    expect(await (await savePrompt("", 2, 16384)).json()).toEqual({
+      prompt: "",
+      maxOutputTokens: 16384,
+      revision: 3,
+    });
+    expect((await savePrompt("", 2, 1)).status).toBe(409);
+    expect(await (await savePrompt("", 3, 16384)).json()).toMatchObject({
+      revision: 3,
+    });
+    expect(await (await savePrompt("Legacy edit", 3)).json()).toEqual({
+      prompt: "Legacy edit",
+      revision: 4,
+    });
+    expect(await chatPromptForAdmin(admin)).toMatchObject({
+      maxOutputTokens: 16384,
+    });
     const audit = await auditLog(admin, { module: "site" });
     expect(audit.rows.map((row) => row.action)).toEqual([
       "chat_prompt_updated",
       "chat_prompt_updated",
+      "chat_prompt_updated",
+      "chat_prompt_updated",
     ]);
+    expect(audit.rows[1]).toMatchObject({
+      before: { outputLimit: 2048 },
+      after: { outputLimit: 16384 },
+    });
     expect(JSON.stringify(audit)).not.toContain(prompt);
     expect(await siteSettingsForAdmin(admin)).toMatchObject({ revision: 0 });
   });

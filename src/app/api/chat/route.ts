@@ -93,12 +93,14 @@ export async function POST(request: Request) {
     trace("prompt_ready", undefined, {
       customPrompt: Boolean(settings.prompt),
       promptRevision: settings.revision,
+      maxOutputTokens: settings.maxOutputTokens,
     });
     stage = "response";
     request.signal.throwIfAborted();
     return chatAnswer({
       diagnostics,
       assistantPrompt: settings.prompt,
+      maxOutputTokens: settings.maxOutputTokens,
       config,
       evidence,
       locale,

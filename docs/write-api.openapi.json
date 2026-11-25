@@ -41964,8 +41964,8 @@
     "/api/admin/settings/chat": {
       "patch": {
         "operationId": "updateChatPrompt",
-        "summary": "Update the sitewide Liru chat prompt",
-        "description": "Requires a local browser session and global configure_tournament permission. A blank prompt restores the built-in behavior. A stale revision is rejected and unchanged saves do not create audit events.",
+        "summary": "Update the sitewide Liru chat settings",
+        "description": "Requires a local browser session and global configure_tournament permission. A blank prompt restores the built-in behavior. maxOutputTokens sets the limit for subsequent replies. Omitting it preserves the saved limit and the original prompt-only response shape. A stale revision is rejected and unchanged saves do not create audit events.",
         "security": [
           {
             "browserSession": []
@@ -41997,6 +41997,11 @@
                     "type": "string",
                     "maxLength": 3000
                   },
+                  "maxOutputTokens": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 16384
+                  },
                   "expectedRevision": {
                     "type": "integer",
                     "minimum": 0,
@@ -42014,7 +42019,7 @@
         },
         "responses": {
           "200": {
-            "description": "The saved prompt and its current revision.",
+            "description": "The saved prompt and revision, plus the output limit when requested.",
             "headers": {
               "Cache-Control": {
                 "schema": {
@@ -42032,6 +42037,11 @@
                       "type": "string",
                       "maxLength": 3000
                     },
+                    "maxOutputTokens": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 16384
+                    },
                     "revision": {
                       "type": "integer",
                       "minimum": 0,
@@ -42048,7 +42058,7 @@
             }
           },
           "400": {
-            "description": "Invalid prompt or revision.",
+            "description": "Invalid prompt, output token limit or revision.",
             "content": {
               "application/json": {
                 "schema": {

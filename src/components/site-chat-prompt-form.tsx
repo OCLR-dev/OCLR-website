@@ -4,15 +4,20 @@ import { useState, type FormEvent } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import {
   chatPromptLimit,
+  maximumChatOutputTokens,
   updateChatPromptWrite,
 } from "@/lib/chat-prompt-contract";
 
-type ChatPrompt = { prompt: string; revision: number };
+type ChatPrompt = { prompt: string; maxOutputTokens: number; revision: number };
 
 export function SiteChatPromptForm({ initial }: { initial: ChatPrompt }) {
   const tr = useAppTranslations();
   const [saved, setSaved] = useState(initial);
   const [prompt, setPrompt] = useState(initial.prompt);
+  const [tokens, setTokens] = useState(String(initial.maxOutputTokens));
+  const maxOutputTokens = Number(tokens);
+  const changed =
+    prompt.trim() !== saved.prompt || maxOutputTokens !== saved.maxOutputTokens;
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [error, setError] = useState("");
@@ -20,7 +25,7 @@ export function SiteChatPromptForm({ initial }: { initial: ChatPrompt }) {
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (busy || stale || prompt.trim() === saved.prompt) return;
+    if (busy || stale || !changed) return;
     setBusy(true);
     setFeedback("");
     setError("");
@@ -28,7 +33,11 @@ export function SiteChatPromptForm({ initial }: { initial: ChatPrompt }) {
       const response = await fetch(updateChatPromptWrite.path, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, expectedRevision: saved.revision }),
+        body: JSON.stringify({
+          prompt,
+          maxOutputTokens,
+          expectedRevision: saved.revision,
+        }),
       });
       const body = await response.json();
       if (!response.ok) {
@@ -36,9 +45,12 @@ export function SiteChatPromptForm({ initial }: { initial: ChatPrompt }) {
         setError(tr(body.error));
         return;
       }
-      const next = updateChatPromptWrite.response.parse(body);
+      const next = updateChatPromptWrite.response
+        .required({ maxOutputTokens: true })
+        .parse(body);
       setSaved(next);
       setPrompt(next.prompt);
+      setTokens(String(next.maxOutputTokens));
       setFeedback(tr("Liru chat settings saved."));
     } catch {
       setError(tr("This request could not be completed. Please try again."));
@@ -66,11 +78,26 @@ export function SiteChatPromptForm({ initial }: { initial: ChatPrompt }) {
             "Adjust the tone and format of Liru’s replies. Leave blank to use the built-in settings. Keep passwords, API keys and private information out of this field.",
           )}
         </small>
+        <label className="field">
+          <span>{tr("Output limit per reply (tokens)")}</span>
+          <input
+            type="number"
+            min={1}
+            max={maximumChatOutputTokens}
+            step={1}
+            required
+            value={tokens}
+            aria-describedby="liru-output-help"
+            onChange={(event) => setTokens(event.target.value)}
+          />
+        </label>
+        <small id="liru-output-help">
+          {tr(
+            "Choose 1 to 16,384. The default is 2,048. Changes apply to the next question. Choose a limit supported by your model.",
+          )}
+        </small>
         <div className="actions">
-          <button
-            type="submit"
-            disabled={stale || prompt.trim() === saved.prompt}
-          >
+          <button type="submit" disabled={stale || !changed}>
             {busy ? tr("Saving…") : tr("Save")}
           </button>
         </div>
