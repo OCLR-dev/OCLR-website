@@ -5,7 +5,11 @@ import { refreshChatIndex } from "../src/lib/chat-index-worker";
 async function main() {
   env.loadEnvConfig(process.cwd(), process.env.NODE_ENV !== "production");
   try {
-    const result = await refreshChatIndex();
+    const result = await refreshChatIndex((progress) =>
+      console.log(
+        JSON.stringify({ event: "chat_artwork_progress", ...progress }),
+      ),
+    );
     console.log(JSON.stringify(result));
     if (result.failed) process.exitCode = 1;
   } finally {

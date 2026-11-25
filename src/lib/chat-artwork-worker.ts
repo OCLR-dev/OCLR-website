@@ -6,7 +6,11 @@ import { inArray } from "drizzle-orm";
 import sharp from "sharp";
 import { db } from "@/db";
 import { chatArtworkCaptions as captions } from "@/db/schema";
-import { publicArtwork, visionConfiguration } from "./chat-artwork";
+import {
+  describedArtwork,
+  publicArtwork,
+  visionConfiguration,
+} from "./chat-artwork";
 import { chatProvider } from "./chat-provider";
 import type { Edition } from "./editions";
 import { readOsuImage } from "./osu-image-cache";
@@ -20,28 +24,42 @@ async function artworkBytes(image: string) {
 
 export async function refreshArtwork(edition: Edition, visited: Set<string>) {
   const vision = visionConfiguration();
-  if (!vision) return 0;
-  const images = [
-    ...new Set((await publicArtwork(edition)).map((m) => m.image)),
-  ].filter((image) => !visited.has(image));
-  if (!images.length) return 0;
-  const saved = await db()
-    .select()
-    .from(captions)
-    .where(inArray(captions.image, images));
-  const before = new Map(saved.map((row) => [row.image, row]));
-  // Persist attempt times so missing images cannot starve the rest of a large pool.
-  images.sort(
-    (a, b) =>
-      (before.get(a)?.checkedAt.getTime() ?? 0) -
-      (before.get(b)?.checkedAt.getTime() ?? 0),
+  if (!vision) return null;
+  const { maps, unresolvedSlots, lookupIncomplete } =
+    await publicArtwork(edition);
+  const images = [...new Set(maps.map((map) => map.image))];
+  const before = new Map(
+    (images.length
+      ? await db()
+          .select()
+          .from(captions)
+          .where(inArray(captions.image, images))
+      : []
+    ).map((row) => [row.image, row]),
   );
+  const descriptions = new Map(
+    images.flatMap((image) => {
+      const saved = before.get(image);
+      return saved?.model === vision.key
+        ? [[image, saved.caption] as const]
+        : [];
+    }),
+  );
+  const available = images.filter((image) => !visited.has(image));
+  const checkedAt = (image: string) =>
+    descriptions.has(image) ? (before.get(image)?.checkedAt.getTime() ?? 0) : 0;
+  available.sort((a, b) => checkedAt(a) - checkedAt(b));
+  const missing = available.filter((image) => !descriptions.get(image));
+  const ready = available.filter((image) => !!descriptions.get(image));
+  // Reserve one recheck for cached images when a backlog persists.
+  const queue = missing.slice(0, ready.length ? 15 : 16);
+  queue.push(...ready.slice(0, 16 - queue.length));
   let failed = 0;
-  for (const image of images.slice(0, 16)) {
+  for (const image of queue) {
     visited.add(image);
     const old = before.get(image);
     let digest = old?.digest ?? null;
-    let caption = old?.model === vision.key ? old.caption : null;
+    let caption = descriptions.get(image) ?? null;
     try {
       const bytes = await artworkBytes(image);
       if (!bytes) throw new Error("Artwork unavailable");
@@ -87,6 +105,14 @@ export async function refreshArtwork(edition: Edition, visited: Set<string>) {
       .insert(captions)
       .values({ image, ...state })
       .onConflictDoUpdate({ target: captions.image, set: state });
+    descriptions.set(image, caption);
   }
-  return failed;
+  return {
+    maps,
+    unresolvedSlots,
+    lookupIncomplete,
+    descriptions,
+    failed,
+    sources: describedArtwork(maps, descriptions),
+  };
 }
