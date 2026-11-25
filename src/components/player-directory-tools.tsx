@@ -185,7 +185,7 @@ export function PlayerDirectoryTools({
   );
   return (
     <div className={styles.tools}>
-      <div className={styles.primary}>
+      <div className={styles.controls}>
         <form onSubmit={(e) => e.preventDefault()} className={styles.search}>
           <label className="field">
             <span>{tr("Search players")}</span>
@@ -224,54 +224,61 @@ export function PlayerDirectoryTools({
           type="button"
           className={styles.toggle}
           aria-expanded={expanded}
-          aria-controls={`${id}-filters`}
+          aria-controls={
+            visibleMetrics.length > 0
+              ? `${id}-filters ${id}-advanced`
+              : `${id}-filters`
+          }
           onClick={() => setExpanded(!expanded)}
         >
           {tr("Filters")} ({active.length})
         </button>
-        {actions}
+        <div
+          id={`${id}-filters`}
+          className={`${styles.filters} ${expanded ? styles.expanded : ""}`}
+        >
+          {teamLabels.size > 0 && (
+            <label className="field">
+              <span>{tr("Team")}</span>
+              <select
+                aria-label={tr("Team")}
+                value={state.team}
+                onChange={(e) => update({ team: e.target.value })}
+              >
+                <option value="">{tr("All teams")}</option>
+                {[...teamLabels].map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          {(roles.size > 1 || state.role !== "") && (
+            <label className="field">
+              <span>{tr("Role")}</span>
+              <select
+                aria-label={tr("Role")}
+                value={state.role}
+                onChange={(e) => update({ role: e.target.value })}
+              >
+                <option value="">{tr("All roles")}</option>
+                {[...roles].map((role) => (
+                  <option key={role} value={role}>
+                    {roleLabel(role)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+        </div>
+        {actions && <div className={styles.actions}>{actions}</div>}
       </div>
-      <div
-        id={`${id}-filters`}
-        className={`${styles.filters} ${expanded ? styles.expanded : ""}`}
-      >
-        {teamLabels.size > 0 && (
-          <label className="field">
-            <span>{tr("Team")}</span>
-            <select
-              aria-label={tr("Team")}
-              value={state.team}
-              onChange={(e) => update({ team: e.target.value })}
-            >
-              <option value="">{tr("All teams")}</option>
-              {[...teamLabels].map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
-        {(roles.size > 1 || state.role !== "") && (
-          <label className="field">
-            <span>{tr("Role")}</span>
-            <select
-              aria-label={tr("Role")}
-              value={state.role}
-              onChange={(e) => update({ role: e.target.value })}
-            >
-              <option value="">{tr("All roles")}</option>
-              {[...roles].map((role) => (
-                <option key={role} value={role}>
-                  {roleLabel(role)}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
+      <div className={styles.secondary}>
         {visibleMetrics.length > 0 && (
           <details
-            className={styles.advanced}
+            id={`${id}-advanced`}
+            className={`${styles.advanced} ${expanded ? styles.expanded : ""}`}
             open={advancedOpen}
             onToggle={(event) => setAdvancedOpen(event.currentTarget.open)}
           >
@@ -339,6 +346,23 @@ export function PlayerDirectoryTools({
             </div>
           </details>
         )}
+        <div className={styles.status}>
+          <p
+            className="muted"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            {waitingForRating
+              ? tr("Loading o!TR ratings…")
+              : `${rows.length} / ${total} ${tr("Players")}`}
+          </p>
+          {canClear && (
+            <button type="button" onClick={reset}>
+              {tr("Clear filters")}
+            </button>
+          )}
+        </div>
       </div>
       {grouping && (
         <div className="event-tabs">
@@ -391,23 +415,6 @@ export function PlayerDirectoryTools({
           )}
         </div>
       )}
-      <div className={styles.status}>
-        <p
-          className="muted"
-          role="status"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          {waitingForRating
-            ? tr("Loading o!TR ratings…")
-            : `${rows.length} / ${total} ${tr("Players")}`}
-        </p>
-        {canClear && (
-          <button type="button" onClick={reset}>
-            {tr("Clear filters")}
-          </button>
-        )}
-      </div>
       {active.length > 0 && (
         <ul className={styles.applied} aria-label={tr("Applied filters")}>
           {active.map((key) => (

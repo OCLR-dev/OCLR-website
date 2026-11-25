@@ -12,15 +12,20 @@
   margin: 0;
   padding-bottom: 0.5rem;
 }
-.primary {
+.controls,
+.filters {
   display: flex;
   flex-wrap: wrap;
   align-items: end;
   gap: 0.75rem;
+  min-width: 0;
+}
+.tools .controls :is(input, select, button) {
+  min-block-size: max(3rem, var(--button-height, 2.75rem));
 }
 .search {
   display: flex;
-  flex: 2 1 18rem;
+  flex: 2 1 16rem;
   align-items: end;
   gap: 0.5rem;
   min-width: 0;
@@ -29,8 +34,8 @@
   flex: 1;
   min-width: 0;
 }
-.primary > label {
-  flex: 1 1 14rem;
+.controls > label {
+  flex: 1 1 12rem;
   min-width: 0;
 }
 .tools :global(.field) {
@@ -44,30 +49,44 @@
   max-width: 100%;
 }
 .filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1rem;
-  align-items: end;
-  min-width: 0;
+  flex: 1 1 20rem;
+}
+.filters:empty {
+  display: none;
 }
 .filters > label:global(.field) {
-  flex: 1 1 12rem;
+  flex: 1 1 9rem;
   max-width: 24rem;
 }
+.actions {
+  margin-inline-start: auto;
+  white-space: nowrap;
+}
+.secondary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.secondary > .status {
+  margin-inline-start: auto;
+}
 .advanced {
-  flex-basis: 100%;
   min-width: 0;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-panel);
   background: var(--color-surface);
   overflow: hidden;
 }
+.advanced[open] {
+  flex-basis: 100%;
+}
 .advanced summary {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  min-height: 3.25rem;
-  padding: 0.75rem 1rem;
+  min-height: var(--button-height, 2.75rem);
+  padding: 0.5rem 0.75rem;
   color: var(--color-foreground);
   font-size: var(--text-small);
   font-weight: 600;
@@ -196,24 +215,30 @@
   display: none;
 }
 @media (max-width: 640px) {
-  .primary {
-    align-items: stretch;
-  }
   .search {
     flex-basis: 100%;
   }
-  .primary > label {
+  .controls > label {
     flex: 1 1 10rem;
   }
   .toggle {
     display: block;
     align-self: end;
   }
-  .filters {
+  .filters,
+  .advanced {
     display: none;
   }
-  .filters.expanded {
+  .filters.expanded:not(:empty) {
     display: flex;
+    flex-basis: 100%;
+  }
+  .advanced.expanded {
+    display: block;
+    flex-basis: 100%;
+  }
+  .secondary > .status {
+    margin-inline-start: 0;
   }
   .filters > label:global(.field) {
     max-width: none;
