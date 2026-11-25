@@ -1,5 +1,4 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
 import type { AppTranslator } from "@/i18n/translate";
 import type { captainSetup } from "@/lib/captain-reads";
 import type { MappoolWorkspace } from "@/lib/mappool-reads";
@@ -23,22 +22,6 @@ function nextScheduled<
     }
   }
   return next;
-}
-
-function List({ rows, tr }: { rows: ReactNode[]; tr: AppTranslator }) {
-  return (
-    <>
-      <ul className={styles.list}>{rows.slice(0, 6)}</ul>
-      {rows.length > 6 && (
-        <details className={styles.more}>
-          <summary>
-            {tr("Show {count} more", { count: rows.length - 6 })}
-          </summary>
-          <ul className={styles.list}>{rows.slice(6)}</ul>
-        </details>
-      )}
-    </>
-  );
 }
 
 export function TournamentDashboardSummary({
@@ -136,64 +119,58 @@ export function TournamentDashboardSummary({
           )}
         </section>
       )}
-      {(captains || pools) && (
-        <div className={styles.columns}>
-          {captains && (
-            <section className={styles.card}>
-              <h2>
-                <Link href={`${base}/captains`}>{tr("Captains")}</Link>
-                <span className="badge">{captains.length}</span>
-              </h2>
-              {captains.length ? (
-                <List
-                  tr={tr}
-                  rows={captains.map((c, index) => (
-                    <li key={c.userId}>
-                      <span className={styles.number}>{index + 1}</span>
-                      <strong>{c.username}</strong>
-                      {c.teamName && c.teamName !== c.username && (
-                        <small>{c.teamName}</small>
-                      )}
-                    </li>
-                  ))}
-                />
-              ) : (
-                <p className="muted">{tr("No captains appointed.")}</p>
-              )}
-            </section>
+      {captains && (
+        <section className={styles.card}>
+          <h2>
+            <Link href={`${base}/captains`}>{tr("Captains")}</Link>
+            <span className="badge">{captains.length}</span>
+          </h2>
+          {captains.length ? (
+            <ol className={styles.list}>
+              {captains.map((c, index) => (
+                <li key={c.userId}>
+                  <span className={styles.number}>{index + 1}</span>
+                  <strong>{c.username}</strong>
+                  {c.teamName && c.teamName !== c.username && (
+                    <small>{c.teamName}</small>
+                  )}
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="muted">{tr("No captains appointed.")}</p>
           )}
-          {pools && (
-            <section className={styles.card}>
-              <h2>
-                <Link href={`${base}/mappools`}>{tr("Mappools")}</Link>
-                <span className="badge">{pools.pools.length}</span>
-              </h2>
-              {pools.pools.length ? (
-                <List
-                  tr={tr}
-                  rows={pools.pools.map((p) => (
-                    <li key={p.id} className={styles.pool}>
-                      <strong>{p.name}</strong>
-                      <small>
-                        {tr("{count} maps", {
-                          count: mapCounts.get(p.id) ?? 0,
-                        })}
-                      </small>
-                      <span
-                        className={styles.status}
-                        data-published={p.publishedAt ? true : undefined}
-                      >
-                        {p.publishedAt ? tr("Published") : tr("Unpublished")}
-                      </span>
-                    </li>
-                  ))}
-                />
-              ) : (
-                <p className="muted">{tr("No mappools recorded.")}</p>
-              )}
-            </section>
+        </section>
+      )}
+      {pools && (
+        <section className={styles.card}>
+          <h2>
+            <Link href={`${base}/mappools`}>{tr("Mappools")}</Link>
+            <span className="badge">{pools.pools.length}</span>
+          </h2>
+          {pools.pools.length ? (
+            <ul className={styles.list}>
+              {pools.pools.map((p) => (
+                <li key={p.id} className={styles.pool}>
+                  <strong>{p.name}</strong>
+                  <small>
+                    {tr("{count} maps", {
+                      count: mapCounts.get(p.id) ?? 0,
+                    })}
+                  </small>
+                  <span
+                    className={styles.status}
+                    data-published={p.publishedAt ? true : undefined}
+                  >
+                    {p.publishedAt ? tr("Published") : tr("Unpublished")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="muted">{tr("No mappools recorded.")}</p>
           )}
-        </div>
+        </section>
       )}
     </div>
   );
