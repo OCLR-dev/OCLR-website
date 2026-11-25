@@ -11,7 +11,11 @@ import {
 } from "@/components/historical-archive";
 import { getAppTranslations } from "@/i18n/server";
 import { publicPlayers, publicPlayerFilters } from "@/lib/players";
-import { directoryKeys, publicDirectoryPlayer } from "@/lib/player-directory";
+import {
+  directoryKeys,
+  publicDirectoryEtx,
+  publicDirectoryPlayer,
+} from "@/lib/player-directory";
 import { HttpError } from "@/lib/http";
 import { getPublicEdition } from "@/lib/content";
 import { notFound } from "next/navigation";
@@ -126,10 +130,7 @@ async function PlayersContent({
         otrRatings={otrRatings}
         showImportedRatings={showRatings}
         players={rows.map((p) => {
-          const cachedEtx = etxRatings?.get(p.osuId);
-          // A confirmed upstream miss is null. Undefined means no saved result yet.
-          const etx =
-            cachedEtx === undefined ? p.importedRatings?.etx : cachedEtx;
+          const etx = publicDirectoryEtx(p, etxRatings?.get(p.osuId));
           return {
             ...publicDirectoryPlayer(p),
             etx: etx?.value,

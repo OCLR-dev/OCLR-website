@@ -50,6 +50,14 @@ export function publicDirectoryPlayer(
   };
 }
 
+/** An explicit provider miss takes precedence over the imported fallback. */
+export function publicDirectoryEtx(
+  player: PublicPlayer,
+  cached?: { value: number; provisional?: boolean; outdated?: boolean } | null,
+) {
+  return cached === undefined ? player.importedRatings?.etx : cached;
+}
+
 export const directorySorts = [
   "default",
   "name-asc",
@@ -64,7 +72,7 @@ export const directorySorts = [
   "etx-asc",
 ] as const;
 export const directoryMetrics = ["rank", "pp", "otr", "sip", "etx"] as const;
-type DirectoryMetric = (typeof directoryMetrics)[number];
+export type DirectoryMetric = (typeof directoryMetrics)[number];
 export type DirectoryRangeKey = `${DirectoryMetric}${"Min" | "Max"}`;
 export const directoryKeys = [
   "q",
@@ -142,15 +150,18 @@ export function directoryOptions(players: DirectoryPlayer[]) {
     ],
     roles: [...new Set(players.flatMap((p) => p.roles))],
     freeAgent: players.some((p) => p.freeAgent),
-    rank: players.some((p) => validMetric(p.rank, "rank") !== null),
-    pp: players.some((p) => validMetric(p.pp, "pp") !== null),
-    otr: players.some((p) => validMetric(p.otr, "otr") !== null),
-    sip: players.some((p) => validMetric(p.sip, "sip") !== null),
-    etx: players.some((p) => validMetric(p.etx, "etx") !== null),
+    rank: players.some((p) => directoryMetricValue(p.rank, "rank") !== null),
+    pp: players.some((p) => directoryMetricValue(p.pp, "pp") !== null),
+    otr: players.some((p) => directoryMetricValue(p.otr, "otr") !== null),
+    sip: players.some((p) => directoryMetricValue(p.sip, "sip") !== null),
+    etx: players.some((p) => directoryMetricValue(p.etx, "etx") !== null),
   };
 }
 
-function validMetric(value: number | null | undefined, key: DirectoryMetric) {
+export function directoryMetricValue(
+  value: number | null | undefined,
+  key: DirectoryMetric,
+) {
   return value != null &&
     Number.isFinite(value) &&
     (key === "sip" || value >= (key === "rank" ? 1 : 0))
@@ -165,11 +176,11 @@ export function directoryPlayersCsv(players: DirectoryPlayer[]) {
     ["Username", "Global rank (osu!standard)", "PP", "o!TR", "SIP", "ETX"],
     ...rows.map((player) => [
       player.name,
-      validMetric(player.rank, "rank") ?? "",
-      validMetric(player.pp, "pp") ?? "",
-      validMetric(player.otr, "otr") ?? "",
-      validMetric(player.sip, "sip") ?? "",
-      validMetric(player.etx, "etx") ?? "",
+      directoryMetricValue(player.rank, "rank") ?? "",
+      directoryMetricValue(player.pp, "pp") ?? "",
+      directoryMetricValue(player.otr, "otr") ?? "",
+      directoryMetricValue(player.sip, "sip") ?? "",
+      directoryMetricValue(player.etx, "etx") ?? "",
     ]),
   ]);
 }
@@ -224,7 +235,7 @@ export function selectDirectoryPlayers<T extends DirectoryPlayer>(
       return false;
     if (state.role && !p.roles.includes(state.role)) return false;
     for (const key of directoryMetrics) {
-      const value = validMetric(p[key], key),
+      const value = directoryMetricValue(p[key], key),
         min = state[`${key}Min`],
         max = state[`${key}Max`];
       if (
@@ -246,8 +257,8 @@ export function selectDirectoryPlayers<T extends DirectoryPlayer>(
             (direction === "asc" ? 1 : -1) || a.id - b.id
         );
       const metric = key as DirectoryMetric;
-      const x = validMetric(a[metric], metric);
-      const y = validMetric(b[metric], metric);
+      const x = directoryMetricValue(a[metric], metric);
+      const y = directoryMetricValue(b[metric], metric);
       if (x === null || y === null)
         return x === y ? a.id - b.id : x === null ? 1 : -1;
       return (x - y) * (direction === "asc" ? 1 : -1) || a.id - b.id;

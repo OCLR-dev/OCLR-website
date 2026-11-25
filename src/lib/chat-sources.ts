@@ -1,4 +1,9 @@
 import { chatRequestBlockReason } from "./chat-request-filter";
+import {
+  chatDirectoryPlayers,
+  chatPlayerDirectorySources,
+  playerDirectoryRequest,
+} from "./chat-player-directory";
 import { chatPlayerProfile } from "./chat-player-profile";
 import { artworkQuery } from "./chat-artwork";
 import { seasonCount, seasonCountIntent } from "./chat-season-counts";
@@ -90,6 +95,18 @@ export async function chatEvidence(
       playerProfile: true as const,
       total: null,
       sources: [player],
+    };
+  const metrics = playerDirectoryRequest(slug, question, previous);
+  if (metrics !== null)
+    return {
+      edition: edition.name,
+      playerDirectory: true as const,
+      total: null,
+      sources: chatPlayerDirectorySources(
+        slug,
+        await chatDirectoryPlayers(edition),
+        metrics,
+      ),
     };
   const base = "/tournaments/" + slug;
   const matchIntent =

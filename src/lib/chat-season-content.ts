@@ -2,8 +2,10 @@ import { artworkSources } from "./chat-artwork";
 import { registrationCount } from "./chat-registration";
 import type { Edition } from "./editions";
 import { publicEditionSummary } from "./editions";
-import { publicPlayerDirectoryModel } from "./public-read-models";
-import { publicDirectoryPlayer } from "./player-directory";
+import {
+  chatDirectoryPlayers,
+  chatPlayerDirectorySources,
+} from "./chat-player-directory";
 import { publishedTeams } from "./team-reads";
 import { publicDraft } from "./draft-reads";
 import { publicArchiveStatistics } from "./archive-statistics-reads";
@@ -102,16 +104,13 @@ export async function seasonContent(
     case "players": {
       const total = await registrationCount(e);
       if (total) rows.push(total.source);
-      const directory = await publicPlayerDirectoryModel(e.slug);
-      for (const player of directory.rows) {
-        const p = publicDirectoryPlayer(player);
-        add(`/players/${p.id}?edition=${e.slug}`, p.name, {
+      const players = await chatDirectoryPlayers(e);
+      rows.push(...chatPlayerDirectorySources(e.slug, players));
+      for (const player of players)
+        add(`/players/${player.id}?edition=${e.slug}`, player.name, {
           category: "player",
-          ...p,
-          tier: player.tier,
-          bio: player.bio,
+          ...player,
         });
-      }
       break;
     }
     case "teams": {
