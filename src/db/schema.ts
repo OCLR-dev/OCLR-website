@@ -3196,11 +3196,16 @@ export const chatPromptSettings = pgTable(
   "chat_prompt_settings",
   {
     id: integer("id").primaryKey().default(1),
+    maxOutputTokens: integer("max_output_tokens").notNull().default(2048),
     prompt: text("prompt").notNull().default(""),
     revision: integer("revision").notNull().default(0),
   },
   (t) => [
     check("chat_prompt_settings_singleton", sql`${t.id} = 1`),
+    check(
+      "chat_prompt_settings_output_limit",
+      sql`${t.maxOutputTokens} between 1 and 16384`,
+    ),
     check("chat_prompt_settings_revision", sql`${t.revision} >= 0`),
     check("chat_prompt_settings_length", sql`char_length(${t.prompt}) <= 3000`),
   ],
@@ -3213,6 +3218,8 @@ export const chatPromptEvents = pgTable("chat_prompt_events", {
     { onDelete: "set null" },
   ),
   revision: integer("revision").notNull().unique(),
+  beforeMaxOutputTokens: integer("before_max_output_tokens"),
+  afterMaxOutputTokens: integer("after_max_output_tokens"),
   beforeLength: integer("before_length").notNull(),
   afterLength: integer("after_length").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })

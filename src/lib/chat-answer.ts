@@ -36,6 +36,7 @@ export function chatAnswer({
   config,
   diagnostics,
   assistantPrompt,
+  maxOutputTokens,
   evidence,
   locale,
   question,
@@ -45,6 +46,7 @@ export function chatAnswer({
   config: ChatConfiguration;
   diagnostics: ChatTrace;
   assistantPrompt: string;
+  maxOutputTokens: number;
   evidence: Awaited<ReturnType<typeof chatEvidence>>;
   locale: Locale;
   question: string;
@@ -72,7 +74,7 @@ export function chatAnswer({
       const deadline = AbortSignal.timeout(30_000);
       const result = streamText({
         model: chatProvider(config, trace).chatModel(config.model),
-        maxOutputTokens: 650,
+        maxOutputTokens,
         maxRetries: 0,
         abortSignal: AbortSignal.any([signal, deadline]),
         onError: ({ error }) => providerError(error),

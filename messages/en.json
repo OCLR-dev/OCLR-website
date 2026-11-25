@@ -5248,6 +5248,9 @@
     "mba118bf7fc9c": "English",
     "m6b32e97bac1d": "Liru can help with public information for this OCLR season. Try asking about the schedule, rules, mappools or results.",
     "mc777e2e2c7f6": "How many {mod} maps are there?",
-    "m4d012a9c845b": "This device keeps your last 20 completed turns. Your question, up to 3 recent question-and-answer pairs and relevant public tournament information are sent to the configured AI provider."
+    "m4d012a9c845b": "This device keeps your last 20 completed turns. Your question, up to 3 recent question-and-answer pairs and relevant public tournament information are sent to the configured AI provider.",
+    "md0de31a4b064": "Output limit per reply (tokens)",
+    "mcc342f6cdd45": "Choose 1 to 16,384. The default is 2,048. Changes apply to the next question. Choose a limit supported by your model.",
+    "m174f8cb14bc4": "Enter a whole number from 1 to 16,384."
   }
 }
