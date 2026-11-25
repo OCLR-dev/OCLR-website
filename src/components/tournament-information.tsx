@@ -57,15 +57,8 @@ export async function InformationDocument({
         ]
       : []),
   ];
-  const timeZoneLabel = document.timeZone.includes("UTC")
-    ? document.timeZone.slice(document.timeZone.indexOf("UTC"))
-    : new Intl.DateTimeFormat("en", {
-        timeZone: document.timeZone,
-        timeZoneName: "shortOffset",
-      })
-        .formatToParts(new Date())
-        .find((part) => part.type === "timeZoneName")!
-        .value.replace("GMT", "UTC");
+  const timeZoneLabel =
+    document.timeZone.split(" · ").at(-1) ?? document.timeZone;
   return (
     <div className="information-page">
       <h1 className="sr-only" id="information-title">

@@ -316,6 +316,19 @@ export function enrollmentState(
     return "upcoming";
   return "open";
 }
+export function createUtcOffsetFormatter(timeZone: string) {
+  const formatter = new Intl.DateTimeFormat("en", {
+    timeZone,
+    timeZoneName: "shortOffset",
+  });
+  return (value: string | Date) =>
+    formatter
+      .formatToParts(new Date(value))
+      .find((part) => part.type === "timeZoneName")!
+      .value.replace(/^GMT/, "UTC")
+      .replace(/^UTC[+-]0(?::00)?$/, "UTC");
+}
+
 export function formatDate(
   value: string | Date | null,
   timeZone: string,
@@ -331,16 +344,8 @@ export function formatDate(
   })
     .format(new Date(value))
     .replace(/\s+/g, " ");
-  // Use the event instant so zones with daylight saving show the correct offset.
-  const offset = new Intl.DateTimeFormat("en", {
-    timeZone,
-    timeZoneName: "shortOffset",
-  })
-    .formatToParts(new Date(value))
-    .find((part) => part.type === "timeZoneName")!
-    .value.replace(/^GMT/, "UTC")
-    .replace(/^UTC[+-]0(?::00)?$/, "UTC");
-  return `${formatted} (${offset})`;
+  const formatOffset = createUtcOffsetFormatter(timeZone);
+  return `${formatted} (${formatOffset(value)})`;
 }
 
 /** Existing editions retain coaching; S11 and newly created editions opt out. */

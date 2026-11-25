@@ -16,7 +16,10 @@ import {
   type TournamentInformation,
 } from "@/lib/tournament-information";
 import "./information.css";
-import { tournamentTimeline } from "@/lib/tournament-timeline";
+import {
+  scheduleTimeZoneLabel,
+  tournamentTimeline,
+} from "@/lib/tournament-timeline";
 import { tournamentStages } from "@/lib/tournament-stages";
 import {
   TournamentRules,
@@ -109,7 +112,7 @@ async function OverviewContent({
     name: edition.name,
     intro: publicEditionSummary(edition.summary) ?? "",
     banner: winterBanner ?? edition.branding.background,
-    timeZone: edition.timeZone,
+    timeZone: scheduleTimeZoneLabel(edition.timeZone, timeline.stages),
     schedule: timeline.schedule,
     prizes: [],
     organization: [...roles].map(([role, members]) => ({

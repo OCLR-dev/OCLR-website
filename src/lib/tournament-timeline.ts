@@ -4,10 +4,27 @@ import {
   isSingleTimeMilestone,
 } from "./milestone-names";
 import type { Edition } from "./editions";
-import { formatDate } from "./editions";
+import { createUtcOffsetFormatter, formatDate } from "./editions";
 import type { PlannedStage } from "./tournament-stages";
 
 const phaseOrder = { draft: 2, group: 3, knockout: 4, exhibition: 5 };
+
+export function scheduleTimeZoneLabel(
+  timeZone: string,
+  stages: PlannedStage[],
+) {
+  const formatOffset = createUtcOffsetFormatter(timeZone);
+  let offset: string | undefined;
+  for (const { at, endAt } of stages) {
+    for (const value of [at, endAt]) {
+      if (!value) continue;
+      const next = formatOffset(value);
+      if (offset !== undefined && offset !== next) return timeZone;
+      offset = next;
+    }
+  }
+  return offset ?? timeZone;
+}
 
 /** One presentation model for the overview's stage browser and schedule table. */
 export function tournamentTimeline(

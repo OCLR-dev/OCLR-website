@@ -102,9 +102,49 @@ describe("overview partial data failures", () => {
       expect(html).toContain('class="information-document document-typeset"');
     },
   );
+  it("labels a schedule spanning both New York offsets without assigning one to every row", async () => {
+    vi.mocked(getPublicEdition).mockResolvedValue({
+      ...edition,
+      registration: null,
+      timeZone: "America/New_York",
+      schedule: [
+        { label: "Winter session", at: "2026-01-10T17:00:00Z" },
+        { label: "Summer session", at: "2026-07-10T16:00:00Z" },
+      ],
+    });
+    const html = await render();
+    expect(html).toContain("12:00 (UTC-5)");
+    expect(html).toContain("12:00 (UTC-4)");
+    expect(html).toContain("Date (America/New_York)");
+  });
+  it.each([
+    ["America/New_York", "2026-07-10T16:00:00Z", "UTC-4"],
+    ["Asia/Kathmandu", "2026-01-10T12:00:00Z", "UTC+5:45"],
+    ["America/New_York", null, "America/New_York"],
+  ] as const)(
+    "uses the recorded offset or zone for %s at %s",
+    async (timeZone, endAt, label) => {
+      vi.mocked(getPublicEdition).mockResolvedValue({
+        ...edition,
+        registration: null,
+        timeZone,
+        schedule: [
+          {
+            label: "group_stage",
+            kind: "group",
+            at: null,
+            endAt,
+            precision: "day",
+          },
+        ],
+      });
+      expect(await render()).toContain(`Date (${label})`);
+    },
+  );
   it("keeps the S11 preview pool off the overview", async () => {
     const html = await render("dev-s11");
     expect(html).toContain("OCLR S11");
+    expect(html).toContain("Date (UTC+8)");
     expect(html).toContain("报名阶段");
     expect(html).toContain("赛事规则");
     expect(html).not.toContain("Asteria — Summer Orbit");
@@ -174,9 +214,7 @@ describe("overview partial data failures", () => {
       </NextIntlClientProvider>,
     );
     const html = await new Response(stream).text();
-    expect(html).not.toContain(
-      "Embedded Beatmap Should Stay Off The Homepage",
-    );
+    expect(html).not.toContain("Embedded Beatmap Should Stay Off The Homepage");
     expect(html).not.toContain('id="mappools"');
     expect(html).not.toContain('href="#mappools"');
     expect(html).not.toContain("information-pool");
