@@ -27,11 +27,12 @@ it("keeps the last 20 completed pairs and replaces a regenerated turn", () => {
     setItem: (key: string, value: string) => store.set(key, value),
   });
   for (let n = 0; n < 21; n++) saveLiruTurn("a", pair(n));
-  saveLiruTurn("a", pair(20, "Updated"));
+  const longAnswer = "Updated ".repeat(4000);
+  saveLiruTurn("a", pair(20, longAnswer));
   const restored = restoreLiruHistory("a");
   expect(restored).toHaveLength(40);
   expect(restored[0].id).toBe("q1");
-  expect(restored.at(-1)).toEqual(pair(20, "Updated")[1]);
+  expect(restored.at(-1)).toEqual(pair(20, longAnswer)[1]);
 });
 
 it("starts empty with damaged or unavailable storage and can still finish a turn", () => {

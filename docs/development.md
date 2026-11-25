@@ -118,9 +118,9 @@ Chat reads the current rules, timeline, fixtures and mappools alongside the back
 
 The backend follows the provider and streaming separation used by the [Vercel Chatbot template](https://github.com/vercel/chatbot). The `/api/chat` route checks the osu! session, origin, rate limit and request, then retrieves published evidence for that edition. `chat-answer.ts` turns this evidence into an AI SDK UI message stream for assistant-ui. Both generation and embeddings use `chat-provider.ts` for the configured endpoint, key and proxy.
 
-### Sitewide custom prompt
+### Sitewide Liru chat settings
 
-After migration 0121, a global Admin can set the custom prompt under **Site settings → Liru chat settings**. The field accepts up to 3,000 characters, and clearing it restores the built-in behavior. A saved change applies on the next request that generates an answer. The custom prompt supplements the built-in instructions for tone, presentation and terminology, and is sent to the configured model with those instructions. Keep credentials and private information out of the prompt. The site audit records the actor, revision and lengths while the prompt itself is available in the settings editor.
+After migration 0121, a global Admin can set the custom prompt under **Site settings → Liru chat settings**. The field accepts up to 3,000 characters, and clearing it restores the built-in behavior. A saved change applies on the next request that generates an answer. The custom prompt supplements the built-in instructions for tone, presentation and terminology, and is sent to the configured model with those instructions. Migration 0123 adds the per-reply output limit in the same form. It defaults to 2,048 tokens for new and existing installations. A global Admin can choose an integer from 1 to 16,384 within the configured model’s own output and context limits. The next chat request uses the saved value. The independent generation timeout still applies. Keep credentials and private information out of the prompt. The site audit records the actor, revision, prompt lengths and output limits while the prompt itself is available in the settings editor.
 
 ### Tracing a chat answer
 

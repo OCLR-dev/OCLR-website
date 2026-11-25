@@ -680,7 +680,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       expect(body).toMatchObject({
         model: "test-chat",
         stream: true,
-        max_tokens: 650,
+        max_tokens: 2048,
       });
       expect(body).not.toHaveProperty("max_completion_tokens");
       const instructions = body.messages.find(
@@ -838,12 +838,19 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       .values({ osuId: 1425020, username: "Parameter test" });
     context.token = (await createSession(1425020)).token;
     await seedEditions([season(slug, "Use a substitute.")]);
+    await db()
+      .insert(chatPromptSettings)
+      .values({ maxOutputTokens: 4096 })
+      .onConflictDoUpdate({
+        target: chatPromptSettings.id,
+        set: { maxOutputTokens: 4096 },
+      });
     vi.stubEnv("OCLR_CHAT_BASE_URL", "https://api.openai.com/v1");
     const log = vi.spyOn(console, "info");
     const upstream = vi.fn(async (url, init) => {
       expect(String(url)).toBe("https://api.openai.com/v1/chat/completions");
       const body = JSON.parse(init.body);
-      expect(body.max_completion_tokens).toBe(650);
+      expect(body.max_completion_tokens).toBe(4096);
       expect(body).not.toHaveProperty("max_tokens");
       return Response.json(
         {

@@ -3,6 +3,7 @@ import { messageText } from "./chat-turn-context";
 import { z } from "zod";
 
 const turnLimit = 20;
+const historySizeLimit = 2_000_000;
 const id = z.string().min(1).max(128);
 const sourceUrl = z
   .string()
@@ -23,7 +24,7 @@ const turn = z.object({
   questionId: id,
   question: z.string().min(1).max(1500),
   answerId: id,
-  answer: z.string().min(1).max(16000),
+  answer: z.string().min(1).max(historySizeLimit),
   sources: z
     .array(
       z.object({
@@ -40,7 +41,7 @@ const history = z.array(turn).max(turnLimit);
 function readTurns(key: string): z.infer<typeof history> {
   try {
     const raw = localStorage.getItem(key);
-    if (!raw || raw.length > 2_000_000) return [];
+    if (!raw || raw.length > historySizeLimit) return [];
     return history.parse(JSON.parse(raw));
   } catch {
     return [];
@@ -81,10 +82,15 @@ export function saveLiruTurn(key: string, messages: UIMessage[]) {
   try {
     // Re-read before appending so an inactive tab never writes its entire stale transcript.
     const turns = readTurns(key).filter((t) => t.questionId !== question.id);
-    localStorage.setItem(
-      key,
-      JSON.stringify([...turns, result.data].slice(-turnLimit)),
-    );
+    const entries = [...turns, result.data]
+      .slice(-turnLimit)
+      .map((entry) => JSON.stringify(entry));
+    let size = entries.reduce((length, entry) => length + entry.length + 1, 1);
+    while (size > historySizeLimit && entries.length > 1) {
+      size -= entries.shift()!.length + 1;
+    }
+    if (size <= historySizeLimit)
+      localStorage.setItem(key, "[" + entries.join(",") + "]");
   } catch {
     // Storage may be disabled or full. The active chat stays available.
   }
