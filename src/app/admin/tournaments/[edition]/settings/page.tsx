@@ -5,6 +5,7 @@ import { authorizedPage } from "@/lib/auth/page";
 import { hasCapability } from "@/lib/auth/staff";
 import { requireStaff } from "@/lib/auth/staff-request";
 import { remotePage } from "@/lib/remote-page";
+import { discordResultSettingsForAdmin } from "@/lib/discord-result-settings";
 import { tournamentForAdmin } from "@/lib/tournament-reads";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
@@ -22,6 +23,7 @@ async function Issue271Page({
     const { edition } = await params;
     const actor = await requireStaff();
     const data = await tournamentForAdmin(actor, edition);
+    const discord = await discordResultSettingsForAdmin(actor, edition);
     return (
       <>
         <PageHeading
@@ -29,6 +31,7 @@ async function Issue271Page({
           title={tr("Tournament settings")}
         />
         <TournamentEditor
+          discord={discord}
           canDeleteDraft={await hasCapability(actor, "configure_tournament")}
           data={{
             edition: data.edition,

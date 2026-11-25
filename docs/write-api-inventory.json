@@ -215,6 +215,20 @@
     }
   },
   {
+    "route": "/api/admin/tournaments/{edition}/discord-results",
+    "source": "src/app/api/admin/tournaments/[edition]/discord-results/route.ts",
+    "methods": {
+      "PATCH": {
+        "status": "documented",
+        "operationId": "updateDiscordResultSettings",
+        "access": "browser",
+        "consumers": [
+          "src/components/discord-result-settings.tsx"
+        ]
+      }
+    }
+  },
+  {
     "route": "/api/admin/tournaments/{edition}/draft",
     "source": "src/app/api/admin/tournaments/[edition]/draft/route.ts",
     "methods": {

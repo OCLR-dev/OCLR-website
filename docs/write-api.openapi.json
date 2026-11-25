@@ -42114,6 +42114,284 @@
         }
       }
     },
+    "/api/admin/tournaments/{edition}/discord-results": {
+      "patch": {
+        "operationId": "updateDiscordResultSettings",
+        "summary": "Update an edition's Discord result notification settings",
+        "description": "Requires an edition settings grant and the current settings revision. A blank URL retains the destination. A populated URL replaces it. An explicit remove clears it and disables notifications. URLs are accepted only over the site’s same-origin browser session and stored encrypted.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 2048,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedRevision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483646
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "zh-Hans",
+                      "zh-Hant",
+                      "en"
+                    ]
+                  },
+                  "webhookUrl": {
+                    "type": "string",
+                    "maxLength": 512
+                  },
+                  "remove": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "expectedRevision",
+                  "enabled",
+                  "locale"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings metadata and recent delivery status.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "available": {
+                      "type": "boolean"
+                    },
+                    "revision": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    },
+                    "configured": {
+                      "type": "boolean"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "locale": {
+                      "type": "string",
+                      "enum": [
+                        "zh-Hans",
+                        "zh-Hant",
+                        "en"
+                      ]
+                    },
+                    "attentionCount": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "recent": {
+                      "maxItems": 8,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "fixtureId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "fixtureLabel": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "pending",
+                              "sending",
+                              "sent",
+                              "attention",
+                              "cancelled"
+                            ]
+                          },
+                          "failure": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "rate_limited",
+                                  "unavailable",
+                                  "uncertain",
+                                  "rejected",
+                                  "missing_message",
+                                  "destination_changed",
+                                  "credential"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "fixtureId",
+                          "fixtureLabel",
+                          "status",
+                          "failure"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "available",
+                    "revision",
+                    "configured",
+                    "enabled",
+                    "locale",
+                    "attentionCount",
+                    "recent"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid settings or Discord webhook URL.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A signed-in website session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel or edition settings permission rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The edition does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The settings revision changed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The request body exceeds the allowed size.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "JSON is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Webhook storage or site origin is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/desktop/v1/auth/requests": {
       "post": {
         "operationId": "requestDesktopAuthorization",

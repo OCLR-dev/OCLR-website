@@ -19,6 +19,9 @@ import {
 import { eq, sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import {
+  discordResultDeliveries,
+  discordResultSettings,
+  editionEvents,
   mappoolEntries,
   mappools,
   matchGames,
@@ -51,6 +54,13 @@ import { fixtureCommand } from "../../src/lib/fixtures";
 import { fixtureForReview } from "../../src/lib/fixture-reads";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { resultCommand } from "../../src/lib/results";
+import {
+  discordResultSettingsForAdmin,
+  saveDiscordResultSettings,
+} from "../../src/lib/discord-result-settings";
+import { drainDiscordResults } from "../../src/lib/discord-result-delivery";
+import { publicConfigurationModel } from "../../src/lib/frontend-read-models";
+import { PATCH as discordSettingsRoute } from "../../src/app/api/admin/tournaments/[edition]/discord-results/route";
 import { matchReview, type MatchReview } from "../../src/lib/result-review";
 import { importFixtureMatch } from "../../src/lib/result-import";
 import { fetchMatchSource } from "../../src/lib/osu-matches";
@@ -134,6 +144,7 @@ describe.skipIf(!url)(
       fixtureEditions = [edition];
       vi.stubEnv("DATABASE_URL", url!);
       vi.stubEnv("APP_URL", origin);
+      vi.stubEnv("OCLR_DISCORD_RESULT_KEY", "1a".repeat(32));
       vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
       actualFetch = (
         await vi.importActual<typeof import("../../src/lib/osu-matches")>(
@@ -315,6 +326,275 @@ describe.skipIf(!url)(
         })
       ).review;
     }
+    const webhook =
+      "https://discord.com/api/webhooks/123456789012345678/fixture-token";
+    const canonical =
+      "https://discord.com/api/v10/webhooks/123456789012345678/fixture-token";
+    const secondWebhook =
+      "https://discord.com/api/webhooks/123456789012345679/other-fixture-token";
+    const messageId = "123456789012345680";
+    const enable = {
+      expectedRevision: 0,
+      enabled: true,
+      locale: "en",
+      webhookUrl: webhook,
+    };
+
+    it("keeps edition destinations encrypted, scoped, and out of projections and audit", async () => {
+      await db().insert(staffRoles).values({
+        userId: outsider.osuId,
+        role: "admin",
+        editionSlug: "private-test-cup",
+        grantedBy: admin.osuId,
+      });
+      routeActor = admin;
+      const configure = (body: unknown, requestOrigin = origin) =>
+        discordSettingsRoute(
+          new Request(
+            `${origin}/api/admin/tournaments/test-cup/discord-results`,
+            {
+              method: "PATCH",
+              headers: {
+                origin: requestOrigin,
+                "content-type": "application/json",
+              },
+              body: JSON.stringify(body),
+            },
+          ),
+          { params: Promise.resolve({ edition: "test-cup" }) },
+        );
+      expect(
+        (await configure(enable, "https://elsewhere.example.test")).status,
+      ).toBe(403);
+      expect(
+        (
+          await configure({
+            ...enable,
+            webhookUrl: "https://elsewhere.example.test/webhook",
+          })
+        ).status,
+      ).toBe(400);
+      const response = await configure(enable);
+      expect(response.status).toBe(200);
+      expect(response.headers.get("Cache-Control")).toBe("no-store");
+      const saved = await response.json();
+      expect(saved).toMatchObject({
+        revision: 1,
+        configured: true,
+        enabled: true,
+        locale: "en",
+      });
+      expect(JSON.stringify(saved)).not.toContain("fixture-token");
+      await saveDiscordResultSettings(outsider, "private-test-cup", {
+        ...enable,
+        webhookUrl: secondWebhook,
+      });
+      expect(
+        await discordResultSettingsForAdmin(outsider, "test-cup"),
+      ).toBeNull();
+      await expect(
+        saveDiscordResultSettings(outsider, "test-cup", enable),
+      ).rejects.toMatchObject({ status: 403 });
+      expect((await configure(enable)).status).toBe(409);
+      const [before] = await db()
+        .select()
+        .from(discordResultSettings)
+        .where(eq(discordResultSettings.editionSlug, "test-cup"));
+      expect(before.sealedUrl).not.toContain("fixture-token");
+      expect(
+        (
+          await configure({
+            ...enable,
+            expectedRevision: 1,
+            webhookUrl: "",
+            locale: "zh-Hant",
+          })
+        ).status,
+      ).toBe(200);
+      const [after] = await db()
+        .select()
+        .from(discordResultSettings)
+        .where(eq(discordResultSettings.editionSlug, "test-cup"));
+      expect(after.destinationId).toBe(before.destinationId);
+      expect(after.sealedUrl).toBe(before.sealedUrl);
+      expect(
+        JSON.stringify(await publicConfigurationModel("test-cup")),
+      ).not.toContain("sealedUrl");
+      expect(
+        JSON.stringify(await db().select().from(editionEvents)),
+      ).not.toContain("fixture-token");
+      const removed = await configure({
+        expectedRevision: 2,
+        enabled: false,
+        locale: "zh-Hant",
+        remove: true,
+      });
+      expect(await removed.json()).toMatchObject({
+        configured: false,
+        enabled: false,
+        revision: 3,
+      });
+      expect(
+        await discordResultSettingsForAdmin(outsider, "private-test-cup"),
+      ).toMatchObject({ configured: true, enabled: true });
+    });
+
+    it("queues only published results and edits one Discord message for corrections and withdrawal", async () => {
+      await saveDiscordResultSettings(admin, "test-cup", enable);
+      await saveDiscordResultSettings(admin, "private-test-cup", {
+        ...enable,
+        webhookUrl: secondWebhook,
+      });
+      let view = await imported();
+      view = (
+        await resultCommand(referee, "test-cup", fixtureId, submission(view))
+      ).review;
+      view = await approved(view);
+      const send = vi.fn<typeof fetch>(async () =>
+        Response.json({ id: messageId }),
+      );
+      await drainDiscordResults(send);
+      expect(send).not.toHaveBeenCalled();
+      expect(await db().select().from(discordResultDeliveries)).toHaveLength(0);
+
+      view = await published(view);
+      expect(send).not.toHaveBeenCalled();
+      await Promise.all([drainDiscordResults(send), drainDiscordResults(send)]);
+      expect(send).toHaveBeenCalledTimes(1);
+      expect(send.mock.calls[0][0]).toBe(`${canonical}?wait=true`);
+      const firstBody = JSON.parse(String(send.mock.calls[0][1]?.body));
+      expect(firstBody).toMatchObject({
+        allowed_mentions: { parse: [] },
+        embeds: [
+          {
+            title: "Published match result",
+            url: `${origin}/tournaments/test-cup/matches/${fixtureId}`,
+            description: expect.stringContaining("2–1"),
+          },
+        ],
+      });
+      expect(JSON.stringify(firstBody)).not.toContain(
+        "Synthetic public result note",
+      );
+
+      vi.mocked(fetchMatchSource).mockResolvedValue(await makeSource(true));
+      view = await imported();
+      const correction = submission(view);
+      correction.decisions[2] = {
+        ...correction.decisions[2],
+        included: false,
+        reason: "Synthetic game after the corrected series finished",
+      };
+      view = (await resultCommand(referee, "test-cup", fixtureId, correction))
+        .review;
+      view = await published(await approved(view));
+      await drainDiscordResults(send);
+      expect(send).toHaveBeenCalledTimes(2);
+      expect(send.mock.calls[1][0]).toBe(`${canonical}/messages/${messageId}`);
+      expect(send.mock.calls[1][1]?.method).toBe("PATCH");
+      expect(JSON.parse(String(send.mock.calls[1][1]?.body))).toMatchObject({
+        embeds: [
+          {
+            title: "Corrected match result",
+            description: expect.stringContaining("0–2"),
+          },
+        ],
+      });
+
+      await resultCommand(admin, "test-cup", fixtureId, {
+        ...base(view),
+        action: "unpublish",
+      });
+      await drainDiscordResults(send);
+      expect(send).toHaveBeenCalledTimes(3);
+      expect(send.mock.calls[2][0]).toBe(send.mock.calls[1][0]);
+      expect(JSON.parse(String(send.mock.calls[2][1]?.body))).toEqual({
+        allowed_mentions: { parse: [] },
+        embeds: [
+          {
+            title: "Match result withdrawn",
+            url: `${origin}/tournaments/test-cup/matches/${fixtureId}`,
+          },
+        ],
+      });
+    });
+
+    it("retries rate limits, stops on ambiguous sends, and cancels work when a destination changes", async () => {
+      await saveDiscordResultSettings(admin, "test-cup", enable);
+      let view = await imported();
+      view = (
+        await resultCommand(referee, "test-cup", fixtureId, submission(view))
+      ).review;
+      view = await published(await approved(view));
+
+      const send = vi.fn<typeof fetch>(async () =>
+        Response.json({ id: messageId }),
+      );
+      send
+        .mockResolvedValueOnce(
+          new Response(null, {
+            status: 429,
+            headers: { "Retry-After": "120" },
+          }),
+        )
+        .mockRejectedValueOnce(new Error("Synthetic lost response"));
+      await drainDiscordResults(send);
+      await drainDiscordResults(send);
+      expect(send).toHaveBeenCalledTimes(1);
+      const [delayed] = await db().select().from(discordResultDeliveries);
+      expect(delayed).toMatchObject({
+        status: "pending",
+        failure: "rate_limited",
+      });
+      expect(delayed.nextAttemptAt.getTime()).toBeGreaterThan(
+        Date.now() + 100_000,
+      );
+      await db()
+        .update(discordResultDeliveries)
+        .set({ nextAttemptAt: new Date(0) });
+      await drainDiscordResults(send);
+      await drainDiscordResults(send);
+      expect(send).toHaveBeenCalledTimes(2);
+      expect(
+        await discordResultSettingsForAdmin(admin, "test-cup"),
+      ).toMatchObject({
+        attentionCount: 1,
+        recent: [{ status: "attention", failure: "uncertain" }],
+      });
+      await saveDiscordResultSettings(admin, "test-cup", {
+        ...enable,
+        expectedRevision: 1,
+        webhookUrl: secondWebhook,
+      });
+      view = (
+        await resultCommand(admin, "test-cup", fixtureId, {
+          ...base(view),
+          action: "unpublish",
+        })
+      ).review;
+      await published(view);
+      await saveDiscordResultSettings(admin, "test-cup", {
+        ...enable,
+        expectedRevision: 2,
+        webhookUrl: "",
+        enabled: false,
+      });
+      await drainDiscordResults(send);
+      expect(send).toHaveBeenCalledTimes(2);
+      expect(await db().select().from(discordResultDeliveries)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            status: "attention",
+            failure: "uncertain",
+          }),
+          expect.objectContaining({
+            status: "cancelled",
+            failure: "destination_changed",
+          }),
+        ]),
+      );
+    });
+
     it("includes published maps without a scheduled fixture time using MP play times", async () => {
       source.games[2].startTime = null;
       for (const game of source.games)
@@ -1132,6 +1412,7 @@ describe.skipIf(!url)(
         published: true,
       });
       view = await matchReview(admin, "test-cup", fixtureId);
+      await saveDiscordResultSettings(admin, "test-cup", enable);
       const poolBefore = await db()
         .select()
         .from(mappools)
@@ -1162,6 +1443,9 @@ describe.skipIf(!url)(
         expect(rolledBack.context.result).toEqual(view.context.result);
         expect(rolledBack.current).toEqual(view.current);
         expect(rolledBack.published).toBeNull();
+        expect(await db().select().from(discordResultDeliveries)).toHaveLength(
+          0,
+        );
         expect((await publicFixture("test-cup", fixtureId))?.result).toBeNull();
         expect(
           await db().select().from(mappools).where(eq(mappools.id, poolId)),
@@ -1192,6 +1476,13 @@ describe.skipIf(!url)(
           post(resultRoute, changeMatchResultWrite.path, fixtureId, admin, c),
         ),
       ).finally(() => diagnostic.mockRestore());
+      expect(await db().select().from(discordResultDeliveries)).toEqual([
+        expect.objectContaining({
+          fixtureId,
+          status: "pending",
+          publishedRevision: 1,
+        }),
+      ]);
       expect(invalidate).toHaveBeenCalledExactlyOnceWith(
         "/tournaments/test-cup",
         "layout",

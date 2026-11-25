@@ -18,6 +18,7 @@ import { assertCapability } from "./auth/staff";
 import { scoringRulesSchema } from "./competition-model";
 import { fixtureForReview, type FixtureReviewContext } from "./fixture-reads";
 import { HttpError } from "./http-error";
+import { queueDiscordResult } from "./discord-result-settings";
 import {
   reviewedResultSchema,
   type GameDecision,
@@ -549,6 +550,15 @@ export async function resultCommand(
         .select()
         .from(matchResults)
         .where(eq(matchResults.fixtureId, fixtureId));
+      if (publicChanged) {
+        await queueDiscordResult(
+          tx,
+          slug,
+          fixtureId,
+          after.version,
+          after.publishedRevision,
+        );
+      }
       await tx.insert(resultAuditEvents).values({
         fixtureId,
         actorId: actor.osuId,

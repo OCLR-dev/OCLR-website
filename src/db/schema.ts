@@ -1,4 +1,8 @@
 import { sql } from "drizzle-orm";
+import {
+  discordDeliveryFailures,
+  discordDeliveryStatuses,
+} from "../lib/discord-result-contract";
 import { fixtureStatuses } from "../lib/fixture-status";
 import {
   customType,
@@ -3214,3 +3218,90 @@ export const chatPromptEvents = pgTable("chat_prompt_events", {
     .notNull()
     .defaultNow(),
 });
+
+export const discordResultSettings = pgTable(
+  "discord_result_settings",
+  {
+    editionSlug: text("edition_slug")
+      .primaryKey()
+      .references(() => editionState.slug, { onDelete: "cascade" }),
+    revision: integer("revision").notNull(),
+    destinationId: uuid("destination_id"),
+    sealedUrl: text("sealed_url"),
+    enabled: boolean("enabled").notNull(),
+    locale: text("locale").$type<import("@/i18n/config").Locale>().notNull(),
+  },
+  (t) => [
+    check("discord_result_settings_revision", sql`${t.revision} > 0`),
+    check(
+      "discord_result_settings_locale",
+      sql`${t.locale} IN ('en', 'zh-Hans', 'zh-Hant')`,
+    ),
+    check(
+      "discord_result_settings_credentials",
+      sql`
+      (${t.destinationId} IS NULL) = (${t.sealedUrl} IS NULL)
+      AND (NOT ${t.enabled} OR ${t.sealedUrl} IS NOT NULL)
+    `,
+    ),
+  ],
+);
+
+export const discordResultDeliveries = pgTable(
+  "discord_result_deliveries",
+  {
+    editionSlug: text("edition_slug").notNull(),
+    fixtureId: uuid("fixture_id").notNull(),
+    destinationId: uuid("destination_id").notNull(),
+    resultVersion: integer("result_version").notNull(),
+    publishedRevision: integer("published_revision"),
+    messageId: text("message_id"),
+    status: text("status", {
+      enum: discordDeliveryStatuses,
+    })
+      .notNull()
+      .default("pending"),
+    failure: text("failure", {
+      enum: discordDeliveryFailures,
+    }),
+    attempts: integer("attempts").notNull().default(0),
+    nextAttemptAt: timestamp("next_attempt_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    leaseId: uuid("lease_id"),
+    leaseExpiresAt: timestamp("lease_expires_at", { withTimezone: true }),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.fixtureId, t.destinationId] }),
+    foreignKey({
+      columns: [t.fixtureId, t.editionSlug],
+      foreignColumns: [fixtures.id, fixtures.editionSlug],
+    }).onDelete("cascade"),
+    check(
+      "discord_result_deliveries_revision",
+      sql`
+      ${t.resultVersion} > 0 AND (${t.publishedRevision} IS NULL OR ${t.publishedRevision} > 0)
+    `,
+    ),
+    check(
+      "discord_result_deliveries_lease",
+      sql`
+      (${t.leaseId} IS NULL) = (${t.leaseExpiresAt} IS NULL)
+      AND (${t.status} = 'sending') = (${t.leaseId} IS NOT NULL)
+    `,
+    ),
+    index("discord_result_deliveries_ready_idx")
+      .on(t.nextAttemptAt)
+      .where(sql`${t.status} = 'pending'`),
+    index("discord_result_deliveries_lease_idx")
+      .on(t.leaseExpiresAt)
+      .where(sql`${t.status} = 'sending'`),
+    index("discord_result_deliveries_edition_idx").on(
+      t.editionSlug,
+      t.updatedAt,
+    ),
+  ],
+);

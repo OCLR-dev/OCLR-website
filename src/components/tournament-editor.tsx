@@ -37,6 +37,8 @@ import type {
 } from "@/lib/tournament-write-contracts";
 import { isBlankTournamentDraft } from "@/lib/tournament-draft";
 import { ConfirmMutation } from "./confirm-mutation";
+import { DiscordResultSettingsForm } from "./discord-result-settings";
+import type { DiscordResultSettings } from "@/lib/discord-result-contract";
 import { WorkspaceTabs } from "./workspace-tabs";
 import { TimeZonePicker } from "./time-zone-picker";
 import { ApplicationQuestionEditor } from "./application-question-editor";
@@ -1411,9 +1413,11 @@ function Publication({
 export function TournamentEditor({
   data,
   canDeleteDraft = false,
+  discord = null,
 }: {
   data: Workspace;
   canDeleteDraft?: boolean;
+  discord?: DiscordResultSettings | null;
 }) {
   const tr = useAppTranslations();
 
@@ -1422,9 +1426,10 @@ export function TournamentEditor({
   const requested = useSearchParams().get("section");
   const section =
     requested &&
-    ["general", "registration", "rules", "schedule", "publication"].includes(
+    (["general", "registration", "rules", "schedule", "publication"].includes(
       requested,
-    )
+    ) ||
+      (discord && requested === "discord"))
       ? requested
       : "general";
   const [message, setMessage] = useState("");
@@ -1442,6 +1447,9 @@ export function TournamentEditor({
           { value: "rules", label: "Rules & eligibility" },
           { value: "schedule", label: "Milestones" },
           { value: "publication", label: "Publication" },
+          ...(discord
+            ? [{ value: "discord", label: "Discord result notifications" }]
+            : []),
         ]}
         onChange={(next) => {
           router.replace(
@@ -1503,6 +1511,15 @@ export function TournamentEditor({
             canDeleteDraft={canDeleteDraft}
           />
         </div>
+        {discord && (
+          <div hidden={section !== "discord"}>
+            <DiscordResultSettingsForm
+              key={data.edition.slug}
+              edition={data.edition.slug}
+              initial={discord}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

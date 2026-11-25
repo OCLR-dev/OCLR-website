@@ -13,6 +13,7 @@ Project overview and setup choices are available in [English](../README.md), [ç®
 ## Run a tournament
 
 - [Tournament administration](tournament-management.md) covers editions, registration, roles, and audits.
+- [Discord result notifications](discord-result-notifications.md) covers per-edition setup, delivery, and recovery.
 - [Competition workflows](competition-operations.md) covers captains, teams, drafts, fixtures, and result review.
 - [Mappools](mappools.md) covers beatmap metadata, slot order, candidates, and private Replays.
 - [Player workspace](player-workspace.md) and [schedule requests](schedule-requests.md) cover practice, availability, and rescheduling.
