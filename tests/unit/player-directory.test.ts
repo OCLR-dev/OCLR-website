@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   directoryErrors,
   directoryOptions,
+  directoryPlayersCsv,
   directoryState,
   selectDirectoryPlayers,
   type DirectoryPlayer,
@@ -177,4 +178,25 @@ describe("complete public player directory selection", () => {
       freeAgent: false,
     });
   });
+});
+
+it("exports each public player once by username with raw ratings and blank missing values", () => {
+  const [bravo, alpha, lowerAlpha, zulu, echo] = players;
+  const exported = directoryPlayersCsv([
+    zulu,
+    bravo,
+    { ...alpha, pp: 20.125, otr: 1572.48, sip: -2563.25, etx: 6.1 },
+    lowerAlpha,
+    { ...echo, name: '中文 "選手", A' },
+    { ...bravo, name: "Other name" },
+  ]);
+  expect(exported.split("\r\n")).toEqual([
+    '\uFEFF"Username","Global rank (osu!standard)","PP","o!TR","SIP","ETX"',
+    '"alpha","100","20","","",""',
+    '"Alpha","100","20.125","1572.48","-2563.25","6.1"',
+    '"Bravo","","","","",""',
+    '"Zulu","1000","0","","",""',
+    '"中文 ""選手"", A","","","","",""',
+    "",
+  ]);
 });

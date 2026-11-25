@@ -1,7 +1,10 @@
 "use client";
 import { useAppTranslations } from "@/i18n/shared";
 import type { EventPlayer } from "@/lib/event-preview";
-import type { DirectoryPlayer } from "@/lib/player-directory";
+import {
+  directoryPlayersCsv,
+  type DirectoryPlayer,
+} from "@/lib/player-directory";
 import Link from "./pending-link";
 import { Fragment, useEffect, useRef, useState } from "react";
 import {
@@ -72,16 +75,13 @@ export function EventPlayers({
       active = false;
     };
   }, [otrRatings]);
-  const directory = usePlayerDirectory(
-    players.map((p) => ({
-      ...p,
-      otr: ratingValues?.[p.id],
-      teams: p.teams ?? (p.team ? [{ id: p.team, name: p.team }] : []),
-      roles: p.roles ?? ["player", ...(p.captain ? ["captain"] : [])],
-    })),
-    grouped,
-    otrLoading,
-  );
+  const directoryPlayers = players.map((p) => ({
+    ...p,
+    otr: ratingValues?.[p.id],
+    teams: p.teams ?? (p.team ? [{ id: p.team, name: p.team }] : []),
+    roles: p.roles ?? ["player", ...(p.captain ? ["captain"] : [])],
+  }));
+  const directory = usePlayerDirectory(directoryPlayers, grouped, otrLoading);
   const { rows } = directory;
   const byTeam = directory.state.group === "team";
   // Keep the first paint bounded for large directories; filters reset the window.
@@ -119,11 +119,37 @@ export function EventPlayers({
       observer.disconnect();
     };
   }, [filterKey, hasMore, limit, rows.length]);
+  function exportPlayers() {
+    const file = new Blob([directoryPlayersCsv(directoryPlayers)], {
+      type: "text/csv;charset=utf-8",
+    });
+    const url = URL.createObjectURL(file);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `oclr-${edition}-players.csv`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    // Let the browser read the URL before releasing it.
+    window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
+  }
   return (
     <section className="event-players">
       <PlayerDirectoryTools
         directory={directory}
         grouping={preview || grouped}
+        actions={
+          showImportedRatings && (
+            <button
+              type="button"
+              className="secondary"
+              disabled={otrLoading}
+              onClick={exportPlayers}
+            >
+              {tr("Export CSV")}
+            </button>
+          )
+        }
       />
       <div className="event-player-group">
         {!byTeam && <h2 className="sr-only">{tr("Players")}</h2>}

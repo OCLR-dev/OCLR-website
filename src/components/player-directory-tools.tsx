@@ -2,7 +2,7 @@
 
 import { InfoNote } from "@/components/info-note";
 
-import { useId, useState, useSyncExternalStore } from "react";
+import { useId, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAppTranslations } from "@/i18n/shared";
 import {
@@ -84,9 +84,11 @@ export function usePlayerDirectory<T extends DirectoryPlayer>(
 export function PlayerDirectoryTools({
   directory,
   grouping = false,
+  actions,
 }: {
   directory: ReturnType<typeof usePlayerDirectory>;
   grouping?: boolean;
+  actions?: ReactNode;
 }) {
   const tr = useAppTranslations();
   const id = useId();
@@ -227,6 +229,7 @@ export function PlayerDirectoryTools({
         >
           {tr("Filters")} ({active.length})
         </button>
+        {actions}
       </div>
       <div
         id={`${id}-filters`}
