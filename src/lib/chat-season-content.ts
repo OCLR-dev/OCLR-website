@@ -39,6 +39,7 @@ import { tournamentTimeline } from "./tournament-timeline";
 import { informationPreview } from "./tournament-information";
 
 export const chatCollections = [
+  "artwork",
   "overview",
   "rules",
   "players",
@@ -51,7 +52,6 @@ export const chatCollections = [
   "awards",
   "staff",
   "pickem",
-  "artwork",
 ] as const;
 export type ChatCollection = (typeof chatCollections)[number];
 

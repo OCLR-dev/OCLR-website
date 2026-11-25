@@ -18,6 +18,7 @@ import {
   userProfileCache,
   users,
 } from "@/db/schema";
+import * as archiveArtwork from "@/lib/archive-artwork";
 import { refreshChatIndex } from "@/lib/chat-index-worker";
 import { chatEvidence } from "@/lib/chat-sources";
 import { normalizeOsuProfile } from "@/lib/osu-profile-model";
@@ -719,10 +720,17 @@ it.skipIf(!url)(
       ),
     );
     let visions = 0;
+    let blockArtworkEmbeddings = false;
+    let unavailableSetId = "";
     vi.stubGlobal("fetch", async (input: string, init: RequestInit) => {
       const address = new URL(input);
       requests.push(address.pathname);
       if (address.hostname === "assets.ppy.sh") {
+        if (
+          unavailableSetId &&
+          address.pathname.includes(`/${unavailableSetId}/`)
+        )
+          return new Response(null, { status: 503 });
         const image = /889900[13]/.test(address.pathname) ? pix[0] : pix[1];
         return new Response(new Uint8Array(image), {
           headers: { "content-type": "image/jpeg" },
@@ -761,6 +769,8 @@ it.skipIf(!url)(
         });
       }
       expect(address.pathname).toBe("/v1/embeddings");
+      if (blockArtworkEmbeddings && body.input.includes(second))
+        return new Response(null, { status: 503 });
       return Response.json({
         object: "list",
         data: body.input.map((value: string, index: number) => ({
@@ -837,5 +847,74 @@ it.skipIf(!url)(
     expect(
       requests.filter((path) => path === "/v1/chat/completions"),
     ).toHaveLength(3);
+
+    // Historical slots may only have a difficulty ID, as on older archive pages.
+    const backlog = structuredClone(season);
+    backlog.slug = backlog.archive.editionSlug = "historical-artwork-backlog";
+    backlog.archive.pools[0].maps = Array.from({ length: 18 }, (_, i) => ({
+      ...maps[0],
+      slot: `NM${i + 1}`,
+      beatmapId: 8899100 + i,
+      beatmapSetId: undefined,
+    }));
+    await seedEditions([backlog]);
+    const lookup = vi.spyOn(archiveArtwork, "archiveArtworkLookup");
+    let omitLast = true;
+    lookup.mockImplementation(async (ids) => ({
+      setIds: Object.fromEntries(
+        ids.flatMap((id) =>
+          id === null || (omitLast && id === 8899117) ? [] : [[id, id + 100]],
+        ),
+      ),
+      missingBeatmapIds: omitLast ? [8899117] : [],
+    }));
+    vi.stubEnv("OCLR_CHAT_VISION_MODEL", "vision-test");
+    unavailableSetId = "8899200";
+    const report = vi.fn();
+    expect((await refreshChatIndex(report)).status).toBe("partial");
+    const progress = () =>
+      report.mock.calls.find(([entry]) => entry.edition === backlog.slug)?.[0];
+    const refreshBacklog = async () => {
+      report.mockClear();
+      await refreshChatIndex(report);
+      return progress();
+    };
+    expect(progress()).toMatchObject({
+      completed: 15,
+      pending: 1,
+      failed: 2,
+      unresolvedSlots: 1,
+    });
+
+    // A saved index row with the same model but a missing vector must be repaired.
+    await db()
+      .update(vectors)
+      .set({ embedding: null })
+      .where(
+        and(
+          eq(vectors.editionSlug, backlog.slug),
+          eq(vectors.collection, "artwork"),
+          eq(vectors.url, "https://osu.ppy.sh/beatmaps/8899101"),
+        ),
+      );
+    unavailableSetId = "";
+    omitLast = false;
+    blockArtworkEmbeddings = true;
+    expect(await refreshBacklog()).toMatchObject({
+      completed: 14,
+      pending: 0,
+      failed: 4,
+      unresolvedSlots: 0,
+    });
+    blockArtworkEmbeddings = false;
+    const beforeRetry = visions;
+    expect(await refreshBacklog()).toMatchObject({
+      completed: 18,
+      pending: 0,
+      failed: 0,
+      unresolvedSlots: 0,
+    });
+    expect(visions).toBe(beforeRetry);
+    lookup.mockRestore();
   },
 );
