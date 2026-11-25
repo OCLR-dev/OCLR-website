@@ -19,20 +19,29 @@ export function visionConfiguration() {
   return { config, model, key };
 }
 
-export function artworkQuery(question: string): string | null {
-  if (
-    !/(?:背景(?:[圖图]|畫面|画面)?|封面|\bbg\b|bg[圖图]|backgrounds?|covers?|artwork)/i.test(
-      question,
-    ) ||
-    !/(?:[譜谱]面|[圖图]池|\b(?:beat)?maps?\b|mappools?|bg[圖图]|[哪那][張张首][圖图])/i.test(
-      question,
-    )
-  )
-    return null;
-  return question
+export function artworkQuery(
+  question: string,
+  mappoolContext = false,
+): string | null {
+  const query = question
     .normalize("NFKC")
     .replace(
-      /(?:[譜谱]面|[圖图]池|背景[圖图]?|封面|bg[圖图]?|(?:beat)?maps?|mappools?|backgrounds?|covers?|artwork|哪些|哪[些個个張张首]|[圖图]片|請問|请问|的|是|包含|[？?／/])/gi,
+      /https?:\/\/[^\s>)]+|\/tournaments\/[a-z0-9-]+\/mappools[^\s>)]*/gi,
+      " ",
+    );
+  if (
+    !/(?:背景(?:[圖图]|畫面|画面)?|封面|\bbg\b|bg[圖图]|backgrounds?|covers?|artwork)/i.test(
+      query,
+    ) ||
+    (!mappoolContext &&
+      !/(?:[譜谱]面|[圖图]池|\b(?:beat)?maps?\b|mappools?|bg[圖图]|[哪那][張张首][圖图])/i.test(
+        query,
+      ))
+  )
+    return null;
+  return query
+    .replace(
+      /(?:[譜谱]面|[圖图]池|背景[圖图]?|封面|bg[圖图]?|mappools?|(?:beat)?maps?|backgrounds?|covers?|artwork|哪些|哪[些個个張张首]|[圖图]片|請問|请问|的|是|包含|[？?／/])/gi,
       " ",
     )
     .replace(

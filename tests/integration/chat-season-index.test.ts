@@ -7,6 +7,10 @@ import {
   importedPlayerRatings,
   otrRatingCache,
   registrations,
+  mappools,
+  mappoolEntries,
+  tournamentRounds,
+  tournamentStages,
   sipRatingCache,
   userProfileCache,
   users,
@@ -380,7 +384,66 @@ it.skipIf(!url)(
     const maps = season.archive.pools[0].maps;
     maps[0].beatmapSetId = 8899001;
     maps[1].beatmapSetId = 8899002;
-    await seedEditions([season]);
+    const live = { ...edition, slug: "live-artwork-cup" };
+    await seedEditions([season, live]);
+    const [stage] = await db()
+      .insert(tournamentStages)
+      .values({ editionSlug: live.slug, kind: "group" })
+      .returning();
+    const [round] = await db()
+      .insert(tournamentRounds)
+      .values({
+        editionSlug: live.slug,
+        stageId: stage.id,
+        name: "Group round",
+        position: 1,
+      })
+      .returning();
+    const [published, draft] = await db()
+      .insert(mappools)
+      .values([
+        {
+          editionSlug: live.slug,
+          roundId: round.id,
+          name: "Released pool",
+          publishedAt: new Date(),
+        },
+        { editionSlug: live.slug, roundId: round.id, name: "Unreleased pool" },
+      ])
+      .returning();
+    const metadata = {
+      setId: 8899003,
+      artist: "Fixture artist",
+      title: "Live Sakura Map",
+      difficulty: "Fixture difficulty",
+      mapper: "Fixture mapper",
+      mode: "osu" as const,
+      ar: 9,
+      bpm: 170,
+      stars: 5.5,
+    };
+    await db()
+      .insert(mappoolEntries)
+      .values([
+        {
+          poolId: published.id,
+          category: "HD",
+          position: 1,
+          beatmapId: 8899031,
+          metadata,
+        },
+        {
+          poolId: draft.id,
+          category: "HD",
+          position: 1,
+          beatmapId: 8899041,
+          metadata: {
+            ...metadata,
+            title: "PRIVATE-DRAFT-ARTWORK",
+            setId: 8899004,
+          },
+        },
+      ]);
     await db().execute(sql`TRUNCATE chat_artwork_captions, osu_cached_images`);
     vi.stubEnv("OCLR_CHAT_VISION_MODEL", "vision-test");
     vi.stubEnv("OCLR_CHAT_EMBEDDING_MODEL", "artwork-embedding-test");
@@ -400,7 +463,7 @@ it.skipIf(!url)(
       const address = new URL(input);
       requests.push(address.pathname);
       if (address.hostname === "assets.ppy.sh") {
-        const image = address.pathname.includes("8899001") ? pix[0] : pix[1];
+        const image = /889900[13]/.test(address.pathname) ? pix[0] : pix[1];
         return new Response(new Uint8Array(image), {
           headers: { "content-type": "image/jpeg" },
         });
@@ -451,7 +514,7 @@ it.skipIf(!url)(
     });
     const indexed = await refreshChatIndex();
     expect(indexed.failed).toBe(0);
-    expect(visions).toBe(2);
+    expect(visions).toBe(3);
     const visual = "譜面BG圖是美少女的譜面/map";
     const results = (await chatEvidence(season.slug, visual, "選手有多少"))
       .sources;
@@ -461,8 +524,51 @@ it.skipIf(!url)(
       text: first,
     });
     expect(results[0].title).toContain(maps[0].slot);
+    const livePath = `/tournaments/${live.slug}/mappools`;
+    const liveUrl = "https://oclr.org" + livePath;
+    const overview = await chatEvidence(live.slug, liveUrl, "");
+    expect(overview.mappoolDirectory).toBe(true);
+    expect(overview.sources[0].url).toBe(livePath);
+    expect(JSON.parse(overview.sources[0].text)).toMatchObject({
+      publishedPools: 1,
+      publishedSlots: 1,
+    });
+    expect(overview.sources[1].text).toContain(
+      "HD1 Fixture artist Live Sakura Map",
+    );
+    expect(overview.sources[1].text).toContain("BPM 170");
+    expect(JSON.stringify(overview.sources)).not.toContain("PRIVATE-DRAFT");
+    expect(requests.some((path) => path.includes("8899004"))).toBe(false);
+
+    const liveVisual = await chatEvidence(
+      live.slug,
+      liveUrl + "\n這個就是了",
+      "背景圖是美少女的有哪些？",
+    );
+    expect(liveVisual.sources).toEqual([
+      expect.objectContaining({
+        title: expect.stringContaining("Live Sakura Map"),
+        url: "https://osu.ppy.sh/beatmaps/8899031",
+        text: first,
+      }),
+    ]);
     expect((await refreshChatIndex()).updated).toBe(0);
-    expect(visions).toBe(2);
+    expect(visions).toBe(3);
+
+    // Captions are already verified against the public pool even if their
+    // embedding row has not been stored yet.
+    await db()
+      .delete(vectors)
+      .where(
+        and(
+          eq(vectors.editionSlug, live.slug),
+          eq(vectors.collection, "artwork"),
+        ),
+      );
+    expect(
+      (await chatEvidence(live.slug, "背景圖是美少女的有哪些？", liveUrl))
+        .sources,
+    ).toEqual(liveVisual.sources);
     season.archive.pools[0].maps = [maps[1]];
     await seedEditions([season]);
     expect((await chatEvidence(season.slug, visual, "")).sources).toEqual([]);
@@ -470,6 +576,6 @@ it.skipIf(!url)(
     expect((await refreshChatIndex()).removed).toBeGreaterThan(0);
     expect(
       requests.filter((path) => path === "/v1/chat/completions"),
-    ).toHaveLength(2);
+    ).toHaveLength(3);
   },
 );

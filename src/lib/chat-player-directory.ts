@@ -1,5 +1,5 @@
 import { readOnlyData } from "@/db";
-import type { ChatSource } from "./chat-retrieval";
+import { linksToSeasonSection, type ChatSource } from "./chat-retrieval";
 import type { Edition } from "./editions";
 import { readDirectoryEtxRatings } from "./etx-rating";
 import { eventPreview } from "./event-preview";
@@ -24,14 +24,6 @@ const metricLabels: Record<DirectoryMetric, string> = {
   etx: "ETX",
 };
 
-function linksToDirectory(text: string, slug: string) {
-  return [
-    ...text.matchAll(
-      /(?:^|[\s<(]|\[)(?:https:\/\/(?:www\.)?oclr\.org)?\/tournaments\/([a-z0-9-]+)\/players(?=\/?(?:$|[?#\s>),，。]))/gi,
-    ),
-  ].some((match) => match[1] === slug);
-}
-
 export function playerDirectoryRequest(
   slug: string,
   question: string,
@@ -41,8 +33,9 @@ export function playerDirectoryRequest(
     /名[單单]|清[單单]|列出|有哪些|有[誰谁]|[誰谁].{0,8}[強强]|[最較较][強强]|排行|前[幾几\d]|\b(?:list|top|strongest|stronger|best|compare)\b/i.test(
       question,
     );
-  const linked = linksToDirectory(question, slug);
-  const previousLink = asksListOrComparison && linksToDirectory(previous, slug);
+  const linked = linksToSeasonSection(question, slug, "players");
+  const previousLink =
+    asksListOrComparison && linksToSeasonSection(previous, slug, "players");
   const text = (linked ? `${question} ${previous}` : question).normalize(
     "NFKC",
   );
