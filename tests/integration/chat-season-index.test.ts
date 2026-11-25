@@ -3,7 +3,9 @@ import { eq, and, sql } from "drizzle-orm";
 import { closeDb, db } from "@/db";
 import {
   chatSourceVectors as vectors,
+  draftSessions,
   etxRatingCache,
+  fixtures,
   importedPlayerRatings,
   otrRatingCache,
   registrations,
@@ -12,6 +14,7 @@ import {
   tournamentRounds,
   tournamentStages,
   sipRatingCache,
+  teams,
   userProfileCache,
   users,
 } from "@/db/schema";
@@ -20,6 +23,7 @@ import { chatEvidence } from "@/lib/chat-sources";
 import { normalizeOsuProfile } from "@/lib/osu-profile-model";
 import { searchSeasonIndex } from "@/lib/chat-vectors";
 import { seedEditions } from "../fixtures/editions";
+import { seedPublicDirectory } from "../fixtures/players";
 import { edition } from "../fixtures/edition";
 import { historicalArchive } from "../fixtures/historical-archive";
 import { assertTestDatabase } from "../database";
@@ -153,6 +157,169 @@ it.skipIf(!url)(
         .from(vectors)
         .where(eq(vectors.editionSlug, archived.slug)),
     ).toEqual([]);
+  },
+);
+
+it.skipIf(!url)(
+  "reads linked teams, released picks and schedule from public page projections",
+  async () => {
+    const home = await seedPublicDirectory(1431547);
+    const away = await seedPublicDirectory(1431557);
+    const slug = edition.slug;
+    const origin = `https://oclr.org/tournaments/${slug}`;
+    const saved = new Date("2030-01-01T00:00:00Z");
+    await db()
+      .update(teams)
+      .set({ rosterPublished: false })
+      .where(eq(teams.id, home.teamId));
+    const [session] = await db()
+      .insert(draftSessions)
+      .values({
+        editionSlug: slug,
+        state: "live",
+        turnSequence: [home.teamId],
+        pool: [home.memberId],
+      })
+      .returning();
+    const [stage] = await db()
+      .insert(tournamentStages)
+      .values({ editionSlug: slug, kind: "group" })
+      .returning();
+    const [round] = await db()
+      .insert(tournamentRounds)
+      .values({
+        editionSlug: slug,
+        stageId: stage.id,
+        name: "Fixture group",
+        position: 1,
+      })
+      .returning();
+    const fixture = {
+      editionSlug: slug,
+      roundId: round.id,
+      timeZone: "Asia/Tokyo",
+    };
+    const visibleAt = new Date("2030-01-03T07:00:00Z");
+    const [published] = await db()
+      .insert(fixtures)
+      .values([
+        {
+          ...fixture,
+          label: "First confirmed",
+          position: 1,
+          homeTeamId: home.teamId,
+          awayTeamId: away.teamId,
+          publishedAt: saved,
+          scheduledAt: visibleAt,
+        },
+        {
+          ...fixture,
+          label: "Public TBD",
+          position: 2,
+          publishedAt: saved,
+          scheduledAt: new Date("2030-01-02T01:00:00Z"),
+        },
+        {
+          ...fixture,
+          label: "Unreleased fixture",
+          position: 3,
+          scheduledAt: visibleAt,
+        },
+      ])
+      .returning();
+
+    const teamEvidence = await chatEvidence(slug, origin + "/teams", "");
+    expect(teamEvidence.competitionPage).toBe(true);
+    expect(JSON.parse(teamEvidence.sources[0].text).teamCount).toBe(2);
+    expect(
+      JSON.parse(
+        teamEvidence.sources.find((row) => row.url.endsWith(home.teamId))!.text,
+      ).members,
+    ).toBeNull();
+
+    const draftBefore = await chatEvidence(slug, origin + "/draft", "");
+    expect(draftBefore.sources).toHaveLength(1);
+    expect(JSON.parse(draftBefore.sources[0].text)).toMatchObject({
+      state: "unpublished",
+      publishedPicks: null,
+    });
+    await db()
+      .update(draftSessions)
+      .set({
+        publicSnapshot: {
+          sessionId: session.id,
+          version: 1,
+          state: "live",
+          turnIndex: 1,
+          turnCount: 1,
+          activeTeam: null,
+          rosters: [],
+          pool: null,
+          picks: [
+            {
+              id: session.id,
+              turnIndex: 0,
+              team: {
+                id: home.teamId,
+                name: "Synthetic published draft team",
+                captain: {
+                  osuId: home.captainId,
+                  username: "Synthetic captain",
+                },
+              },
+              player: {
+                osuId: home.memberId,
+                username: "Synthetic released pick",
+              },
+            },
+          ],
+        },
+      })
+      .where(eq(draftSessions.id, session.id));
+    const draftAfter = await chatEvidence(slug, origin + "/draft", "");
+    expect(draftAfter.sources[1].text).toContain("Synthetic released pick");
+
+    await db()
+      .update(teams)
+      .set({ rosterPublished: true })
+      .where(eq(teams.id, home.teamId));
+    const schedule = await chatEvidence(slug, origin + "/schedule", "");
+    expect(JSON.parse(schedule.sources[0].text)).toMatchObject({
+      publishedMatches: 2,
+      matchesWithPublishedTime: 1,
+      publishedResults: 0,
+    });
+    expect(JSON.stringify(schedule.sources)).not.toContain(
+      "Unreleased fixture",
+    );
+    const tbd = schedule.sources.find((row) =>
+      row.title.includes("Public TBD"),
+    );
+    expect(JSON.parse(tbd!.text).scheduledAt).toBeNull();
+    const next = await chatEvidence(
+      slug,
+      origin + "/schedule",
+      "下一場比賽？",
+      saved.getTime(),
+    );
+    expect(next.sources[1].url).toContain(published.id);
+    expect(JSON.parse(next.sources[1].text)).toMatchObject({
+      scheduledAt: visibleAt.toISOString(),
+      timeZone: "Asia/Tokyo",
+    });
+
+    expect((await refreshChatIndex()).failed).toBe(0);
+    const stored = await db()
+      .select({ url: vectors.url, content: vectors.content })
+      .from(vectors)
+      .where(eq(vectors.editionSlug, slug));
+    for (const section of ["teams", "draft", "schedule"])
+      expect(
+        stored.some(
+          (document) => document.url === `/tournaments/${slug}/${section}`,
+        ),
+      ).toBe(true);
+    expect(JSON.stringify(stored)).not.toContain("Unreleased fixture");
   },
 );
 

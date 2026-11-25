@@ -80,11 +80,8 @@ export async function chatDirectoryPlayers(edition: Edition) {
         tier: row.tier,
         tierLabel: row.tierLabel,
         bio: row.bio,
-        rank: directoryMetricValue(player.rank, "rank"),
-        pp: directoryMetricValue(player.pp, "pp"),
-        otr: directoryMetricValue(otr?.get(player.id)?.value, "otr"),
-        sip: directoryMetricValue(player.sip, "sip"),
-        etx: directoryMetricValue(stars?.value, "etx"),
+        otr: otr?.get(player.id)?.value,
+        etx: stars?.value,
         etxProvisional: stars?.provisional,
         etxOutdated: stars?.outdated,
         osuStatisticsFetchedAt: row.statistics.fetchedAt,
@@ -93,7 +90,14 @@ export async function chatDirectoryPlayers(edition: Edition) {
     return selectDirectoryPlayers(
       players,
       directoryState(new URLSearchParams()),
-    );
+    ).map((player) => ({
+      ...player,
+      rank: directoryMetricValue(player.rank, "rank"),
+      pp: directoryMetricValue(player.pp, "pp"),
+      otr: directoryMetricValue(player.otr, "otr"),
+      sip: directoryMetricValue(player.sip, "sip"),
+      etx: directoryMetricValue(player.etx, "etx"),
+    }));
   });
 }
 

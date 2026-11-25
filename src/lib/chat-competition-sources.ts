@@ -13,6 +13,8 @@ type Match = {
   id: string;
   label: string;
   teams: string;
+  timeZone: string;
+  pool?: string;
   time: string | null;
   score: string | null;
   cancelled?: boolean;
@@ -29,12 +31,13 @@ export async function matches(edition: Edition): Promise<Match[]> {
   const archive = edition.archive;
   if (archive) {
     const teams = new Map(archive.teams.map((t) => [t.id, t.name]));
-    return archive.matches.map((m) => ({
+    return archive.matches.filter(recordedArchiveMatch).map((m) => ({
       id: m.id,
       label: m.stage + " " + m.label,
       teams: [teams.get(m.teamA), teams.get(m.teamB)].join(" / "),
       time: m.scheduledAt,
-      score: recordedArchiveMatch(m) ? (m.score?.join("–") ?? "forfeit") : null,
+      timeZone: edition.timeZone,
+      score: m.score?.join("–") ?? "forfeit",
     }));
   }
   const competition = await publicCompetition(edition.slug);
@@ -43,11 +46,46 @@ export async function matches(edition: Edition): Promise<Match[]> {
     id: f.id,
     label: f.roundName + " " + f.label,
     teams: f.home.label + " / " + f.away.label,
-    time: f.scheduledAt,
+    time: f.confirmed ? f.scheduledAt : null,
+    timeZone: f.timeZone,
+    pool: f.pool?.name,
     score: f.result ? [f.result.homeWins, f.result.awayWins].join("–") : null,
     status: f.status,
     cancelled: f.status === "cancelled",
   }));
+}
+
+export function scheduleOverview(
+  edition: Edition,
+  fixtures: Match[],
+): ChatSource {
+  return {
+    url: `/tournaments/${edition.slug}/schedule`,
+    title: "Published match schedule",
+    text: JSON.stringify({
+      publishedMatches: fixtures.length,
+      matchesWithPublishedTime: fixtures.filter((match) => match.time !== null)
+        .length,
+      publishedResults: fixtures.filter((match) => match.score !== null).length,
+    }),
+  };
+}
+
+export function matchSource(edition: Edition, match: Match): ChatSource {
+  return {
+    url: `/tournaments/${edition.slug}/matches/${encodeURIComponent(match.id)}`,
+    title: `${match.label} · ${match.teams}`,
+    text: JSON.stringify({
+      category: "match schedule result",
+      teams: match.teams,
+      scheduledAt: match.time,
+      timeZone: match.timeZone,
+      status: match.status,
+      mappool: match.pool,
+      publishedScore: match.score,
+      cancelled: match.status === "cancelled" || match.cancelled === true,
+    }),
+  };
 }
 
 export async function poolSources(edition: Edition): Promise<ChatSource[]> {
