@@ -59,7 +59,9 @@
     "db:refresh-beatmap-difficulties": "tsx scripts/refresh-beatmap-difficulties.ts",
     "chat:index": "node --import tsx scripts/refresh-chat-index.ts",
     "db:refresh-otr-ratings": "node --import tsx scripts/refresh-otr-ratings.ts",
-    "db:refresh-etx-ratings": "tsx scripts/refresh-etx-ratings.ts"
+    "db:refresh-etx-ratings": "tsx scripts/refresh-etx-ratings.ts",
+    "bot:liru": "node --import tsx scripts/liru-discord-bot.ts serve",
+    "bot:liru:register": "node --import tsx scripts/liru-discord-bot.ts register"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^3.0.94",
@@ -70,6 +72,7 @@
     "@fullcalendar/react": "7.1.3",
     "@next/env": "16.4.6",
     "ai": "^7.0.181",
+    "discord-interactions": "^4.4.0",
     "drizzle-orm": "^0.45.4",
     "fflate": "0.8.3",
     "next": "16.4.6",

@@ -152,6 +152,7 @@ createServer((request, response) => {
     response.setHeader("Content-Type", "text/css; charset=utf-8");
     response.end(readFileSync(resolve("public", `.${request.url}`)));
   } else if (
+    request.url === "/mascot/liru/chat-wink.webp" ||
     themeAssets.has(request.url ?? "") ||
     /^\/mascot\/liru\/gallery\/(elegant-maid|purple-punk)(-640)?\.webp$/.test(
       request.url ?? "",

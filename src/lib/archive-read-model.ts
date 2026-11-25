@@ -206,7 +206,7 @@ export function buildArchiveReadData(
       teamA: m.teamA,
       teamB: m.teamB,
       scheduledAt: m.scheduledAt,
-      recorded: recordedArchiveMatch({ ...m, mpUrls }),
+      recorded: recordedArchiveMatch(m),
       payload: m,
     });
     mpUrls.forEach((url) =>

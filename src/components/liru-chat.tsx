@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import Markdown, { defaultUrlTransform } from "react-markdown";
 import type { Root, Parents } from "mdast";
 import { useMemo } from "react";
@@ -16,7 +17,6 @@ import { useAISDKRuntime } from "@assistant-ui/ai-sdk";
 import { useAppTranslations } from "@/i18n/shared";
 import type { User } from "@/lib/auth/sessions";
 import { Avatar } from "./avatar";
-import { LiruChatIcon } from "./liru-chat-icon";
 import styles from "./liru-chat.module.css";
 
 function useAnswerSources() {
@@ -91,9 +91,14 @@ function AnswerText({ text }: TextMessagePartProps) {
 function AssistantMessage() {
   return (
     <MessagePrimitive.Root className={styles.reply}>
-      <span className={styles.avatar}>
-        <LiruChatIcon size={26} />
-      </span>
+      <Image
+        className={styles.avatar}
+        src="/mascot/liru/chat-wink.webp"
+        alt=""
+        width={34}
+        height={34}
+        unoptimized
+      />
       <div className={styles.parts}>
         <MessagePrimitive.Parts
           components={{ Source: () => null, Text: AnswerText }}

@@ -76,9 +76,25 @@ test("stop a pending turn, retry with sources, and start fresh in another editio
       avatar.evaluate((image: HTMLImageElement) => image.naturalWidth),
     )
     .toBeGreaterThan(0);
-  const question = await history
-    .getByText("Substitution?", { exact: true })
-    .boundingBox();
+  const questionText = history
+    .locator("p")
+    .filter({ hasText: /^Substitution\?$/ });
+  const spacing = await questionText.evaluate((text) => {
+    const bubble = text.parentElement!;
+    const textBox = text.getBoundingClientRect();
+    const bubbleBox = bubble.getBoundingClientRect();
+    const padding = Number.parseFloat(
+      getComputedStyle(bubble).paddingBlockStart,
+    );
+    return {
+      top: textBox.top - bubbleBox.top,
+      bottom: bubbleBox.bottom - textBox.bottom,
+      padding,
+    };
+  });
+  expect(spacing.top).toBeCloseTo(spacing.padding, 0);
+  expect(spacing.bottom).toBeCloseTo(spacing.padding, 0);
+  const question = await questionText.boundingBox();
   const profile = await avatar.boundingBox();
   expect(profile!.x).toBeGreaterThanOrEqual(question!.x + question!.width);
   await expect(
@@ -93,6 +109,14 @@ test("stop a pending turn, retry with sources, and start fresh in another editio
   await expect(page.getByRole("textbox")).toHaveValue("Substitution?");
   await page.getByRole("button", { name: "Send", exact: true }).click();
   await expect(page.getByText("Ask the referee.")).toBeVisible();
+  const portrait = history.locator('img[src$="/mascot/liru/chat-wink.webp"]');
+  await expect(portrait).toBeVisible();
+  await expect
+    .poll(() =>
+      portrait.evaluate((image: HTMLImageElement) => image.naturalWidth),
+    )
+    .toBe(160);
+  await expect(launcher.locator("svg")).toHaveCount(1);
   const sourceToggle = page.getByText("Source", { exact: true });
   const sourceLink = page.getByRole("link", { name: "Substitution" });
   await expect(sourceToggle).toBeVisible();
