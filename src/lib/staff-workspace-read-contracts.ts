@@ -120,6 +120,7 @@ export type StaffWorkspaceReadContracts = {
         lockedAt: Date | null;
         selectionLockedAt: Date | null;
         showcaseAt: Date | null;
+        /** The legacy allowReplays field is always true on current backends. */
         showcaseGrants?: (Identity & { allowReplays?: boolean })[];
         updatedAt: Date;
       })[];

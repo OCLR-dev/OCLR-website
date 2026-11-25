@@ -54,7 +54,6 @@ async function allowedPools(edition: string, osuId: number, poolId?: string) {
         position: tournamentRounds.position,
       },
       entryCount: count(mappoolEntries.id),
-      allowReplays: mappoolShowcaseAccess.allowReplays,
     })
     .from(mappools)
     .innerJoin(
@@ -79,21 +78,16 @@ async function allowedPools(edition: string, osuId: number, poolId?: string) {
         poolId ? eq(mappools.id, poolId) : undefined,
       ),
     )
-    .groupBy(
-      mappools.id,
-      tournamentRounds.id,
-      tournamentStages.id,
-      mappoolShowcaseAccess.allowReplays,
-    )
+    .groupBy(mappools.id, tournamentRounds.id, tournamentStages.id)
     .orderBy(
       tournamentStages.kind,
       tournamentRounds.position,
       mappools.name,
       mappools.id,
     );
-  return rows.map(({ allowReplays, ...pool }) => ({
-    pool: { ...pool, updatedAt: pool.updatedAt.toISOString() },
-    allowReplays,
+  return rows.map((pool) => ({
+    ...pool,
+    updatedAt: pool.updatedAt.toISOString(),
   }));
 }
 
@@ -133,15 +127,15 @@ async function currentPool(
   version: number | null,
 ) {
   if (!z.uuid().safeParse(poolId).success) throw notFound();
-  const [source] = await allowedPools(edition, osuId, poolId);
-  if (!source) throw notFound();
-  if (version !== null && version !== source.pool.version)
+  const [pool] = await allowedPools(edition, osuId, poolId);
+  if (!pool) throw notFound();
+  if (version !== null && version !== pool.version)
     throw new DeveloperApiError(
       409,
       "SHOWCASE_VERSION_CHANGED",
       "Refresh the Showcase pool list before importing.",
     );
-  return source;
+  return pool;
 }
 
 function privateShowcase(response: Response) {
@@ -164,10 +158,9 @@ export async function streamingShowcaseResponse(
         const osuId = principal!.subject.osuId;
         await assertShowcaseReader(edition, osuId);
         if (poolId === undefined) {
-          const sources = await allowedPools(edition, osuId);
-          return { data: { pools: sources.map(({ pool }) => pool) } };
+          return { data: { pools: await allowedPools(edition, osuId) } };
         }
-        const { pool } = await currentPool(
+        const pool = await currentPool(
           edition,
           osuId,
           poolId,
@@ -341,19 +334,7 @@ async function showcaseReplayPool(
   version: number,
 ) {
   await assertShowcaseReader(edition, osuId);
-  const { pool, allowReplays } = await currentPool(
-    edition,
-    osuId,
-    poolId,
-    version,
-  );
-  if (!allowReplays)
-    throw new DeveloperApiError(
-      403,
-      "SHOWCASE_REPLAYS_FORBIDDEN",
-      "Replay access has not been granted for this Showcase pool version.",
-    );
-  return pool;
+  return currentPool(edition, osuId, poolId, version);
 }
 
 export async function streamingShowcaseReplays(

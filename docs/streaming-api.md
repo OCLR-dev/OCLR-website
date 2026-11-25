@@ -179,14 +179,12 @@ preferred replay on `HD1`.
 Migration `0113_mappool_preferred_replay` leaves existing attachments
 unselected until staff designate a preferred replay.
 
-In **Mappool management → Showcase access**, an edition Admin first grants
-Showcase access for the locked, unpublished pool version, then selects **Allow
-replay access** for that Streamer. Replay access starts disabled, including
-for grants saved before migration `0109_mappool_showcase_replay_access`.
-**Withdraw replay access** leaves the map import grant in effect. With a
-current map-only grant, both routes return 403
-`SHOWCASE_REPLAYS_FORBIDDEN`. With replay access, a slot without a preference has
-`replays: []` in a 200 response.
+Starting with contract **1.52.0**, **Allow Showcase access** grants a Streamer
+access to both the locked, unpublished pool version and its preferred replays.
+This also applies to existing Showcase grants for the current version, without
+a migration. **Withdraw Showcase access** revokes both together. For an eligible
+Streamer without a current grant, both routes return 404. A slot without a
+preference has `replays: []` in a 200 response.
 
 Both routes recheck the role, edition, non-participant status, selection lock,
 version and grant. The file route also verifies that the attachment belongs to a
@@ -194,7 +192,7 @@ saved entry in that pool, checks the private file's stored size and hash, and
 rechecks access after reading storage. Public pool release ends Showcase access.
 Published pools' replays remain private staff attachments. Each actual upload,
 deletion, or preference change increments the pool version. The Admin must
-grant Showcase and replay access again for the new version. The Overlay should
+grant Showcase access again for the new version. The Overlay should
 refresh the pool selection on 404 or 409 and clear stale replay data. A duplicate upload or repeated
 deletion of a missing attachment does not change the version.
 

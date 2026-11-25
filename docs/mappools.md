@@ -104,10 +104,10 @@ For a pre-release [Showcase](streaming-api.md#showcase-pools-1115), an edition
 Admin can lock the selected saved slots and grant access to individual
 non-participating Streamers. The selection lock freezes slot edits and leaves
 publication separate. Unlocking clears the grant and permits editing again for
-an unpublished pool outside approved fixtures. The Admin can separately
-[allow replay access](streaming-api.md#showcase-replays-1189) for a granted
-Streamer and the current pool version. Adding or removing a replay requires a
-new approval for the changed version.
+an unpublished pool outside approved fixtures. Showcase access includes
+[preferred replays](streaming-api.md#showcase-replays-1189) for the granted
+pool version. Replay changes require a new Showcase grant for the changed
+version.
 
 Only released pools are returned by public pages/APIs, including direct UUID requests. Unlocked public pools can be edited directly; full revisions remain in private audit history. A completed-fixture lock permanently prevents map/settings/round-label changes, even after unpublishing. Create a new pool rather than rewriting historical competition maps; the results service sets this lock atomically when a fixture is approved. Locked pools reject ordinary publication/content changes; create a replacement pool for new competition content.
 

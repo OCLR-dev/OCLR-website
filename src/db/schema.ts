@@ -1034,6 +1034,7 @@ export const mappoolShowcaseAccess = pgTable(
       .notNull()
       .references(() => users.osuId, { onDelete: "cascade" }),
     approvedVersion: integer("approved_version").notNull(),
+    // Legacy storage retained for older releases. Current Showcase grants include replays.
     allowReplays: boolean("allow_replays").notNull().default(false),
     approvedLockAt: timestamp("approved_lock_at", {
       withTimezone: true,

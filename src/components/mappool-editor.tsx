@@ -480,48 +480,22 @@ function ShowcasePoolAccess({
             {grants.map((grant) => (
               <li className={showcaseStyles.grant} key={grant.osuId}>
                 <span>{grant.username}</span>
-                <div className={showcaseStyles.grantActions}>
-                  <ConfirmMutation
-                    className={`secondary ${showcaseStyles.action}`}
-                    label={
-                      grant.allowReplays
-                        ? tr("Withdraw replay access")
-                        : tr("Allow replay access")
-                    }
-                    title={
-                      grant.allowReplays
-                        ? tr("Withdraw replay access for this pool version")
-                        : tr("Allow replay access for this pool version")
-                    }
-                    description={grant.username}
-                    url={url}
-                    loadingFeedback="button"
-                    payload={{
-                      action: "pool_showcase_replays",
-                      poolId: pool.id,
-                      expectedVersion: pool.version,
-                      userId: grant.osuId,
-                      enabled: !grant.allowReplays,
-                      confirmed: true,
-                    }}
-                  />
-                  <ConfirmMutation
-                    className={`secondary ${showcaseStyles.action}`}
-                    label={tr("Withdraw Showcase access")}
-                    title={tr("Withdraw Showcase access")}
-                    description={grant.username}
-                    url={url}
-                    loadingFeedback="button"
-                    payload={{
-                      action: "pool_showcase",
-                      poolId: pool.id,
-                      expectedVersion: pool.version,
-                      userId: grant.osuId,
-                      enabled: false,
-                      confirmed: true,
-                    }}
-                  />
-                </div>
+                <ConfirmMutation
+                  className={`secondary ${showcaseStyles.action}`}
+                  label={tr("Withdraw Showcase access")}
+                  title={tr("Withdraw Showcase access")}
+                  description={grant.username}
+                  url={url}
+                  loadingFeedback="button"
+                  payload={{
+                    action: "pool_showcase",
+                    poolId: pool.id,
+                    expectedVersion: pool.version,
+                    userId: grant.osuId,
+                    enabled: false,
+                    confirmed: true,
+                  }}
+                />
               </li>
             ))}
           </ul>
