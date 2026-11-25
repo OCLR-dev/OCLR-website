@@ -61,16 +61,23 @@ function AnswerText({ text }: TextMessagePartProps) {
   const sources = useAnswerSources();
   const ids = new Set(sources.map((part) => part.id));
   const urls = new Set(sources.map((part) => part.url));
-  function citations() {
-    function walk(parent: Parents) {
+  function formatAnswerProse() {
+    function walk(parent: Parents, quoted = false) {
       for (const child of parent.children) {
         if (child.type === "link" || child.type === "linkReference") continue;
-        if ("children" in child) walk(child);
-        if (child.type === "text")
+        if ("children" in child)
+          walk(child, quoted || child.type === "blockquote");
+        if (child.type === "text") {
           child.value = child.value.replace(
             /[ \t]*\[(\d+)\]/g,
             (marker, id: string) => (ids.has(id) ? "" : marker),
           );
+          if (!quoted)
+            child.value = child.value.replace(
+              /。[ \t\u3000]*～(?=[ \t]*$)/gmu,
+              "～",
+            );
+        }
       }
     }
     return (tree: Root) => walk(tree);
@@ -79,7 +86,7 @@ function AnswerText({ text }: TextMessagePartProps) {
     <div className={styles.markdown}>
       <Markdown
         skipHtml
-        remarkPlugins={[citations]}
+        remarkPlugins={[formatAnswerProse]}
         components={{
           img: () => null,
           a: ({ href, children }) =>
