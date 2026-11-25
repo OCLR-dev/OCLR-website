@@ -1,4 +1,5 @@
 import type { PublicPlayer } from "./read-api-contract";
+import { csv } from "./csv";
 
 /** Client-safe projection: callers supply only edition-public facts. */
 export type DirectoryPlayer = {
@@ -155,6 +156,22 @@ function validMetric(value: number | null | undefined, key: DirectoryMetric) {
     (key === "sip" || value >= (key === "rank" ? 1 : 0))
     ? value
     : null;
+}
+
+export function directoryPlayersCsv(players: DirectoryPlayer[]) {
+  const order = directoryState(new URLSearchParams({ sort: "name-asc" }));
+  const rows = selectDirectoryPlayers(players, order);
+  return csv([
+    ["Username", "Global rank (osu!standard)", "PP", "o!TR", "SIP", "ETX"],
+    ...rows.map((player) => [
+      player.name,
+      validMetric(player.rank, "rank") ?? "",
+      validMetric(player.pp, "pp") ?? "",
+      validMetric(player.otr, "otr") ?? "",
+      validMetric(player.sip, "sip") ?? "",
+      validMetric(player.etx, "etx") ?? "",
+    ]),
+  ]);
 }
 
 export function selectDirectoryPlayers<T extends DirectoryPlayer>(

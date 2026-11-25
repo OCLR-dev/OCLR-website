@@ -1,6 +1,9 @@
 export function csvCell(value: string | number) {
   let cell = String(value);
-  if (/^[\s\u0000-\u001f]*[=+\-@]/u.test(cell) || /^[\t\r\n]/.test(cell))
+  if (
+    typeof value === "string" &&
+    (/^[\s\u0000-\u001f]*[=+\-@]/u.test(cell) || /^[\t\r\n]/.test(cell))
+  )
     cell = `'${cell}`;
   return `"${cell.replaceAll('"', '""')}"`;
 }
