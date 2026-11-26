@@ -8,6 +8,7 @@ import { chatCollections, seasonContent } from "./chat-season-content";
 import {
   embeddingProvider,
   normalizedEmbeddings,
+  pgvectorMaxDimensions,
   sourceDigest,
 } from "./chat-vectors";
 import { remoteMode } from "./data-source";
@@ -24,6 +25,29 @@ type ArtworkProgress = { edition: string } & (
       unresolvedSlots: number;
     }
 );
+
+async function backfillEmbeddingVectors() {
+  const batchSize = 512;
+  // Commit each batch separately so reads and writes can continue between batches.
+  let updated: number;
+  do {
+    const result = await db().execute(sql`
+      with pending as (
+        select edition_slug, digest from chat_source_vectors
+        where embedding_vector is null
+          and cardinality(embedding) between 1 and ${pgvectorMaxDimensions}
+        order by edition_slug, digest
+        limit ${batchSize}
+        for update skip locked
+      )
+      update chat_source_vectors as source
+      set embedding_vector = source.embedding::public.vector
+      from pending
+      where source.edition_slug = pending.edition_slug and source.digest = pending.digest
+    `);
+    updated = result.rowCount ?? 0;
+  } while (updated === batchSize);
+}
 
 export async function refreshChatIndex(
   reportArtwork: (progress: ArtworkProgress) => void = () => {},
@@ -51,6 +75,7 @@ export async function refreshChatIndex(
             sql`not exists (select 1 from ${editionState} where ${editionState.slug} = ${vectors.editionSlug} and ${published})`,
           )
       ).rowCount ?? 0;
+    await backfillEmbeddingVectors();
     const editions = await db()
       .select({ slug: editionState.slug })
       .from(editionState)

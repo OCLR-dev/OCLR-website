@@ -8,6 +8,8 @@ import {
   developmentEnvironment,
 } from "./development-database";
 
+const databaseImage = "pgvector/pgvector:0.8.7-pg17-bookworm";
+
 function docker(args: string[], optional = false) {
   const result = spawnSync("docker", args, { encoding: "utf8" });
   if (!optional && (result.error || result.status !== 0))
@@ -40,7 +42,7 @@ async function main() {
     const [image, label, ports] = existing.stdout.trim().split("|");
     const binding = JSON.parse(ports)["5432/tcp"];
     if (
-      image !== "postgres:17" ||
+      (image !== databaseImage && image !== "postgres:17") ||
       label !== local.label ||
       binding?.length !== 1 ||
       binding[0].HostIp !== "127.0.0.1" ||
@@ -48,6 +50,10 @@ async function main() {
     )
       throw new Error(
         "The existing container is not the isolated OCLR frontend database.",
+      );
+    if (image === "postgres:17")
+      throw new Error(
+        "The existing OCLR preview database needs pgvector. Follow the Docker preview upgrade in docs/development.md to reuse its volume and configuration.",
       );
     if (!existsSync(".env.local"))
       throw new Error(
@@ -86,7 +92,7 @@ async function main() {
         envFile,
         "--mount",
         `type=volume,source=${local.volume},target=/var/lib/postgresql/data`,
-        "postgres:17",
+        databaseImage,
       ]);
       const url = `postgresql://${local.user}:${password}@127.0.0.1:${local.port}/${local.name}?sslmode=disable`;
       writeFileSync(".env.local", developmentEnvironment(url), {

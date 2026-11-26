@@ -108,9 +108,16 @@ it.skipIf(!url)(
     expect(first.updated).toBeGreaterThan(0);
     expect(calls.flat().join(" ")).not.toContain("PRIVATE-UNRELEASED");
     const stored = await db()
-      .select({ collection: vectors.collection })
+      .select({
+        collection: vectors.collection,
+        embedding: vectors.embedding,
+        embeddingVector: vectors.embeddingVector,
+      })
       .from(vectors)
       .where(eq(vectors.editionSlug, archived.slug));
+    expect(stored.map((s) => s.embeddingVector)).toEqual(
+      stored.map((s) => s.embedding),
+    );
     expect(stored.map((s) => s.collection)).toEqual(
       expect.arrayContaining([
         "overview",
@@ -122,6 +129,16 @@ it.skipIf(!url)(
         "staff",
       ]),
     );
+    // These are the same rows a pre-pgvector release left behind.
+    await db()
+      .update(vectors)
+      .set({ embeddingVector: null })
+      .where(eq(vectors.editionSlug, archived.slug));
+    const question = "星際旋律是哪首？";
+    const beforeBackfill = await searchSeasonIndex(archived, question, "");
+    expect(
+      beforeBackfill.some((s) => s.text.includes("Historical Title")),
+    ).toBe(true);
     calls.length = 0;
     expect(await refreshChatIndex()).toMatchObject({
       updated: 0,
@@ -129,7 +146,14 @@ it.skipIf(!url)(
       failed: 0,
     });
     expect(calls).toHaveLength(0);
-    const semantic = await searchSeasonIndex(archived, "星際旋律是哪首？", "");
+    const converted = await db()
+      .select({ embeddingVector: vectors.embeddingVector })
+      .from(vectors)
+      .where(eq(vectors.editionSlug, archived.slug));
+    expect(converted).toHaveLength(stored.length);
+    expect(converted.every((s) => s.embeddingVector !== null)).toBe(true);
+    const semantic = await searchSeasonIndex(archived, question, "");
+    expect(semantic).toEqual(beforeBackfill);
     expect(
       semantic.some(
         (s) =>

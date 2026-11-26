@@ -3161,6 +3161,12 @@ export const chatRuleIndexes = pgTable("chat_rule_indexes", {
     .notNull(),
 });
 
+const embeddingVector = customType<{ data: number[]; driverData: string }>({
+  dataType: () => "vector",
+  toDriver: (value) => JSON.stringify(value),
+  fromDriver: (value) => JSON.parse(value) as number[],
+});
+
 export const chatSourceVectors = pgTable(
   "chat_source_vectors",
   {
@@ -3177,6 +3183,7 @@ export const chatSourceVectors = pgTable(
     model: text("model"),
     keywords: text("keywords").array().notNull(),
     embedding: doublePrecision("embedding").array(),
+    embeddingVector: embeddingVector("embedding_vector"),
   },
   (t) => [
     primaryKey({ columns: [t.editionSlug, t.digest] }),

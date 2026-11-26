@@ -283,7 +283,7 @@ The base Node.js 22 packages meet the application's **>=22.13** requirement; upd
 
 Use this topology: **Browser → existing Nginx (HTTPS) → Rocky app (private port 3000) → existing PostgreSQL (private TCP or verified TLS)**. The public domain must point to Nginx, not directly to Node. Replace all uppercase/example values below with your actual settings. No production services have been provisioned by this repository.
 
-**1. Prepare your existing database.** Follow [the PostgreSQL steps below](#existing-separate-postgresql-deployment-steps). Obtain a runtime URL and a separate migration URL from its administrator; obtain a trusted CA certificate only if choosing database TLS. Do not install PostgreSQL on the app host. Permit database connections only from the app/deployment host's actual private IP.
+**1. Prepare your existing database.** Follow [the PostgreSQL steps below](#existing-separate-postgresql-deployment-steps) and have its administrator [enable pgvector](#pgvector-for-liru-chat). Obtain a runtime URL and a separate migration URL from its administrator; obtain a trusted CA certificate only if choosing database TLS. Do not install PostgreSQL on the app host. Permit database connections only from the app/deployment host's actual private IP.
 
 **2. Create an app account and first release directory.** On the Rocky application host, run these as your sudo-capable operator (fresh-install examples; reuse an existing account/path when appropriate):
 
@@ -428,6 +428,32 @@ GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO oclr_runtime;
 ```
 
 Run release preflight using runtime credentials, then rehearse sign-in, one synthetic staging registration and authorized staff work. Runtime must not be a superuser or have schema-creation/TRUNCATE privileges. Never point TEST_DATABASE_URL at this database. Keep encrypted backups and test restoration into an isolated target before release. On failure, stop writes and follow the existing rollback section; never automatically down-migrate or restore over new player data.
+
+## pgvector for Liru Chat
+
+Before applying migration `0124_chat_pgvector`, have the database administrator install [pgvector](https://github.com/pgvector/pgvector#installation) for the existing PostgreSQL server version and enable it in the OCLR database's `public` schema. CI uses pgvector 0.8.7 with PostgreSQL 17. Keep the existing restricted migration and runtime roles.
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA public;
+SELECT extversion, extnamespace::regnamespace AS schema
+FROM pg_extension WHERE extname = 'vector';
+```
+
+Use the normal reviewed-release updater. The migration adds a nullable vector column and a write trigger without rewriting existing rows. Keyword search keeps its GIN index. For vectors up to 16,000 dimensions, retrieval uses exact pgvector cosine distance and can convert pending rows on read. Larger legacy vectors keep their existing exact search. The existing `oclr-chat-index.timer` copies stored embeddings in batches without calling the model for that conversion. Older releases can still read and write the array column after an application rollback.
+
+Check conversion progress with this read-only query. A paused or interrupted worker resumes on the next run.
+
+```sql
+SELECT edition_slug,
+       count(embedding_vector) AS converted,
+       count(*) FILTER (
+         WHERE embedding_vector IS NULL
+           AND cardinality(embedding) BETWEEN 1 AND 16000
+       ) AS pending
+FROM chat_source_vectors
+GROUP BY edition_slug
+ORDER BY edition_slug;
+```
 
 ## Routine whole-site updates
 

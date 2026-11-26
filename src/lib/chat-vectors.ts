@@ -9,6 +9,8 @@ import { chatConfiguration } from "./chat-config";
 import { chatTerms, rankedSources, type ChatSource } from "./chat-retrieval";
 import { seasonContent, type ChatCollection } from "./chat-season-content";
 
+export const pgvectorMaxDimensions = 16_000;
+
 export function sourceDigest(collection: ChatCollection, source: ChatSource) {
   return createHash("sha256")
     .update(JSON.stringify([collection, source.url, source.title, source.text]))
@@ -115,8 +117,18 @@ export async function searchSeasonIndex(
   ) {
     try {
       const [v] = await normalizedEmbeddings(provider, [query], signal);
-      // Stored and query vectors have unit length; the dot product is cosine similarity.
-      const similarity = sql<number>`(select sum(a*b) from unnest(${vectors.embedding}, ${sql.param(v)}::double precision[]) as components(a,b))`;
+      // Array-only rows remain searchable while the daemon backfills them.
+      // Preserve semantic search for older models above pgvector's dimension limit.
+      const usePgvector = v.length <= pgvectorMaxDimensions;
+      const dimensions = usePgvector
+        ? sql`coalesce(public.vector_dims(${vectors.embeddingVector}), cardinality(${vectors.embedding}))`
+        : sql`cardinality(${vectors.embedding})`;
+      const cosine = usePgvector
+        ? sql`coalesce(${vectors.embeddingVector}, ${vectors.embedding}::public.vector)
+            operator(public.<=>) ${JSON.stringify(v)}::public.vector`
+        : sql`1 - (select sum(a*b) from unnest(${vectors.embedding},
+            ${sql.param(v)}::double precision[]) as components(a,b))`;
+      const distance = sql<number>`case when ${dimensions} = ${v.length} then ${cosine} end`;
       semantic = await db()
         .select(metadata)
         .from(vectors)
@@ -124,11 +136,10 @@ export async function searchSeasonIndex(
           and(
             scope,
             eq(vectors.model, provider.key),
-            sql`cardinality(${vectors.embedding}) = ${v.length}`,
-            sql`${similarity} > ${collection === "artwork" ? 0.35 : 0}`,
+            sql`${distance} < ${collection === "artwork" ? 0.65 : 1}`,
           ),
         )
-        .orderBy(sql`${similarity} desc`, vectors.digest)
+        .orderBy(distance, vectors.digest)
         .limit(10);
     } catch (error) {
       signal?.throwIfAborted();

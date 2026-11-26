@@ -46,7 +46,7 @@ jobs:
     timeout-minutes: 20
     services:
       postgres:
-        image: postgres:17
+        image: pgvector/pgvector:0.8.7-pg17-bookworm
         env:
           POSTGRES_USER: oclr_test
           POSTGRES_PASSWORD: isolated_ci_fixture
@@ -92,7 +92,7 @@ jobs:
     timeout-minutes: 20
     services:
       postgres:
-        image: postgres:17
+        image: pgvector/pgvector:0.8.7-pg17-bookworm
         env:
           POSTGRES_USER: oclr_test
           POSTGRES_PASSWORD: isolated_ci_fixture
@@ -141,7 +141,7 @@ jobs:
     # Each runner owns its PostgreSQL service; never increase workers on this DB.
     services:
       postgres:
-        image: postgres:17
+        image: pgvector/pgvector:0.8.7-pg17-bookworm
         env:
           POSTGRES_USER: oclr_test
           POSTGRES_PASSWORD: isolated_ci_fixture
@@ -201,7 +201,7 @@ jobs:
     # Each runner owns its PostgreSQL service; never increase workers on this DB.
     services:
       postgres:
-        image: postgres:17
+        image: pgvector/pgvector:0.8.7-pg17-bookworm
         env:
           POSTGRES_USER: oclr_test
           POSTGRES_PASSWORD: isolated_ci_fixture
@@ -248,7 +248,7 @@ jobs:
     # Each runner owns its PostgreSQL service; never increase workers on this DB.
     services:
       postgres:
-        image: postgres:17
+        image: pgvector/pgvector:0.8.7-pg17-bookworm
         env:
           POSTGRES_USER: oclr_test
           POSTGRES_PASSWORD: isolated_ci_fixture
@@ -295,7 +295,7 @@ jobs:
     # Each runner owns its PostgreSQL service; never increase workers on this DB.
     services:
       postgres:
-        image: postgres:17
+        image: pgvector/pgvector:0.8.7-pg17-bookworm
         env:
           POSTGRES_USER: oclr_test
           POSTGRES_PASSWORD: isolated_ci_fixture
