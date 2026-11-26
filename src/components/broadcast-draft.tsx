@@ -451,13 +451,13 @@ export function BroadcastDraft({
                     <Portrait player={pick.player} />
                     <div>
                       <strong>{pick.player.username}</strong>
-                      {pick.tier ? (
-                        <small
-                          className={styles.historyTier}
-                        >{`Tier ${pick.tier}`}</small>
-                      ) : null}
                       <p>{pick.team.name}</p>
                     </div>
+                    {pick.tier ? (
+                      <span
+                        className={styles.tierBadge}
+                      >{`Tier ${pick.tier}`}</span>
+                    ) : null}
                   </li>
                 ))}
             </ol>

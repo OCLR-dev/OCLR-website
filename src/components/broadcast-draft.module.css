@@ -101,7 +101,6 @@
   margin-bottom: 0;
 }
 .tierBadge {
-  grid-column: 2;
   justify-self: end;
   padding: 0.25rem 0.7rem;
   border: 1px solid #ad76c6;
@@ -201,8 +200,9 @@
 }
 .history li {
   align-items: center;
-  display: flex;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: 1.45em auto minmax(0, 1fr) auto;
+  gap: clamp(0.35rem, 0.75vw, 0.75rem);
   border-top: 1px solid #303348;
   padding: 7px 0;
 }
@@ -220,12 +220,9 @@
   font-size: clamp(14px, 1vw, 18px);
   overflow-wrap: anywhere;
 }
-.historyTier {
-  display: inline-block;
-  color: #bdc2d8;
-  font-size: 12px;
-  margin-inline-start: 8px;
-  white-space: nowrap;
+.history .tierBadge {
+  padding: 0.15rem 0.45rem;
+  font-size: 0.75rem;
 }
 .history li p {
   white-space: nowrap;
