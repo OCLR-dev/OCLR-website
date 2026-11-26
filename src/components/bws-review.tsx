@@ -10,10 +10,32 @@ import { modeNames } from "@/lib/osu-profile-model";
 import { type BadgeClassification } from "@/lib/bws-model";
 import type { ExplicitReadData } from "@/lib/explicit-read-contracts";
 import { BwsSummary } from "./bws-summary";
+type ReviewData = ExplicitReadData<"staffBws">;
+type ReviewResult = { data: ReviewData } | { error: string };
+
+async function fetchReview(
+  slug: string,
+  id: string,
+  options?: RequestInit,
+): Promise<ReviewResult> {
+  const query = options?.method === "POST" ? "" : "?mode=osu";
+  const fallback = "The action could not be completed.";
+  try {
+    const response = await fetch(
+      `/api/admin/tournaments/${slug}/registrations/${id}/bws${query}`,
+      options,
+    );
+    const result = await response.json();
+    return response.ok ? { data: result } : { error: result.error ?? fallback };
+  } catch {
+    return { error: fallback };
+  }
+}
+
 export function BwsReview({ slug, id }: { slug: string; id: string }) {
   const readOnly = useStaffReadOnly();
   const tr = useAppTranslations();
-  const [data, setData] = useState<ExplicitReadData<"staffBws"> | null>(null);
+  const [data, setData] = useState<ReviewData | null>(null);
   const [classifications, setClassifications] = useState<BadgeClassification[]>(
     [],
   );
@@ -22,43 +44,32 @@ export function BwsReview({ slug, id }: { slug: string; id: string }) {
     "load",
   );
   const pending = activeRequest !== null;
-  const fetchReview = useCallback(
-    async (options?: RequestInit) => {
-      const signal = options?.signal;
-      const query = options?.method === "POST" ? "" : "?mode=osu";
-      try {
-        const response = await fetch(
-          `/api/admin/tournaments/${slug}/registrations/${id}/bws${query}`,
-          options,
-        );
-        const result = await response.json();
-        if (signal?.aborted) return;
-        if (!response.ok) {
-          setError(result.error ?? "The action could not be completed.");
-          return;
-        }
-        setData(result);
-        setClassifications(result.classifications);
-      } catch {
-        if (!signal?.aborted) setError("The action could not be completed.");
-      } finally {
-        if (!signal?.aborted) setActiveRequest(null);
-      }
-    },
-    [slug, id],
-  );
+  const applyReview = useCallback((result: ReviewResult) => {
+    if ("data" in result) {
+      setData(result.data);
+      setClassifications(result.data.classifications);
+    } else {
+      setError(result.error);
+    }
+    setActiveRequest(null);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
-    void fetchReview({ signal: controller.signal });
+    const { signal } = controller;
+    void fetchReview(slug, id, { signal }).then((result) => {
+      if (!signal.aborted) applyReview(result);
+    });
     return () => controller.abort();
-  }, [fetchReview]);
+  }, [slug, id, applyReview]);
 
   function request(save = false) {
     if (pending || (save && !data)) return;
     setActiveRequest(save ? "save" : "load");
     setError("");
     void fetchReview(
+      slug,
+      id,
       save && data
         ? {
             method: "POST",
@@ -72,7 +83,7 @@ export function BwsReview({ slug, id }: { slug: string; id: string }) {
             }),
           }
         : undefined,
-    );
+    ).then(applyReview);
   }
 
   return (
