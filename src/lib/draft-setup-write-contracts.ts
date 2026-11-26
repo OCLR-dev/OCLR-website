@@ -110,7 +110,7 @@ const draftCommand = z
           turnSequence: z.array(z.uuid()).max(4096),
         })
         .strict(),
-      ...(["unlock", "reset"] as const).map((action) =>
+      ...(["unlock", "reset", "force_reset"] as const).map((action) =>
         z
           .object({
             action: z.literal(action),
@@ -263,7 +263,7 @@ export const changeDraftWrite = {
   request: draftCommand,
   summary: "Configure or transition an edition draft session",
   description:
-    "Requires manage_draft and the current draft version. Configure, unlock and reset also check the setup version. Unlock and reset require configure_tournament. Draft transitions and publication enforce current session state and the relevant roster and identity prerequisites.",
+    "Requires manage_draft and the current draft version. Configure, unlock, reset and force_reset also check the setup version. Unlock and both reset commands require configure_tournament. Force reset clears all draft-origin memberships, including assignments without a matching active pick. Both reset commands require a non-live draft and preserve fixtures and match evidence. Draft transitions and publication enforce the applicable state and identity prerequisites.",
   successDescription: "The current private staff draft workspace.",
   response: { readResource: "staffDraft" },
   errors: {

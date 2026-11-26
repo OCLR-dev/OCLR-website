@@ -9,7 +9,7 @@ import {
   memberships,
   teams,
 } from "@/db/schema";
-import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { assertOperationalEdition } from "./archive-guard";
 import type { User } from "./auth/sessions";
 import { assertCapability, hasCapability } from "./auth/staff";
@@ -81,7 +81,9 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
         409,
         "Draft revision changed. Refresh the current snapshot.",
       );
-    if (["unlock", "reset"].includes(command.action))
+    const reset =
+      command.action === "reset" || command.action === "force_reset";
+    if (command.action === "unlock" || reset)
       await assertCapability(actor, "configure_tournament", slug, tx);
     const before = {
       setupVersion: edition.setupVersion,
@@ -135,7 +137,8 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
     const update: Partial<typeof draftSessions.$inferInsert> = {
       version: session.version + 1,
     };
-    if (command.action === "unlock" || command.action === "reset") {
+    let resetMembershipCount: number | undefined;
+    if (command.action === "unlock" || reset) {
       if (command.expectedSetupVersion !== edition.setupVersion)
         throw new HttpError(
           409,
@@ -143,7 +146,7 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
         );
       const data = await readDraftData(tx, slug);
       const active = data.picks.filter((p) => !p.voidedAt);
-      if (command.action === "reset") {
+      if (command.action === "reset" || command.action === "force_reset") {
         if (session.state === "live")
           throw new HttpError(
             409,
@@ -153,22 +156,24 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
           (m) => m.membership.origin === "draft",
         );
         if (
-          drafted.length !== active.length ||
-          active.some(
-            (p) =>
-              !drafted.some(
-                (m) =>
-                  m.membership.userId === p.playerId &&
-                  m.membership.teamId === p.teamId,
-              ),
-          )
+          command.action === "reset" &&
+          (drafted.length !== active.length ||
+            active.some(
+              (p) =>
+                !drafted.some(
+                  (m) =>
+                    m.membership.userId === p.playerId &&
+                    m.membership.teamId === p.teamId,
+                ),
+            ))
         )
           throw new HttpError(
             409,
             "Roster integrity requires operator recovery.",
           );
+        const now = new Date();
+        resetMembershipCount = drafted.length;
         if (active.length) {
-          const now = new Date();
           await tx
             .update(draftPicks)
             .set({ voidedAt: now })
@@ -178,6 +183,8 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
                 isNull(draftPicks.voidedAt),
               ),
             );
+        }
+        if (drafted.length) {
           await tx
             .update(memberships)
             .set({ leftAt: now })
@@ -186,10 +193,6 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
                 eq(memberships.editionSlug, slug),
                 eq(memberships.origin, "draft"),
                 isNull(memberships.leftAt),
-                inArray(
-                  memberships.userId,
-                  active.map((p) => p.playerId),
-                ),
               ),
             );
         }
@@ -462,7 +465,8 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
       .where(eq(draftSessions.id, session.id));
     if (
       !(
-        ["recover", "reset"].includes(command.action) ||
+        command.action === "recover" ||
+        reset ||
         (command.action === "unlock" && update.state === "setup")
       ) &&
       (session.captainSnapshot || ["start", "ready"].includes(command.action))
@@ -490,6 +494,7 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
             .where(eq(editionState.slug, slug))
         )[0],
         command,
+        ...(resetMembershipCount === undefined ? {} : { resetMembershipCount }),
       },
     });
   });

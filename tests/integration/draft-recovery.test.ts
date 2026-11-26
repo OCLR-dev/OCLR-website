@@ -23,6 +23,7 @@ import {
   tournamentRounds,
   fixtures,
   matchResults,
+  memberships,
 } from "../../src/db/schema";
 import { prepareDraft } from "../fixtures/draft";
 import { draftCommand, pickPlayer } from "../../src/lib/draft";
@@ -65,7 +66,7 @@ describe.skipIf(!url)(
       return draftCommand(actor, slug, {
         command: {
           action,
-          ...(["unlock", "reset"].includes(action)
+          ...(["unlock", "reset", "force_reset"].includes(action)
             ? { expectedSetupVersion: data.edition!.setupVersion }
             : {}),
         },
@@ -367,9 +368,10 @@ describe.skipIf(!url)(
           },
         ]);
       for (const actor of [f.a, f.b, f.players[0], f.players[6]])
-        await expect(action("unlock", actor)).rejects.toMatchObject({
-          status: 403,
-        });
+        for (const command of ["unlock", "force_reset"])
+          await expect(action(command, actor)).rejects.toMatchObject({
+            status: 403,
+          });
       const data = await state();
       const command = {
         command: {
@@ -402,7 +404,7 @@ describe.skipIf(!url)(
         );
       }
     });
-    it("requires explicit reset when finalized teams or result evidence protect the draft", async () => {
+    it("force resets inconsistent draft assignments while preserving fixture evidence and other memberships", async () => {
       await db()
         .update(teams)
         .set({ finalizedAt: new Date() })
@@ -440,12 +442,82 @@ describe.skipIf(!url)(
         .returning();
       await expect(action("unlock")).rejects.toMatchObject({ status: 409 });
       await pick();
+      await expect(action("force_reset")).rejects.toMatchObject({
+        status: 409,
+      });
       await action("pause");
-      const reset = await action("reset");
-      expect(reset.session!.state).toBe("setup");
+      await db().update(teams).set({
+        finalizedAt: new Date(),
+        rosterPublished: true,
+      });
+      await db()
+        .insert(memberships)
+        .values([
+          {
+            editionSlug: slug,
+            teamId: f.teamRows[0].id,
+            userId: f.players[1].osuId,
+            origin: "draft",
+          },
+          {
+            editionSlug: slug,
+            teamId: f.teamRows[1].id,
+            userId: f.players[2].osuId,
+            origin: "manual",
+          },
+        ]);
+      await expect(action("reset")).rejects.toMatchObject({ status: 409 });
+      const before = await state();
+      const force = {
+        command: {
+          action: "force_reset",
+          expectedSetupVersion: before.edition!.setupVersion,
+        },
+        expectedVersion: before.session!.version,
+        confirmed: true,
+      };
+      await expect(
+        draftCommand(f.staff, slug, { ...force, confirmed: false }),
+      ).rejects.toMatchObject({ status: 400 });
+      await expect(
+        draftCommand(f.staff, slug, {
+          ...force,
+          command: {
+            ...force.command,
+            expectedSetupVersion: before.edition!.setupVersion - 1,
+          },
+        }),
+      ).rejects.toMatchObject({ status: 409 });
+      const reset = await draftCommand(f.staff, slug, force);
+      await expect(draftCommand(f.staff, slug, force)).rejects.toMatchObject({
+        status: 409,
+      });
+      expect(reset.session).toMatchObject({
+        state: "setup",
+        turnSequence: before.session!.turnSequence,
+        publicSnapshot: null,
+        captainSnapshot: null,
+      });
       expect(reset.picks[0].voidedAt).not.toBeNull();
+      expect(
+        reset.members.map(({ membership }) => membership.origin).sort(),
+      ).toEqual(["captain", "captain", "manual"]);
+      expect(
+        reset.teams.every(
+          ({ team }) => !team.finalizedAt && !team.rosterPublished,
+        ),
+      ).toBe(true);
+      expect(await publicDraft(slug)).toBeNull();
       expect(await db().select().from(fixtures)).toEqual([fixture]);
       expect(await db().select().from(matchResults)).toEqual([result]);
+      expect(
+        await db()
+          .select()
+          .from(editionEvents)
+          .where(eq(editionEvents.kind, "draft_force_reset")),
+      ).toMatchObject([
+        { actorId: f.staff.osuId, detail: { resetMembershipCount: 2 } },
+      ]);
     });
 
     it("unlocks explicit pre-pick locks and Ready without discarding the saved order", async () => {
