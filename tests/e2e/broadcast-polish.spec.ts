@@ -254,10 +254,10 @@ test.describe("OBS identity and one-time transitions", () => {
     await page.reload();
     await page.waitForTimeout(2300);
     expect(await animated()).toEqual([]);
-    const disconnected = page.waitForEvent(
-      "requestfailed",
-      (request) => new URL(request.url()).pathname === endpoint,
-    );
+    const disconnected = page.waitForEvent("requestfailed", (request) => {
+      const url = new URL(request.url());
+      return url.pathname === endpoint && !url.searchParams.has("live");
+    });
     fail = true;
     await disconnected;
     append("offline-pick", 990002);

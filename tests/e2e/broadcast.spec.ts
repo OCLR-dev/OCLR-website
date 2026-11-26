@@ -150,12 +150,8 @@ test.describe("published OBS browser-source rehearsal", () => {
     await page.unroute(`**${endpoint}*`);
     await page.reload();
     expect(await selection.evaluate((el) => el.getAnimations().length)).toBe(0);
-    const disconnected = page.waitForEvent(
-      "requestfailed",
-      (request) => new URL(request.url()).pathname === endpoint,
-    );
     await context.setOffline(true);
-    await disconnected;
+    await page.waitForFunction(() => !navigator.onLine);
     await expect(selection).toContainText(fixture.players[0].username);
     await pick(staff, fixture.players[1].osuId);
     await context.setOffline(false);
