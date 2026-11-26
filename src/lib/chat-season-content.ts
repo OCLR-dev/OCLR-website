@@ -1,4 +1,5 @@
 import { readOnlyData } from "@/db";
+import { playerModHistorySources } from "./chat-player-mod-history";
 import { playerRatingSources } from "./chat-rating-sources";
 import { readListedPlayerRatings } from "./listed-player-ratings";
 import { eventPreview } from "./event-preview";
@@ -43,6 +44,7 @@ export const chatCollections = [
   "overview",
   "rules",
   "players",
+  "playerMods",
   "teams",
   "draft",
   "matches",
@@ -134,6 +136,8 @@ export async function seasonContent(
         return rows;
       });
     }
+    case "playerMods":
+      return playerModHistorySources(e);
     case "teams": {
       const teams = archive
         ? archive.teams.map((team) => ({

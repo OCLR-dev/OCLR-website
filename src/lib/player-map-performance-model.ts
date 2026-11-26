@@ -196,49 +196,73 @@ export function mapPerformance(
   osuId: number,
   rosterTeams: Iterable<string> = [],
 ): MapPerformanceFields {
-  const games = new Map<number, MapPlay[]>();
-  for (const play of plays) {
-    if ((play.rawScore ?? play.score) < minimumCountedScore) continue;
-    games.set(play.gameId, [...(games.get(play.gameId) ?? []), play]);
-  }
+  const games = countedMapGames(plays);
   const rows: PlayerMapRow[] = [];
   const teamIds = new Set<string>(rosterTeams);
-  for (const [gameId, game] of games) {
-    if (!game.some((play) => play.osuId === osuId)) continue;
-    for (const play of game) if (play.osuId === osuId) teamIds.add(play.teamId);
-    const totals = game.map((play) => ({
-      osuId: play.osuId,
-      total: play.score,
-    }));
-    const ranks = placements(totals);
-    const average = mean(totals.map((total) => total.total));
-    const usableAverage =
-      average !== null && Number.isFinite(average) && average > 0;
-    const teamSize = mapTeamSize(game.length);
-    for (const play of game) {
-      if (play.osuId !== osuId) continue;
-      const ratio = usableAverage ? play.score / average! : null;
-      rows.push({
-        fixtureId: play.fixtureId,
-        gameId,
-        stage: play.stage,
-        title: play.title,
-        slot: play.slot,
-        at: play.at,
-        placement: ranks.get(play.osuId) ?? null,
-        accuracy: play.accuracy,
-        result: mapResult(game, play.teamId),
-        effectiveRating: finite(ratio) ? ratio : null,
-        teamSize,
-        category: slotCategory(play.slot),
-        mods: [...new Set(play.mods ?? [])].sort(),
-      });
-    }
+  for (const game of games.values()) {
+    const playerPlays = game.filter((play) => play.osuId === osuId);
+    if (!playerPlays.length) continue;
+    for (const play of playerPlays) teamIds.add(play.teamId);
+    rows.push(...rankedMapPlays(game, playerPlays));
   }
   let teamMaps = 0;
   for (const game of games.values())
     if (game.some((play) => teamIds.has(play.teamId))) teamMaps++;
   return finishMapPerformance(rows, teamMaps);
+}
+
+function countedMapGames(plays: MapPlay[]) {
+  const games = new Map<number, MapPlay[]>();
+  for (const play of plays) {
+    if ((play.rawScore ?? play.score) < minimumCountedScore) continue;
+    const game = games.get(play.gameId);
+    if (game) game.push(play);
+    else games.set(play.gameId, [play]);
+  }
+  return games;
+}
+
+function rankedMapPlays(game: MapPlay[], selected: MapPlay[]): PlayerMapRow[] {
+  const totals = game.map((play) => ({ osuId: play.osuId, total: play.score }));
+  const ranks = placements(totals);
+  const average = mean(totals.map((total) => total.total));
+  const usableAverage =
+    average !== null && Number.isFinite(average) && average > 0;
+  const teamSize = mapTeamSize(game.length);
+  return selected.map((play) => {
+    const ratio = usableAverage ? play.score / average : null;
+    return {
+      fixtureId: play.fixtureId,
+      gameId: play.gameId,
+      stage: play.stage,
+      title: play.title,
+      slot: play.slot,
+      at: play.at,
+      placement: ranks.get(play.osuId) ?? null,
+      accuracy: play.accuracy,
+      result: mapResult(game, play.teamId),
+      effectiveRating: finite(ratio) ? ratio : null,
+      teamSize,
+      category: slotCategory(play.slot),
+      mods: [...new Set(play.mods ?? [])].sort(),
+    };
+  });
+}
+
+/** Rank all relevant players against the same published map participants. */
+export function mapRowsByPlayer(plays: MapPlay[], ids: ReadonlySet<number>) {
+  const rows = new Map<number, PlayerMapRow[]>();
+  for (const game of countedMapGames(plays).values()) {
+    const selected = game.filter((play) => ids.has(play.osuId));
+    if (!selected.length) continue;
+    for (const [i, row] of rankedMapPlays(game, selected).entries()) {
+      const id = selected[i].osuId;
+      const history = rows.get(id);
+      if (history) history.push(row);
+      else rows.set(id, [row]);
+    }
+  }
+  return rows;
 }
 
 /** Shared ordering and summary arithmetic for source and SQL-ranked maps. */

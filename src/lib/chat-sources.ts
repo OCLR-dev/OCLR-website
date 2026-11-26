@@ -112,15 +112,16 @@ export async function chatEvidence(
     refersBack || !!draft?.previous,
   );
   if (draft) {
-    const target = scope
-      ? scope.editions.length === 1
-        ? scope.editions[0]
-        : null
-      : selected;
+    const target =
+      !scope || scope.summary.allPublished
+        ? selected
+        : scope.editions.length === 1
+          ? scope.editions[0]
+          : null;
     return {
       edition: target?.name ?? selected.name,
       draftRecommendation: true as const,
-      seasonScope: scope?.summary,
+      seasonScope: scope?.summary.allPublished ? undefined : scope?.summary,
       total: null,
       sources: target
         ? await draftCandidateSources(target, question, draft.previous)
