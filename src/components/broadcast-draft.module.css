@@ -143,21 +143,14 @@
 .streamChat {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 0.75rem;
   min-width: 0;
   padding: 10px clamp(12px, 1.25vw, 24px);
-  border-inline-start: 1px solid #332c44;
-}
-.streamChat h2 {
-  margin: 0;
-  color: #e9b8fc;
-  font-size: clamp(0.875rem, 1.05vw, 1.2rem);
-  line-height: 1.25;
 }
 .streamChatSlot {
   flex: 0 1 clamp(180px, 20.73vw, 398px);
   height: clamp(50px, 5.84vw, 112px);
+  margin-inline-start: auto;
   border-radius: 6px;
   background: #090c1766;
 }
@@ -211,7 +204,6 @@
 }
 .liruRotation[data-liru-position="header"] {
   flex: 0 0 clamp(2.75rem, 6vw, 6.5rem);
-  margin-inline-start: auto;
 }
 .liruRotation img {
   object-fit: contain;
@@ -495,8 +487,6 @@
   }
   .streamChat {
     padding-inline: 16px;
-    border-inline-start: 0;
-    border-block-start: 1px solid #332c44;
   }
   .streamChatSlot {
     flex-basis: min(70%, 398px);

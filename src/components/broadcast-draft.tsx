@@ -320,13 +320,12 @@ export function BroadcastDraft({
             )}
           </div>
           <h1>{tr("Draft Day")}</h1>
-          {showHeaderLiru && <LiruRotation position="header" />}
         </div>
         <section
           className={styles.streamChat}
-          aria-labelledby="stream-chat-title"
+          aria-label={tr("Live stream chat")}
         >
-          <h2 id="stream-chat-title">{tr("Live stream chat")}</h2>
+          {showHeaderLiru && <LiruRotation position="header" />}
           <div className={styles.streamChatSlot} data-stream-chat-slot />
         </section>
       </header>
