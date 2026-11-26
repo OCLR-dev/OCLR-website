@@ -9,7 +9,7 @@ import {
 import { difficultySnapshotSchema } from "../src/lib/difficulty-snapshot";
 import { difficultyConfigurations, slotLabel } from "../src/lib/mappool-model";
 
-const publicOrigin = "https://oclr.org";
+export const publicOrigin = "https://oclr.org";
 export const modSchema = z.enum(difficultyConfigurations);
 export const editionSchema = z
   .string()
@@ -305,7 +305,7 @@ export function projectPublicPools(
   return { source, slots };
 }
 
-async function fetchPublicJson(path: string) {
+export async function fetchPublicJson(path: string) {
   const response = await fetch(publicOrigin + path, {
     cache: "no-store",
     redirect: "error",

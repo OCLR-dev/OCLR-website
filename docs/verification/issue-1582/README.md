@@ -2,6 +2,8 @@
 
 原型用已發布的 S9 和 S10 圖池驗證 BID／MOD 查詢。命令輸出兩份 Top 10、原始特徵值、每張譜面差異最大的三項特徵，以及圖池來源。可依目標圖池找候選，也可輸出各輪次的技術特徵分布。以有 pgvector 的 PostgreSQL 執行一條純讀取查詢。資料準備與排名都不需要 OAuth 或模型服務。
 
+[第二階段的選手技術分析與練習譜面報告](player-practice.md)提供同場比較、推薦與時間切分驗證。
+
 ## 執行查詢
 
 先依[開發指南](../../development.md#local-development)準備 Node.js 24、npm 依賴與有 pgvector 的本機 PostgreSQL。設好 pgvector 資料庫的連線字串 `BEATMAP_SIMILARITY_DATABASE_URL`。以下命令預設每次重新讀取 S9 和 S10 公開圖池，並在查詢前確認賽季和圖池發布狀態。
