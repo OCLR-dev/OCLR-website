@@ -6,14 +6,14 @@ import { randomToken, hashToken } from "@/lib/auth/tokens";
 import { cookieOptions, stateCookie } from "@/lib/auth/config";
 import { apiError } from "@/lib/http";
 import { pickemReturnPath } from "@/lib/pickem-model";
-import { chatEdition } from "@/lib/chat-edition";
+import { chatEdition, chatReturnPath } from "@/lib/chat-edition";
 import { streamingReturnPath } from "@/lib/streaming-connect-model";
 import { streamingOrigins } from "@/lib/streaming-api";
 export async function GET(request?: Request) {
   try {
-    const requested = new URL(
-      request?.url ?? "http://localhost/auth/osu",
-    ).searchParams.get("desktop_request");
+    const params = new URL(request?.url ?? "http://localhost/auth/osu")
+      .searchParams;
+    const requested = params.get("desktop_request");
     const desktopRequestId =
       requested &&
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
@@ -21,28 +21,25 @@ export async function GET(request?: Request) {
       )
         ? requested
         : null;
-    const returnValue = request
-      ? new URL(request.url).searchParams.get("streaming_return")
+    const streamingReturn = params.get("streaming_return");
+    const returnTo = streamingReturn
+      ? streamingReturnPath(streamingReturn, streamingOrigins())
       : null;
-    const returnTo = returnValue
-      ? streamingReturnPath(returnValue, streamingOrigins())
+    const pickemReturnTo = pickemReturnPath(params.get("pickem_return"));
+    const edition = chatEdition(params.get("chat_edition"));
+    const chatReturnTo = edition
+      ? chatReturnPath(params.get("chat_return"))
       : null;
-    const pickemReturnTo = pickemReturnPath(
-      request ? new URL(request.url).searchParams.get("pickem_return") : null,
-    );
     const token = randomToken();
+    const stateHash = hashToken(token);
     const url = authorizationUrl(token);
     await db()
       .insert(oauthStates)
       .values({
-        stateHash: hashToken(token),
+        stateHash,
         desktopRequestId,
         pickemReturnTo,
-        chatReturnEdition: chatEdition(
-          request
-            ? new URL(request.url).searchParams.get("chat_edition")
-            : null,
-        ),
+        chatReturnEdition: edition,
         expiresAt: new Date(Date.now() + 600000),
       });
     const response = NextResponse.redirect(url);
@@ -53,15 +50,23 @@ export async function GET(request?: Request) {
     response.cookies.set(
       `${stateCookie()}_streaming`,
       returnTo
-        ? Buffer.from(
-            JSON.stringify({ stateHash: hashToken(token), returnTo }),
-          ).toString("base64url")
+        ? Buffer.from(JSON.stringify({ stateHash, returnTo })).toString(
+            "base64url",
+          )
         : "",
       {
         ...cookieOptions(),
         maxAge: returnTo ? 600 : 0,
       },
     );
+    if (chatReturnTo)
+      response.cookies.set(
+        stateCookie() + "_chat",
+        Buffer.from(
+          JSON.stringify({ stateHash, returnTo: chatReturnTo }),
+        ).toString("base64url"),
+        { ...cookieOptions(), maxAge: 600 },
+      );
     response.headers.set("Cache-Control", "no-store");
     return response;
   } catch (error) {

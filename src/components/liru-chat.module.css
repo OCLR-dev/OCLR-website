@@ -1,3 +1,36 @@
+.launcher {
+  position: fixed;
+  right: calc(1rem + env(safe-area-inset-right, 0px));
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  width: 3.25rem;
+  height: 3.25rem;
+  border: 1px solid var(--site-control-border);
+  border-radius: 50%;
+  color: var(--site-accent);
+  background: var(--site-surface);
+  box-shadow: 0 4px 16px var(--site-shadow);
+}
+.launcher:is(:hover, :focus-visible) {
+  border-color: currentColor;
+  background: var(--site-tint);
+}
+.launcher:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+:global(.site-shell):has(> .launcher) > :global(.site-footer) {
+  padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+}
+@media print {
+  .launcher,
+  .popup:popover-open {
+    display: none;
+  }
+}
 .icon {
   display: inline-block;
   flex: none;
@@ -283,6 +316,7 @@
   margin: 0;
   align-items: center;
   font-size: var(--text-heading);
+  overflow-wrap: anywhere;
 }
 .popup .close {
   display: grid;

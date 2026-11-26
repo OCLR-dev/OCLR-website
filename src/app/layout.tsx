@@ -19,12 +19,14 @@ import "./content-layout.css";
 import { isStaff } from "@/lib/auth/staff";
 import { hasStreamingMenuAccess } from "@/lib/streaming-api";
 import { hasDeveloperAccess } from "@/lib/developer-api";
+import { chatConfiguration } from "@/lib/chat-config";
+import type { ChatEdition } from "@/lib/chat-edition";
 import { currentUser } from "@/lib/auth/user";
 import { SiteFrame } from "@/components/site-frame";
 import { Header } from "@/components/header";
 import { AppearanceProvider } from "@/components/appearance-provider";
 import { inheritedAppearance } from "@/lib/appearance-scope";
-import { tournamentAppearanceScopes } from "@/lib/tournament-reads";
+import { tournamentSiteContext } from "@/lib/tournament-reads";
 import { cookies, headers } from "next/headers";
 import {
   readThemePreference,
@@ -111,6 +113,7 @@ async function RootLayoutContent({
   let developer = false;
   let streaming = false;
   let scopes: AppearanceScope[] = [];
+  let chatEditions: ChatEdition[] = [];
   if (remote) {
     try {
       const connection = await frontendConnection();
@@ -158,7 +161,10 @@ async function RootLayoutContent({
     } catch {
       authUnavailable = true;
     }
-    scopes = await tournamentAppearanceScopes(user);
+    ({ scopes, chatEditions } = await tournamentSiteContext(
+      user,
+      Boolean(chatConfiguration()),
+    ));
   }
   const inherited = inheritedAppearance(
     route.get("x-oclr-pathname") ?? "/",
@@ -200,7 +206,7 @@ async function RootLayoutContent({
             scopes={scopes}
             initialPreference={appearancePreference}
           >
-            <SiteFrame>
+            <SiteFrame chatEditions={chatEditions} chatViewer={user}>
               <a className="skip-link" href="#main">
                 {tr("Skip to content")}
               </a>

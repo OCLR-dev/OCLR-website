@@ -247,12 +247,17 @@ export function publicEditionSummary(
   };
 }
 
-/** Only public or actor-authorized cosmetic defaults leave the server. */
-export async function tournamentAppearanceScopes(actor: User | null) {
-  if (!process.env.DATABASE_URL) return [];
+/** Resolve presentation data together so the root layout reads each edition once. */
+export async function tournamentSiteContext(
+  actor: User | null,
+  chatEnabled = false,
+) {
+  const empty = { scopes: [], chatEditions: [] };
+  if (!process.env.DATABASE_URL) return empty;
   try {
     const grants = actor ? await staffAccess(actor) : [];
-    return (await readTournaments()).flatMap(({ edition }) => {
+    const tournaments = await readTournaments();
+    const scopes = tournaments.flatMap(({ edition }) => {
       const staff = grants.some(
         (g) => !g.editionSlug || g.editionSlug === edition.slug,
       );
@@ -267,10 +272,30 @@ export async function tournamentAppearanceScopes(actor: User | null) {
           ]
         : [];
     });
+    const chatEditions = chatEnabled
+      ? tournaments.flatMap(({ edition }) =>
+          edition.published
+            ? [
+                {
+                  slug: edition.slug,
+                  name: edition.name,
+                  season: edition.season,
+                  status: edition.status,
+                },
+              ]
+            : [],
+        )
+      : [];
+    return { scopes, chatEditions };
   } catch {
     console.error(
       "Tournament appearance defaults are temporarily unavailable.",
     );
-    return [];
+    return empty;
   }
+}
+
+/** Only public or actor-authorized cosmetic defaults leave the server. */
+export async function tournamentAppearanceScopes(actor: User | null) {
+  return (await tournamentSiteContext(actor)).scopes;
 }
