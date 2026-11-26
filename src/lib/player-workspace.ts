@@ -155,16 +155,13 @@ async function context(reader: Reader, actor: User, slug: string) {
 }
 type PlayerWorkspaceContext = Awaited<ReturnType<typeof context>>;
 
-function practiceReadOnly(c: PlayerWorkspaceContext) {
+function workspaceReadOnly(c: PlayerWorkspaceContext) {
   return c.state.configuration?.status === "completed";
 }
 
-function timetableReadOnly(c: PlayerWorkspaceContext) {
-  return Boolean(c.state.lockedAt) || practiceReadOnly(c);
-}
-
-function checkWritable(readOnly: boolean) {
-  if (readOnly) throw new HttpError(409, "This player workspace is read-only.");
+function checkWritable(c: PlayerWorkspaceContext) {
+  if (workspaceReadOnly(c))
+    throw new HttpError(409, "This player workspace is read-only.");
 }
 
 export async function playerPracticeWorkspace(
@@ -239,7 +236,7 @@ export async function playerPracticeWorkspace(
       actorId: actor.osuId,
       team: c.team ? { id: c.team.id, name: c.team.name } : null,
       participants: c.roster,
-      readOnly: practiceReadOnly(c),
+      readOnly: workspaceReadOnly(c),
       pools: pools.map((p) => ({
         id: p.id,
         name: p.name,
@@ -340,7 +337,7 @@ export async function playerTimetableWorkspace(
           }))
         : [],
       timeZone: c.state.configuration!.timeZone,
-      canEdit: ownerId === actor.osuId && !timetableReadOnly(c),
+      canEdit: ownerId === actor.osuId && !workspaceReadOnly(c),
       intervals: row?.intervals ?? [],
       version: row?.version ?? 0,
       updatedAt: row ? row.updatedAt.toISOString() : null,
@@ -366,7 +363,7 @@ export async function playerPracticeCommand(
       .where(eq(editionState.slug, slug))
       .for("update");
     const c = await context(tx, actor, slug);
-    checkWritable(practiceReadOnly(c));
+    checkWritable(c);
     assertUserWriteChannel();
     const [entry] = await tx
       .select({ entry: mappoolEntries, pool: mappools })
@@ -494,7 +491,7 @@ export async function playerTimetableCommand(
       .where(eq(editionState.slug, slug))
       .for("update");
     const c = await context(tx, actor, slug);
-    checkWritable(timetableReadOnly(c));
+    checkWritable(c);
     assertUserWriteChannel();
     const [receipt] = await tx
       .select()

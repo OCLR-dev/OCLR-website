@@ -74,9 +74,6 @@ for (const theme of ["light", "dark"]) {
     await expect(history).toContainText("900,000");
     await expect(history).toContainText("My saved comment");
     await form.getByLabel("Practice score", { exact: true }).fill("910000");
-    await form
-      .getByRole("button", { name: "Save practice", exact: true })
-      .click();
     await expect(form.getByRole("status")).toHaveText("Saved");
     await expect(history).toHaveCount(0);
   });
@@ -116,30 +113,22 @@ for (const theme of ["light", "dark"]) {
       });
       const feel = form.getByRole("combobox", { name: "Feel", exact: true });
       await expect(feel).toHaveValue("normal");
-      const save = form.getByRole("button", {
-        name: "Save practice",
-        exact: true,
-      });
+      await expect(form.getByRole("button")).toHaveCount(0);
       const boxes = await Promise.all(
-        [score, feel, save].map((control) => control.boundingBox()),
+        [score, feel, comment].map((control) => control.boundingBox()),
       );
       expect(boxes.every((box) => box !== null)).toBe(true);
-      expect(
-        Math.max(...boxes.map((box) => box!.y)) -
-          Math.min(...boxes.map((box) => box!.y)),
-      ).toBeLessThan(2);
+      expect(Math.abs(boxes[0]!.y - boxes[1]!.y)).toBeLessThan(2);
+      expect(boxes[2]!.y).toBeGreaterThan(boxes[0]!.y);
+      expect(boxes[2]!.width).toBeGreaterThan(
+        boxes[0]!.width + boxes[1]!.width,
+      );
       await expect(own.getByRole("row")).toHaveCount(1);
       await expect(own.locator('td[data-own="true"] form')).toHaveCount(1);
       expect((await own.boundingBox())!.height).toBeLessThan(
         width === 320 ? 155 : 135,
       );
       expect((await form.boundingBox())!.height).toBeLessThan(110);
-      expect((await comment.boundingBox())!.y).toBeGreaterThan(boxes[0]!.y);
-      if (width === 320) {
-        expect(
-          (await save.boundingBox())!.x + (await save.boundingBox())!.width,
-        ).toBeLessThanOrEqual(320);
-      }
       expect(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= innerWidth,
@@ -147,7 +136,6 @@ for (const theme of ["light", "dark"]) {
       ).toBe(true);
       await comment.fill("Single-row practice note");
       await feel.selectOption("good");
-      await save.click();
       await expect(form.getByRole("status")).toHaveText("Saved");
       expect(writes.at(-1)).not.toHaveProperty("rating");
       expect(writes.at(-1)).toMatchObject({
@@ -275,89 +263,44 @@ for (const theme of ["light", "dark"]) {
       }),
     ).toBeVisible();
   });
-  test(`${theme}: owner deletion retries safely and recreates using the retained version`, async ({
-    page,
-  }) => {
-    const requests: Record<string, unknown>[] = [];
-    let deletes = 0;
-    await page.route(
-      "**/api/tournaments/synthetic/player/practice",
-      async (route) => {
-        const input = route.request().postDataJSON();
-        requests.push(input);
-        if (input.action === "delete_practice") {
-          deletes++;
-          if (deletes === 1) {
-            await route.abort();
-            return;
-          }
-          await route.fulfill({ json: { saved: true, version: 2 } });
-        } else await route.fulfill({ json: { saved: true, version: 3 } });
-      },
-    );
-    await page.goto(`/practice-records?theme=${theme}`);
-    const own = page.getByRole("rowgroup", {
-      name: "Synthetic Artist — NM Signal",
-      exact: true,
-    });
-    await expect(
-      own.getByRole("button", { name: "Delete practice record", exact: true }),
-    ).toHaveCount(1);
-    const teammate = own
-      .locator("td")
-      .filter({ hasText: "Visible teammate comment" });
-    await expect(
-      teammate.getByRole("button", {
-        name: "Delete practice record",
-        exact: true,
-      }),
-    ).toHaveCount(0);
-    page.once("dialog", (dialog) => dialog.dismiss());
-    await own
-      .getByRole("button", { name: "Delete practice record", exact: true })
-      .click();
-    expect(requests).toHaveLength(0);
-    page.once("dialog", (dialog) => dialog.accept());
-    await own
-      .getByRole("button", { name: "Delete practice record", exact: true })
-      .click();
-    await expect(own.getByRole("alert")).toBeVisible();
-    page.once("dialog", (dialog) => dialog.accept());
-    await own
-      .getByRole("button", { name: "Delete practice record", exact: true })
-      .click();
-    await expect(own.getByRole("status")).toHaveText(
-      "Practice record deleted.",
-    );
-    expect(requests[0]).toEqual(requests[1]);
-    expect(requests[1].expectedVersion).toBe(1);
-    await expect(
-      own.getByRole("button", { name: "Delete practice record", exact: true }),
-    ).toHaveCount(0);
-    await expect(teammate).toBeVisible();
-    await expect(own.getByLabel("Practice score", { exact: true })).toHaveValue(
-      "",
-    );
-    await own.getByLabel("Practice score", { exact: true }).fill("999000");
-    await own
-      .getByRole("button", { name: "Save practice", exact: true })
-      .click();
-    await expect(own.getByRole("status")).toHaveText("Saved");
-    expect(requests[2].expectedVersion).toBe(2);
-    expect(requests[2]).not.toHaveProperty("accuracy");
-    expect(requests[2]).not.toHaveProperty("userId");
-    await expect(
-      own.getByRole("button", { name: "Delete practice record", exact: true }),
-    ).toHaveCount(1);
-    await page.goto(`/practice-records?theme=${theme}&readonly`);
-    await expect(
-      page.getByRole("button", { name: "Delete practice record", exact: true }),
-    ).toHaveCount(0);
-    await expect(
-      page.getByRole("button", { name: "Save practice", exact: true }),
-    ).toHaveCount(0);
-  });
 }
+
+test("clears previously saved fields through autosave and omits the editor when read-only", async ({
+  page,
+}) => {
+  const requests: Record<string, unknown>[] = [];
+  await page.route(
+    "**/api/tournaments/synthetic/player/practice",
+    async (route) => {
+      requests.push(route.request().postDataJSON());
+      await route.fulfill({ json: { saved: true, version: 2 } });
+    },
+  );
+  await page.goto("/practice-records");
+  const form = page.getByRole("form", { name: "My practice: NM1" });
+  await expect(form.getByRole("button")).toHaveCount(0);
+  await form.getByRole("spinbutton", { name: "Practice score" }).fill("");
+  await form
+    .getByRole("combobox", { name: "Feel", exact: true })
+    .selectOption("");
+  await form
+    .getByRole("textbox", { name: "Practice comment", exact: true })
+    .fill("");
+  await expect(form.getByRole("status")).toHaveText("Saved");
+  expect(requests.at(-1)).toMatchObject({
+    action: "save_practice",
+    score: null,
+    feel: null,
+    comment: "",
+    expectedVersion: 1,
+  });
+  await expect(form.getByRole("button")).toHaveCount(0);
+  await page.goto("/practice-records?readonly");
+  await expect(
+    page.getByText("My saved comment", { exact: true }),
+  ).toBeVisible();
+  await expect(form).toHaveCount(0);
+});
 
 test("autosave keeps newer edits across Mods and confirms the same request after a failure", async ({
   page,
@@ -414,6 +357,7 @@ test("autosave keeps newer edits across Mods and confirms the same request after
   await expect(form.getByRole("status")).toHaveText("Unsaved changes");
   await page.clock.runFor(750);
   await expect(form.getByRole("alert")).toBeVisible();
+  await expect(form.getByRole("button")).toHaveText("Retry");
   expect(writes[1]).toMatchObject({
     expectedVersion: 2,
     comment: "Second note",
@@ -429,6 +373,7 @@ test("autosave keeps newer edits across Mods and confirms the same request after
   await expect(form.getByRole("status")).toHaveText("Unsaved changes");
   await page.clock.runFor(750);
   await expect(form.getByRole("status")).toHaveText("Saved");
+  await expect(form.getByRole("button")).toHaveCount(0);
   expect(writes[3]).toMatchObject({
     expectedVersion: 3,
     comment: "Latest note",

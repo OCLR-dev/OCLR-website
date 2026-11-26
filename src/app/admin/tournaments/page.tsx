@@ -1,5 +1,6 @@
 import { Action, EmptyState, PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
+import { registrationStateLabel } from "@/i18n/registration-state";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireUser } from "@/lib/auth/user";
 import { formatDate } from "@/lib/editions";
@@ -84,11 +85,7 @@ async function Issue271Page({
                 <dl className="detail-list">
                   <div>
                     <dt>{tr("Registration")}</dt>
-                    <dd>
-                      {!r.registration
-                        ? tr("Not configured")
-                        : r.registrationState}
-                    </dd>
+                    <dd>{registrationStateLabel(r.registrationState, tr)}</dd>
                   </div>
                   <div>
                     <dt>{tr("Opens / closes")}</dt>

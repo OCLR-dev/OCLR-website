@@ -4,75 +4,92 @@ import { InfoNote } from "@/components/info-note";
 
 import { LoadingRegion } from "./loading-region";
 import { useStaffReadOnly } from "./staff-read-only";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { modeNames } from "@/lib/osu-profile-model";
 import { type BadgeClassification } from "@/lib/bws-model";
 import type { ExplicitReadData } from "@/lib/explicit-read-contracts";
 import { BwsSummary } from "./bws-summary";
+type ReviewData = ExplicitReadData<"staffBws">;
+type ReviewResult = { data: ReviewData } | { error: string };
+
+async function fetchReview(
+  slug: string,
+  id: string,
+  options?: RequestInit,
+): Promise<ReviewResult> {
+  const query = options?.method === "POST" ? "" : "?mode=osu";
+  const fallback = "The action could not be completed.";
+  try {
+    const response = await fetch(
+      `/api/admin/tournaments/${slug}/registrations/${id}/bws${query}`,
+      options,
+    );
+    const result = await response.json();
+    return response.ok ? { data: result } : { error: result.error ?? fallback };
+  } catch {
+    return { error: fallback };
+  }
+}
+
 export function BwsReview({ slug, id }: { slug: string; id: string }) {
   const readOnly = useStaffReadOnly();
   const tr = useAppTranslations();
-  const mode = "osu";
-  const [data, setData] = useState<ExplicitReadData<"staffBws"> | null>(null);
+  const [data, setData] = useState<ReviewData | null>(null);
   const [classifications, setClassifications] = useState<BadgeClassification[]>(
     [],
   );
   const [error, setError] = useState("");
   const [activeRequest, setActiveRequest] = useState<"load" | "save" | null>(
-    null,
+    "load",
   );
   const pending = activeRequest !== null;
-  async function request(save = false) {
-    if (pending) return;
+  const applyReview = useCallback((result: ReviewResult) => {
+    if ("data" in result) {
+      setData(result.data);
+      setClassifications(result.data.classifications);
+    } else {
+      setError(result.error);
+    }
+    setActiveRequest(null);
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+    void fetchReview(slug, id, { signal }).then((result) => {
+      if (!signal.aborted) applyReview(result);
+    });
+    return () => controller.abort();
+  }, [slug, id, applyReview]);
+
+  function request(save = false) {
+    if (pending || (save && !data)) return;
     setActiveRequest(save ? "save" : "load");
     setError("");
-    try {
-      const response = await fetch(
-        `/api/admin/tournaments/${slug}/registrations/${id}/bws${save ? "" : `?mode=${mode}`}`,
-        save
-          ? {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                mode,
-                fingerprint: data!.fingerprint,
-                expectedVersion: data!.version,
-                classifications,
-                confirmed: true,
-              }),
-            }
-          : undefined,
-      );
-      const result = await response.json();
-      if (!response.ok) {
-        setError(result.error);
-        return;
-      }
-      setData(result);
-      setClassifications(result.classifications);
-    } catch {
-      setError("The action could not be completed.");
-    } finally {
-      setActiveRequest(null);
-    }
+    void fetchReview(
+      slug,
+      id,
+      save && data
+        ? {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              mode: "osu",
+              fingerprint: data.fingerprint,
+              expectedVersion: data.version,
+              classifications,
+              confirmed: true,
+            }),
+          }
+        : undefined,
+    ).then(applyReview);
   }
+
   return (
-    <section className="panel form-stack bws-review">
+    <section className="panel bws-review">
       {pending && <LoadingRegion />}
       <h2>{tr("Badge-weighted seeding")}</h2>
-      <p className="small muted">{"osu!standard"}</p>
-      <div className="actions">
-        <button
-          type="button"
-          className="secondary"
-          disabled={pending}
-          aria-busy={activeRequest === "load"}
-          onClick={() => request()}
-        >
-          {tr("Load BWS profile")}
-        </button>
-      </div>
       {data && (
         <>
           <BwsSummary value={data.summary} />
@@ -153,9 +170,20 @@ export function BwsReview({ slug, id }: { slug: string; id: string }) {
         </>
       )}
       {error && (
-        <p className="notice error-text" role="alert">
-          {tr(error)}
-        </p>
+        <div className="bws-review-feedback">
+          <p className="notice error-text" role="alert">
+            {tr(error)}
+          </p>
+          {!data && (
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => request()}
+            >
+              {tr("Retry")}
+            </button>
+          )}
+        </div>
       )}
     </section>
   );

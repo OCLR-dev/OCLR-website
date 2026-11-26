@@ -28,6 +28,11 @@
   line-height: 1;
   flex-shrink: 0;
 }
+.brand img {
+  display: block;
+  width: clamp(8rem, 12vw, 14rem);
+  height: auto;
+}
 .brand span {
   display: block;
   font-size: 13px;

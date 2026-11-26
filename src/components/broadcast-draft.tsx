@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useAppTranslations } from "@/i18n/shared";
 
 import { useContext, useEffect, useRef, useState } from "react";
@@ -265,7 +266,19 @@ export function BroadcastDraft({
     >
       <header className={styles.header}>
         <div className={styles.brand}>
-          OCLR<span>osu! Chinese League Rookie</span>
+          {slug === "s11" || slug === "dev-s11" ? (
+            <Image
+              src="/branding/oclr-s11-logo.svg"
+              alt="OCLR S11"
+              width={1200}
+              height={490}
+              unoptimized
+            />
+          ) : (
+            <>
+              OCLR<span>osu! Chinese League Rookie</span>
+            </>
+          )}
         </div>
         <div className={styles.heading}>
           <p className="eyebrow">{tr("CAPTAIN DRAFT")}</p>

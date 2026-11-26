@@ -104,7 +104,9 @@
 }
 .card,
 .aside,
-.login {
+.login,
+.adminSettings,
+.adminRow {
   min-width: 0;
   padding: 1rem;
   border: 1px solid var(--site-border);
@@ -326,9 +328,94 @@ label.choice {
   padding: 0;
   list-style: none;
 }
-.adminRows summary {
-  cursor: pointer;
+.adminSettings {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.adminSettings h2 {
+  margin: 0 0 0.4rem;
+  font-size: var(--text-body);
+}
+.adminSettings > p {
+  width: 100%;
+  margin: 0;
+}
+.adminFilter {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  font-size: var(--text-support);
+  font-weight: 600;
+}
+.adminFilter select {
+  width: min(100%, 18rem);
+}
+.adminRow {
+  padding: 0;
+}
+.adminRow > summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.65rem 1rem;
   min-height: 44px;
+  padding: 0.85rem 1rem;
+  border-radius: inherit;
+  cursor: pointer;
+}
+.adminRow > summary::-webkit-details-marker {
+  display: none;
+}
+.adminRow > summary::after {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  color: var(--site-accent);
+  transform: rotate(45deg);
+}
+.adminRow[open] > summary::after {
+  transform: rotate(225deg);
+}
+.adminMatch,
+.adminMatchMeta {
+  display: grid;
+  gap: 0.25rem;
+  overflow-wrap: anywhere;
+}
+.adminMatch > span,
+.adminMatchMeta {
+  color: var(--site-muted);
+  font-size: var(--text-support);
+}
+.adminMatchMeta {
+  justify-items: end;
+  text-align: end;
+}
+.adminRowBody {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.8rem 1rem 1rem;
+  border-top: 1px solid var(--site-border);
+}
+.adminRowBody p {
+  margin: 0;
+}
+.adminRowBody > fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.adminRowBody legend {
+  padding: 0 0 0.3rem;
+  font-size: var(--text-support);
+  font-weight: 600;
 }
 .adminActions {
   display: flex;
@@ -350,6 +437,18 @@ label.choice {
   }
 }
 @media (max-width: 32rem) {
+  .adminRow > summary {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .adminMatchMeta {
+    grid-column: 1;
+    justify-items: start;
+    text-align: start;
+  }
+  .adminRow > summary::after {
+    grid-column: 2;
+    grid-row: 1;
+  }
   .choices {
     grid-template-columns: 1fr;
   }

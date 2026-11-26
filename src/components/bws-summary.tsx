@@ -1,4 +1,3 @@
-import { ProfileInfo } from "./profile-info";
 import { BwsCardNote } from "./bws-card-note";
 import {
   CoverPlayerRatings,
@@ -417,8 +416,8 @@ export function BwsSummary({
           )}
         </div>
         <div>
+          <h3>{tr("Original pp")}</h3>
           <p>
-            <span className="muted small">{tr("Original pp")}</span>{" "}
             <strong>
               {value.rawPp === null
                 ? tr("Unavailable")
@@ -450,9 +449,15 @@ export function BwsSummary({
           )}
         </div>
       </div>
-      <ProfileInfo label={tr("Badge-weighted seeding")}>
+      <details className="bws-review-details">
+        <summary>
+          {tr("Explanation")}
+          {value.stale && (
+            <span className="small muted"> · {tr("Stale snapshot")}</span>
+          )}
+        </summary>
         <BwsNote value={value} />
-      </ProfileInfo>
+      </details>
     </section>
   );
 }

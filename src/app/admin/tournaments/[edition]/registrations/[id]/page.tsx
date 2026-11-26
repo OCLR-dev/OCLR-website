@@ -55,7 +55,6 @@ async function Issue271Page({
             {r.userId}
           </PageHeading>
           <div className="application-profile-summary">
-            <span className="muted small">{"osu!standard"}</span>
             <dl>
               <div>
                 <dt>{tr("Global rank")}</dt>
@@ -185,7 +184,9 @@ async function Issue271Page({
             currentRevision={record?.revision}
           />
         )}
-        {r.status !== "withdrawn" && <BwsReview slug={slug} id={r.id} />}
+        {r.status !== "withdrawn" && (
+          <BwsReview key={r.id} slug={slug} id={r.id} />
+        )}
         {["pending", "deferred"].includes(r.status) && (
           <ReviewForm
             key={r.updatedAt.toISOString()}

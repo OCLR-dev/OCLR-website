@@ -80,6 +80,27 @@
   line-height: 1.4;
   overflow-wrap: anywhere;
 }
+.matchLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 100%;
+  color: var(--site-accent);
+  text-decoration: none;
+}
+.matchLink:is(:hover, :focus-visible) {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.matchArrow {
+  flex: none;
+  width: 0.45rem;
+  height: 0.45rem;
+  margin-inline-end: 0.2rem;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  transform: rotate(45deg);
+}
 .task .pairing {
   font-weight: 600;
   font-size: var(--text-small);
@@ -142,8 +163,14 @@
 .controls > :global(.notice) {
   flex-basis: 100%;
 }
+.controls[data-commentary] {
+  align-items: flex-start;
+}
+.controls[data-commentary] > button {
+  flex: none;
+}
 .commentaryPicker {
-  flex: 1 1 100%;
+  flex: 1 1 8rem;
   min-width: 0;
 }
 .commentaryPicker > summary {
