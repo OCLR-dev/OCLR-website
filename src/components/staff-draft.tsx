@@ -146,6 +146,11 @@ export function StaffDraftRoom({
       </p>
     );
   const session = data.session;
+  const pickFeedback =
+    feedback?.sessionId === session?.id &&
+    feedback?.version === session?.publicVersion
+      ? feedback?.message
+      : undefined;
   const teamMap = new Map<string, DraftTeam>(
     data.teams.map((t) => [
       t.team.id,
@@ -192,13 +197,6 @@ export function StaffDraftRoom({
           ? tr("Connected · updates every 2s")
           : tr("Reconnecting · actions may be stale")}
       </p>
-      {feedback &&
-        feedback.sessionId === session?.id &&
-        feedback.version === session.publicVersion && (
-          <p className="notice" role="status">
-            {tr(feedback.message)}
-          </p>
-        )}
       {session?.state === "live" && !data.availablePool.length && (
         <p className="notice" role="status">
           {tr(
@@ -232,6 +230,7 @@ export function StaffDraftRoom({
               pool={data.availablePool}
               staff
               enabled={canPick}
+              feedback={pickFeedback}
               onFeedback={(message, publicVersion) =>
                 setFeedback({
                   message,
@@ -240,6 +239,11 @@ export function StaffDraftRoom({
                 })
               }
             />
+          )}
+          {!currentTeam && pickFeedback && (
+            <p className="notice" role="status">
+              {tr(pickFeedback)}
+            </p>
           )}
           <h2 className="section-space">{tr("Staff preview")}</h2>
           <p className="muted small">

@@ -81,14 +81,6 @@ export function LiveDraft({
           </p>
         </div>
       )}
-      {feedback &&
-        board &&
-        feedback.sessionId === board.sessionId &&
-        feedback.version === board.version && (
-          <p className="notice" role="status">
-            {tr(feedback.message)}
-          </p>
-        )}
       {board ? (
         <>
           {captainId && "eligiblePool" in board ? (
@@ -118,6 +110,12 @@ export function LiveDraft({
                         : board.state === "live"
                           ? "Waiting for your turn."
                           : "Picking is unavailable in the current published state."
+                    }
+                    feedback={
+                      feedback?.sessionId === board.sessionId &&
+                      feedback.version === board.version
+                        ? feedback.message
+                        : undefined
                     }
                     onFeedback={(message, publicVersion) =>
                       setFeedback({

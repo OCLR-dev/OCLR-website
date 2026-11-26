@@ -37,6 +37,7 @@ export function DraftPick({
   staff,
   enabled,
   unavailableMessage,
+  feedback,
   onFeedback,
 }: {
   slug: string;
@@ -52,6 +53,7 @@ export function DraftPick({
   staff: boolean;
   enabled: boolean;
   unavailableMessage: string;
+  feedback?: string;
   onFeedback: (message: string, publicVersion?: number) => void;
 }) {
   const tr = useAppTranslations();
@@ -84,6 +86,7 @@ export function DraftPick({
     }
   }
   const player = pool.find((p) => p.osuId === selected);
+  const pickStatus = status || (!player ? feedback : "");
   const canStage =
     enabled && !pending && !committed && !receiptPending && !stale;
   const roster = [
@@ -184,7 +187,7 @@ export function DraftPick({
         </label>
         <InfoNote>
           <p className="muted small">
-            {canStage
+            {enabled
               ? tr("Drag a player into {value0}, or choose a player below.", {
                   value0: tr(staff ? "the receiving team" : "your team"),
                 })
@@ -374,12 +377,14 @@ export function DraftPick({
           </div>
         </section>
         <p
-          className={status || !enabled ? "draft-pick-status small" : "sr-only"}
+          className={
+            pickStatus || !enabled ? "draft-pick-status small" : "sr-only"
+          }
           role="status"
           aria-live="polite"
         >
-          {status
-            ? tr(status)
+          {pickStatus
+            ? tr(pickStatus)
             : player
               ? tr("{value0} selected. Confirm the pending pick when ready.", {
                   value0: player.username,
