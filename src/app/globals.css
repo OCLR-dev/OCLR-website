@@ -5659,7 +5659,7 @@ body:has([data-broadcast]) .site-shell {
 }
 .captain-picks li {
   display: grid;
-  grid-template-columns: 1.6rem auto minmax(0, 1fr);
+  grid-template-columns: 1.6rem 1.5rem minmax(0, 1fr);
   align-items: center;
   gap: 0.45rem;
   min-height: 3rem;
@@ -5679,7 +5679,7 @@ body:has([data-broadcast]) .site-shell {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
-.captain-picks li > div {
+.captain-pick-identity {
   display: grid;
   min-width: 0;
   overflow-wrap: anywhere;

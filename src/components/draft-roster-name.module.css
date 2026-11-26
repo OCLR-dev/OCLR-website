@@ -1,0 +1,38 @@
+.viewport {
+  display: block;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.name {
+  display: block;
+  width: max-content;
+  white-space: nowrap;
+}
+
+.name[data-overflow] {
+  animation: scroll-name var(--name-duration) linear infinite alternate;
+}
+
+@keyframes scroll-name {
+  0%,
+  15% {
+    transform: translateX(0);
+  }
+
+  85%,
+  100% {
+    transform: translateX(var(--name-offset));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .name,
+  .name[data-overflow] {
+    animation: none;
+    width: auto;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
