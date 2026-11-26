@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -8,7 +9,10 @@ import {
   useState,
   type PointerEvent,
 } from "react";
-import type { TournamentStage } from "@/lib/tournament-stages";
+import {
+  focusedTournamentStage,
+  type TournamentStage,
+} from "@/lib/tournament-stages";
 import "./tournament-stage-scroll.css";
 
 type Labels = {
@@ -25,11 +29,14 @@ export function TournamentStageScroll({
   stages,
   labels,
   id,
+  nextStageChangeAt,
 }: {
   stages: TournamentStage[];
   labels: Labels;
   id?: string;
+  nextStageChangeAt?: number;
 }) {
+  const router = useRouter();
   const viewport = useRef<HTMLDivElement>(null);
   const drag = useRef<{
     id: number;
@@ -42,7 +49,8 @@ export function TournamentStageScroll({
   } | null>(null);
   const suppressClick = useRef(false);
   const [edges, setEdges] = useState({ top: true, bottom: stages.length <= 1 });
-  const current = stages.findIndex((stage) => stage.state === "current");
+  const focused = focusedTournamentStage(stages);
+  const focusedId = stages[focused]?.id;
   const rowHeight = useCallback(() => {
     return (
       viewport.current?.querySelector<HTMLElement>("li")?.offsetHeight ?? 64
@@ -78,11 +86,26 @@ export function TournamentStageScroll({
   useEffect(() => {
     const element = viewport.current;
     if (!element) return;
-    element.scrollTop = Math.max(0, current) * rowHeight();
+    element.scrollTop = focused * rowHeight();
     const observer = new ResizeObserver(measure);
     observer.observe(element);
     return () => observer.disconnect();
-  }, [current, stages.length, measure, rowHeight]);
+  }, [focused, focusedId, stages.length, measure, rowHeight]);
+  useEffect(() => {
+    if (nextStageChangeAt === undefined) return;
+    let timeout: ReturnType<typeof setTimeout>;
+    const refreshAtBoundary = () => {
+      const remaining = nextStageChangeAt - Date.now();
+      if (remaining <= 0) router.refresh();
+      else
+        timeout = setTimeout(
+          refreshAtBoundary,
+          Math.min(remaining, 2_147_483_647),
+        );
+    };
+    refreshAtBoundary();
+    return () => clearTimeout(timeout);
+  }, [nextStageChangeAt, router]);
   function scroll(direction: number) {
     const element = viewport.current;
     if (element)

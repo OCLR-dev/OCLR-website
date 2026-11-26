@@ -15,6 +15,10 @@ import { publicDraft } from "../../src/lib/draft-reads";
 import { formatDate } from "../../src/lib/editions";
 import { InformationDocument } from "../../src/components/tournament-information";
 import { syntheticPublicPools } from "../fixtures/public-mappools";
+vi.mock("next/navigation", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next/navigation")>()),
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
 vi.mock("../../src/i18n/server", () => ({
   getAppTranslations: async () => english,
 }));

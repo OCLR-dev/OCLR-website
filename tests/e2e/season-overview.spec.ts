@@ -197,7 +197,9 @@ test.describe("season overview composition", () => {
           name:
             state === "open"
               ? "Sign in before applying"
-              : "Registration is not open",
+              : state === "closed"
+                ? "Registration closed"
+                : "Registration is not open",
           exact: true,
         }),
       ).toBeVisible();

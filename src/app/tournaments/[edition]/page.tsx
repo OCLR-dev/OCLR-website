@@ -17,7 +17,7 @@ import {
   scheduleTimeZoneLabel,
   tournamentTimeline,
 } from "@/lib/tournament-timeline";
-import { tournamentStages } from "@/lib/tournament-stages";
+import { tournamentStageView } from "@/lib/tournament-stages";
 import {
   TournamentRules,
   tournamentRuleSections,
@@ -141,6 +141,9 @@ async function OverviewContent({
     pools: [], // Published pools stay on the mappool page (#862).
     rules: [], // Published rules render directly from this edition below.
   };
+  const draftStage = timeline.stages.find(
+    ({ href }) => href === `${base}/draft`,
+  );
   const active =
     state === "open"
       ? {
@@ -152,7 +155,8 @@ async function OverviewContent({
         }
       : draft && ["live", "paused"].includes(draft.state)
         ? {
-            label: tr("Captain draft"),
+            phaseId: draftStage?.id,
+            label: draftStage?.label ?? tr("Captain draft"),
             href: `${base}/draft`,
             action: tr("Live draft"),
           }
@@ -169,6 +173,12 @@ async function OverviewContent({
                 ? tr("Read the rules")
                 : tr("View schedule"),
             };
+  const stageView = tournamentStageView(
+    timeline.stages,
+    state === "open" || (draft && ["live", "paused"].includes(draft.state))
+      ? active
+      : null,
+  );
   return (
     <>
       {unavailable.length > 0 && (
@@ -189,13 +199,7 @@ async function OverviewContent({
           />
         }
         active={active}
-        stages={tournamentStages(
-          timeline.stages,
-          state === "open" ||
-            (draft && ["live", "paused"].includes(draft.state))
-            ? active
-            : null,
-        )}
+        {...stageView}
       />
     </>
   );
