@@ -17,12 +17,24 @@ function numericSeason(value: string) {
   return (tens ? digit(tens) : 1) * 10 + digit(ones);
 }
 
+export type ChatSeasonSummary = {
+  editions: Pick<Edition, "name" | "slug">[];
+  unavailable: string[];
+  allPublished: boolean;
+};
+
+type ChatSeasonScope = {
+  editions: Edition[];
+  question: string;
+  summary: ChatSeasonSummary;
+};
+
 export async function chatSeasonScope(
   selected: Edition,
   question: string,
   previous: string,
   refersBack: boolean,
-) {
+): Promise<ChatSeasonScope | null> {
   const normalized = question.normalize("NFKC");
   const references = [...normalized.matchAll(seasonReference)];
   const all = allSeasons.test(normalized);

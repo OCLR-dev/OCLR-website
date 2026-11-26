@@ -11,7 +11,7 @@ import {
 import { chatPlayerProfile } from "./chat-player-profile";
 import { artworkQuery, artworkSources } from "./chat-artwork";
 import { seasonCount, seasonCountIntent } from "./chat-season-counts";
-import { chatSeasonScope } from "./chat-season-scope";
+import { chatSeasonScope, type ChatSeasonSummary } from "./chat-season-scope";
 import type { Edition } from "./editions";
 import { seasonContent } from "./chat-season-content";
 import { searchSeasonIndex } from "./chat-vectors";
@@ -26,6 +26,7 @@ import { getPublicEdition } from "./content";
 import { HttpError } from "./http-error";
 import {
   linksToSeasonSection,
+  type ChatSource,
   rankedSources,
   publishedRuleChapters,
   ruleExcerpts,
@@ -36,6 +37,22 @@ function nextMatchQuestion(question: string) {
   return /下一[場场]|\bnext\b/i.test(question);
 }
 
+type ChatEvidence = {
+  edition: string;
+  sources: ChatSource[];
+  total: Awaited<ReturnType<typeof seasonCount>>;
+  blocked?: NonNullable<ReturnType<typeof chatRequestBlockReason>>;
+  greeting?: true;
+  draftRecommendation?: true;
+  playerProfile?: true;
+  playerDirectory?: true;
+  mappoolDirectory?: true;
+  competitionPage?: true;
+  artworkSearch?: string;
+  seasonScope?: ChatSeasonSummary;
+  historicalCounts?: { unavailable: string[] };
+};
+
 export async function chatEvidence(
   slug: string,
   question: string,
@@ -44,7 +61,7 @@ export async function chatEvidence(
   signal?: AbortSignal,
   onEmbeddingFallback?: (error: unknown) => void,
   previousAnswer = "",
-) {
+): Promise<ChatEvidence> {
   const selected = await getPublicEdition(slug);
   if (!selected) throw new HttpError(404, "Tournament not found.");
   const blocked = chatRequestBlockReason(question);
