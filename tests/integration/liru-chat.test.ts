@@ -11,6 +11,7 @@ import { sql, eq } from "drizzle-orm";
 import { db, closeDb } from "@/db";
 import {
   users,
+  playerNames,
   historicalStatistics,
   captains,
   sessions,
@@ -35,6 +36,7 @@ import { POST } from "@/app/api/chat/route";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { historicalArchive } from "../fixtures/historical-archive";
+import { liruQuestions } from "../fixtures/liru-regression-questions";
 import { assertTestDatabase } from "../database";
 
 vi.mock("server-only", () => ({}));
@@ -385,12 +387,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     context.token = (await createSession(accepted)).token;
     const upstream = vi.fn();
     vi.stubGlobal("fetch", upstream);
-    for (const question of [
-      "有多少人報名了",
-      "選手有多少",
-      "报名人数是多少？",
-      "How many people have registered?",
-    ]) {
+    for (const question of liruQuestions.registration) {
       const response = await ask(["你可以回答什麼", question], {
         edition: cup,
       });
@@ -660,6 +657,24 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
         set: { profile },
       });
 
+    const alias = liruQuestions.publicAlias;
+    await db()
+      .insert(playerNames)
+      .values([
+        {
+          osuId: player.osuId,
+          username: alias.name,
+          source: "osu_previous",
+          published: true,
+        },
+        {
+          osuId: player.osuId,
+          username: alias.privateName,
+          source: "account",
+          published: false,
+        },
+      ])
+      .onConflictDoNothing();
     const question = "Synthetic Lookup是誰";
     const path = `/players/${player.osuId}`;
     const upstream = vi.fn(async (url: unknown, init: RequestInit) => {
@@ -677,13 +692,14 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       return completion("A public OCLR player.");
     });
     vi.stubGlobal("fetch", upstream);
-    for (const query of [question, "Who is synthetic lookup?", path]) {
+    for (const query of [question, path, ...alias.questions]) {
       expect((await chatEvidence(cup, query, "")).sources).toEqual([
         expect.objectContaining({ url: path, title: player.username }),
       ]);
     }
     for (const query of [
       "Hidden Applicant是誰",
+      alias.privateQuestion,
       `/players/${applicant.osuId}`,
     ]) {
       expect((await chatEvidence(cup, query, "")).sources).toEqual([]);
@@ -996,7 +1012,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     const upstream = vi.fn();
     vi.stubEnv("OCLR_CHAT_EMBEDDING_MODEL", "synthetic-embedding");
     vi.stubGlobal("fetch", upstream);
-    const question = "從歷史記錄查看哪些選手擅長DT？";
+    const [question, ...variants] = liruQuestions.historicalDt;
     const request = await ask([question]);
     expect(request.status).toBe(200);
     const stream = await request.text();
@@ -1009,6 +1025,28 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     expect(stream).toContain(s6Top);
     expect(stream.indexOf(s7Top)).toBeLessThan(stream.indexOf(s6Top));
     expect(stream).toContain('"url":"/tournaments/s7/statistics"');
+
+    for (const variant of variants) {
+      const evidence = await chatEvidence(slug, variant, "");
+      expect(evidence.technical, variant).toMatchObject({
+        status: "mod-history",
+        report: {
+          category: "DT",
+        },
+      });
+      const result = evidence.technical;
+      expect(
+        result?.status === "mod-history" && result.report.rows.slice(0, 2),
+        variant,
+      ).toMatchObject([
+        { editionSlug: "s7", ratedMaps: 3, averageEffectiveRating: 2 },
+        {
+          editionSlug: "s6",
+          ratedMaps: 3,
+          averageEffectiveRating: expect.closeTo(1.6, 8),
+        },
+      ]);
+    }
 
     const scoped = await (await ask([question, "只看第六季"])).text();
     expect(scoped).toContain("| S6 | Historical Captain A [1] | 3 | 1.6 |");
@@ -1089,7 +1127,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
 
     const upstream = vi.fn();
     vi.stubGlobal("fetch", upstream);
-    const question = "本屆有多少隊長？";
+    const { count: question, recheck } = liruQuestions.captains;
     const current = await ask([question], { edition: captainEdition });
     expect(current.status).toBe(200);
     const currentStream = await current.text();
@@ -1098,7 +1136,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       '"url":"/tournaments/captain-count-test/teams"',
     );
 
-    const previous = await ask(["第3季有多少隊長？", "應該不止吧"], {
+    const previous = await ask(["第3季有多少隊長？", recheck], {
       edition: captainEdition,
       previousAnswers: ["4 位"],
     });
@@ -1110,7 +1148,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       .update(captains)
       .set({ published: false })
       .where(eq(captains.userId, fixture[0].osuId));
-    const rechecked = await ask([question, "應該不止吧"], {
+    const rechecked = await ask([question, recheck], {
       edition: captainEdition,
       previousAnswers: ["4 位"],
     });
