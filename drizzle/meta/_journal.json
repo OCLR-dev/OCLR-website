@@ -869,6 +869,13 @@
       "when": 1795622463157,
       "tag": "0123_liru_chat_output_limit",
       "breakpoints": true
+    },
+    {
+      "idx": 124,
+      "version": "7",
+      "when": 1795666215450,
+      "tag": "0124_chat_pgvector",
+      "breakpoints": true
     }
   ]
 }

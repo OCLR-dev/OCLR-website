@@ -4,7 +4,7 @@ Use Node.js 24 LTS (minimum 22.13.0), npm, and the checked-in lockfile. Choose a
 
 ## Local development
 
-With an existing local PostgreSQL instance, keep any existing environment file and configure the connection in `.env.local` from [`.env.example`](../.env.example):
+With an existing local PostgreSQL instance, install [pgvector](https://github.com/pgvector/pgvector#installation) for that server version. The migration enables the extension when the migration role has permission. Otherwise, have the database administrator run `CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA public;` on the OCLR database first. Keep any existing environment file and configure the connection in `.env.local` from [`.env.example`](../.env.example):
 
 ```sh
 npm ci
@@ -28,9 +28,26 @@ npm run db:seed:dev
 npm run dev
 ```
 
-`db:local` creates PostgreSQL 17 in `oclr-frontend-postgres` on `127.0.0.1:55434`, with database `oclr_frontend_test` and Docker volume `oclr-frontend-postgres-data`. It creates a private `.env.local` (mode 0600) and preserves any existing file. Use `docker stop oclr-frontend-postgres` to stop the container and `npm run db:local` to restart it with the same data.
+`db:local` creates PostgreSQL 17 with pgvector in `oclr-frontend-postgres` on `127.0.0.1:55434`, with database `oclr_frontend_test` and Docker volume `oclr-frontend-postgres-data`. It creates a private `.env.local` (mode 0600) and preserves any existing file. Use `docker stop oclr-frontend-postgres` to stop the container and `npm run db:local` to restart it with the same data.
 
 The seed requires the demo host, port, and database name, with matching `DATABASE_URL` and `OCLR_DEVELOPMENT_DATABASE_URL`. It accepts the legacy matching `TEST_DATABASE_URL` for existing demo configurations. The seed refuses production mode and preserves saved demo edits. Open `/tournaments/dev-s11` or `/tournaments/dev-archive` for synthetic data. Use a separate database for automated fixtures. They explicitly reject this preview database.
+
+### Upgrade an existing Docker preview to pgvector
+
+For the preview created with `postgres:17`, stop it and keep it under a different name. Start the PostgreSQL 17 pgvector image with the same initialized volume. The database credentials and `.env.local` stay in place. Use these commands only for the local preview.
+
+```sh
+docker pull pgvector/pgvector:0.8.7-pg17-bookworm
+docker stop oclr-frontend-postgres
+docker rename oclr-frontend-postgres oclr-frontend-postgres-before-pgvector
+docker run --detach --name oclr-frontend-postgres \
+  --label org.oclr.local-database=frontend-test-v1 \
+  --publish 127.0.0.1:55434:5432 \
+  --mount type=volume,source=oclr-frontend-postgres-data,target=/var/lib/postgresql/data \
+  pgvector/pgvector:0.8.7-pg17-bookworm
+npm run db:local
+npm run db:migrate
+```
 
 ## Phone and LAN preview
 
@@ -60,7 +77,7 @@ npm run build
 npm audit --omit=dev
 ```
 
-For database-backed tests, export `TEST_DATABASE_URL` for a separate disposable PostgreSQL database named with a distinct `test` segment, such as `oclr_test`. The role needs `CREATEDB` for migration-upgrade fixtures. Keep demo, staging, and production targets out of this setup.
+For database-backed tests, export `TEST_DATABASE_URL` for a separate disposable PostgreSQL database named with a distinct `test` segment, such as `oclr_test`. Install pgvector on that test server. Migration-upgrade fixtures create their own databases, so the test role needs `CREATEDB` and permission to enable pgvector there, or the test server's default database template must already have pgvector enabled. Keep demo, staging, and production targets out of this setup.
 
 ```sh
 : "${TEST_DATABASE_URL:?Export an isolated test database URL first}"
