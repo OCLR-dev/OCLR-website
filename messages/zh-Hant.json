@@ -5280,6 +5280,17 @@
     "m3b7bf1f40a68": "起步譜面",
     "m3f5a314bf4a7": "相近難度",
     "m96a99ec6e6af": "推薦練習譜面",
-    "m14420c390bc6": "目前找不到同時符合 MOD、特徵門檻和星級範圍的已發布練習譜面。"
+    "m14420c390bc6": "目前找不到同時符合 MOD、特徵門檻和星級範圍的已發布練習譜面。",
+    "m0f6fc4e03360": "本次分析涵蓋 {seasons}。",
+    "me1793f5dd6d2": "{seasons} 找不到可用的已發布資料。",
+    "mfe4d1f7febba": "{edition} · 目前沒有可用的已發布單圖成績。",
+    "m468632bf7180": "{edition} · {published, number} 筆已發布成績中有 {games, number} 筆可比較，涵蓋 {maps, number} 張譜面。",
+    "mb5c8aa4f2c84": "{edition} · 目前沒有已發布的圖池欄位。",
+    "macec5edae264": "{edition} · 有 {maps, number} 張可比較的譜面。",
+    "meb1d6cd78b8a": "目前找不到可用的公開資料來完成這項分析。",
+    "md856f82e883c": "指定範圍內的公開資料不足以核對 BID {bid} 搭配 {mod} 的譜面特徵。",
+    "me94a4ec41686": "已找到 BID {bid} 搭配 {mod} 的譜面，但這個範圍沒有其他可比較的公開譜面。",
+    "meb79628accf3": "BID {bid} · {mod}。共有 {candidates, number} 張可比較的公開譜面，以下列出前 {shown, number} 張。",
+    "mbe4a8898d973": "{published, number} 筆已發布的單圖成績中有 {games, number} 筆可比較，涵蓋 {maps, number} 張譜面及 {fixtures, number} 個場次。"
   }
 }

@@ -5280,6 +5280,17 @@
     "m3b7bf1f40a68": "入门谱面",
     "m3f5a314bf4a7": "相近难度",
     "m96a99ec6e6af": "推荐练习谱面",
-    "m14420c390bc6": "目前找不到同时符合 MOD、特征门槛和星级范围的已发布练习谱面。"
+    "m14420c390bc6": "目前找不到同时符合 MOD、特征门槛和星级范围的已发布练习谱面。",
+    "m0f6fc4e03360": "本次分析涵盖 {seasons}。",
+    "me1793f5dd6d2": "{seasons} 找不到可用的已发布数据。",
+    "mfe4d1f7febba": "{edition} · 目前没有可用的已发布单图成绩。",
+    "m468632bf7180": "{edition} · {published, number} 条已发布成绩中有 {games, number} 条可比较，涵盖 {maps, number} 张谱面。",
+    "mb5c8aa4f2c84": "{edition} · 目前没有已发布的图池栏位。",
+    "macec5edae264": "{edition} · 有 {maps, number} 张可比较的谱面。",
+    "meb1d6cd78b8a": "目前找不到可用的公开数据来完成这项分析。",
+    "md856f82e883c": "指定范围内的公开数据不足以核对 BID {bid} 搭配 {mod} 的谱面特征。",
+    "me94a4ec41686": "已找到 BID {bid} 搭配 {mod} 的谱面，但这个范围没有其他可比较的公开谱面。",
+    "meb79628accf3": "BID {bid} · {mod}。共有 {candidates, number} 张可比较的公开谱面，以下列出前 {shown, number} 张。",
+    "mbe4a8898d973": "{published, number} 条已发布的单图成绩中有 {games, number} 条可比较，涵盖 {maps, number} 张谱面和 {fixtures, number} 个场次。"
   }
 }

@@ -42,6 +42,7 @@ export type RatingGame = {
   beatmap?: RatingBeatmap | null;
   /** Slot from this result revision's reviewed pool snapshot. */
   slot?: string | null;
+  reviewedPoolId?: string | null;
   scoringType?: string | null;
   problem?: string;
   ezScoreMultiplier?: number;

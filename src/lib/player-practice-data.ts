@@ -4,6 +4,7 @@ import { minimumCountedScore } from "./player-map-performance-model";
 import {
   baseFeatures,
   bidSchema,
+  editionSchema,
   poolUrl,
   publicOrigin,
   snapshotSchema,
@@ -12,7 +13,6 @@ import {
 
 export const practiceEditions = ["s9", "s10"] as const;
 const timestamp = z.iso.datetime({ offset: true });
-const edition = z.enum(practiceEditions);
 const playSchema = z.object({
   fixtureId: z.string().min(1),
   mpId: bidSchema,
@@ -28,9 +28,9 @@ const playSchema = z.object({
   mods: z.array(z.string()).nullish(),
 });
 export const releaseSchema = z.object({
-  slug: edition,
-  archiveKey: z.string().min(1),
-  publishedAt: timestamp,
+  slug: editionSchema,
+  archiveKey: z.string().min(1).optional(),
+  publishedAt: timestamp.optional(),
   players: z.array(
     z.object({ osuId: bidSchema.nullable(), username: z.string() }),
   ),
@@ -44,19 +44,31 @@ export const releaseSchema = z.object({
   poolFixtures: z.array(
     z.object({
       id: z.string().min(1),
-      maps: z.array(
-        z.object({ slot: z.string(), mapId: bidSchema.nullable().optional() }),
-      ),
+      poolId: z.string().min(1).optional(),
+      maps: z
+        .array(
+          z.object({
+            slot: z.string(),
+            mapId: bidSchema.nullable().optional(),
+          }),
+        )
+        .nullish()
+        .transform((maps) => maps ?? []),
     }),
   ),
   plays: z.array(playSchema),
+});
+const archiveReleaseSchema = releaseSchema.extend({
+  slug: z.enum(practiceEditions),
+  archiveKey: z.string().min(1),
+  publishedAt: timestamp,
 });
 export const practiceSnapshotSchema = z
   .object({
     version: z.literal(1),
     capturedAt: timestamp,
     pools: snapshotSchema,
-    releases: z.tuple([releaseSchema, releaseSchema]),
+    releases: z.tuple([archiveReleaseSchema, archiveReleaseSchema]),
   })
   .refine(
     ({ pools, releases }) =>
@@ -69,7 +81,10 @@ export const practiceSnapshotSchema = z
     "The practice snapshot must contain the published S9 and S10 archive releases and pools.",
   );
 export type PracticeSnapshot = z.infer<typeof practiceSnapshotSchema>;
-type Release = z.infer<typeof releaseSchema>;
+export type PracticeRelease = z.infer<typeof releaseSchema>;
+export type PracticeCorpus = Omit<PracticeSnapshot, "releases"> & {
+  releases: PracticeRelease[];
+};
 type Play = z.infer<typeof playSchema>;
 
 export const minimumPeers = 3;
@@ -80,10 +95,10 @@ const shapeMods = new Map(
   ]),
 );
 const key = (...parts: (number | string | null)[]) => JSON.stringify(parts);
-const seasonUrl = (slug: Release["slug"]) =>
+const seasonUrl = (slug: PracticeRelease["slug"]) =>
   publicOrigin + "/tournaments/" + slug;
 
-export function releaseSource(release: Release, osuId: number) {
+export function releaseSource(release: PracticeRelease, osuId: number) {
   const url = seasonUrl(release.slug);
   return {
     edition: release.slug,
@@ -92,10 +107,13 @@ export function releaseSource(release: Release, osuId: number) {
     username:
       release.players.find((player) => player.osuId === osuId)?.username ??
       null,
-    statisticsUrl: url + "/statistics",
+    statisticsUrl: url + (release.archiveKey ? "/statistics" : "/schedule"),
     profileUrl: publicOrigin + "/players/" + osuId + "?edition=" + release.slug,
     apiUrl:
-      publicOrigin + "/api/v1/tournaments/" + release.slug + "/statistics",
+      publicOrigin +
+      "/api/v1/tournaments/" +
+      release.slug +
+      (release.archiveKey ? "/statistics" : "/competition"),
   };
 }
 
@@ -111,7 +129,7 @@ export function median(values: number[]) {
 type MatchedPlay = Play & {
   rawScore: number;
   map: Slot & { mod: DifficultyConfiguration; checksum: string };
-  edition: Release["slug"];
+  edition: PracticeRelease["slug"];
 };
 export type Evidence = MatchedPlay & {
   peers: number;
@@ -151,10 +169,7 @@ export function scoreEvidence(play: Evidence) {
 }
 
 /** Join to the reviewed fixture's published pool membership before using any difficulty values. */
-export function collectPlayerEvidence(
-  snapshot: PracticeSnapshot,
-  osuId: number,
-) {
+export function collectPlayerEvidence(snapshot: PracticeCorpus, osuId: number) {
   const exclusions: Partial<Record<Exclusion, number>> = {};
   const published = new Set<number>();
   const evidence: Evidence[] = [];
@@ -169,9 +184,12 @@ export function collectPlayerEvidence(
         .filter((fixture) => fixture.covered && !fixture.technicalAdjudication)
         .map(({ id }) => id),
     );
-    const fixtureMaps = new Set(
-      release.poolFixtures.flatMap(({ id, maps }) =>
-        maps.map(({ mapId, slot }) => key(id, slot, mapId ?? null)),
+    const fixtureMaps = new Map(
+      release.poolFixtures.flatMap(({ id, maps, poolId }) =>
+        maps.map(({ mapId, slot }) => [
+          key(id, slot, mapId ?? null),
+          poolId ?? null,
+        ]),
       ),
     );
     const slots = Map.groupBy(
@@ -189,7 +207,10 @@ export function collectPlayerEvidence(
         exclude(play, "unverified-fixture");
         continue;
       }
-      if (!fixtureMaps.has(key(play.fixtureId, play.slot, play.beatmapId))) {
+      const poolId = fixtureMaps.get(
+        key(play.fixtureId, play.slot, play.beatmapId),
+      );
+      if (poolId === undefined) {
         exclude(play, "unverified-pool-map");
         continue;
       }
@@ -201,7 +222,9 @@ export function collectPlayerEvidence(
         exclude(play, "unverified-mod");
         continue;
       }
-      const matching = slots.get(key(play.slot, play.beatmapId, mod)) ?? [];
+      const matching = (
+        slots.get(key(play.slot, play.beatmapId, mod)) ?? []
+      ).filter((slot) => !poolId || slot.poolId === poolId);
       const versions = new Set(
         matching.map((slot) => JSON.stringify([slot.checksum, slot.values])),
       );
