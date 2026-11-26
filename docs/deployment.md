@@ -441,6 +441,8 @@ FROM pg_extension WHERE extname = 'vector';
 
 Use the normal reviewed-release updater. The migration adds a nullable vector column and a write trigger without rewriting existing rows. Keyword search keeps its GIN index. For vectors up to 16,000 dimensions, retrieval uses exact pgvector cosine distance and can convert pending rows on read. Larger legacy vectors keep their existing exact search. The existing `oclr-chat-index.timer` copies stored embeddings in batches without calling the model for that conversion. Older releases can still read and write the array column after an application rollback.
 
+For installations that use website backup recovery, [prepare the pgvector restore template and update the separate backup operator](../operator/README.md#prepare-a-pgvector-restore-template). The normal website updater handles the application release.
+
 Check conversion progress with this read-only query. A paused or interrupted worker resumes on the next run.
 
 ```sql

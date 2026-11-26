@@ -30,6 +30,7 @@ OCLR_OPERATOR_LOCK=/opt/oclr/.update.lock
 OCLR_OPERATOR_KEY=/etc/oclr-backup/package.key
 OCLR_OPERATOR_DATABASE_URL=postgresql://OPERATOR@DB_HOST/DB_NAME?sslmode=disable
 OCLR_OPERATOR_RUNTIME_ROLE=oclr_runtime
+OCLR_OPERATOR_RESTORE_TEMPLATE=
 OCLR_OPERATOR_RELEASE_FILE=/opt/oclr/current/.oclr-release
 APP_URL=https://YOUR_OCLR_HOST
 OCLR_BIND_HOST=127.0.0.1
@@ -136,6 +137,38 @@ history and all table row counts before touching the active database name.
 Restore clears sessions, OAuth states and Developer tokens and revokes all
 snapshot staff grants; the operator-configured recovery Admin can sign in and
 regrant roles after review. Competition/publication data stays as saved.
+
+### Prepare a pgvector restore template
+
+If the OCLR database has pgvector enabled, have the DBA create a dedicated
+[database template](https://www.postgresql.org/docs/17/manage-ag-templatedbs.html)
+on the same PostgreSQL server. Use the existing backup operator database role
+as its owner. In this example the role is `oclr_migrator`. Run these commands
+as the DBA from a maintenance connection:
+
+```sql
+CREATE DATABASE oclr_restore_template WITH OWNER oclr_migrator TEMPLATE template0;
+REVOKE CONNECT ON DATABASE oclr_restore_template FROM PUBLIC;
+\connect oclr_restore_template
+CREATE EXTENSION vector WITH SCHEMA public;
+```
+
+Use the same pgvector version and extension schema as the OCLR database.
+The template contains pgvector and starts empty of application objects and data.
+Keep it free of active sessions during a restore. Set
+`OCLR_OPERATOR_RESTORE_TEMPLATE=oclr_restore_template` in the private operator
+environment and update the [separate operator release](#updating-the-backup-worker-on-an-existing-rocky-installation-1316).
+Use the existing role with `CREATEDB` and retain the current website runtime
+role. The DBA owns the extension. During the data restore, `pg_restore` skips
+SQL object comments so it can use that preinstalled extension.
+
+For a database with pgvector, the worker checks the template before stopping
+the website. A failed check records `restore-template` in the private audit
+and preserves the active database and service. Exports and import validation
+can continue while the template is being prepared. A database without pgvector
+continues to use `template0` as its restore source.
+
+### Restore cutover
 
 Database renames happen in one PostgreSQL transaction while the service is
 stopped. The original database is retained under a job-specific `_p_` name. The
@@ -251,6 +284,11 @@ canonical main. Run in Bash as the maintainer who owns that checkout and has sud
 Use the full commit containing the reviewed fix. The checks below require the
 installed worker and its local imports to match the supported source. If a check
 fails, review the installed operator as a separate release upgrade.
+
+The command below installs the first worker drop-in. To update an existing
+reviewed drop-in, verify its current bind path and worker against the previous
+reviewed commit. Preserve a copy of that drop-in and switch only its worker
+path under the same update lock. Use the saved drop-in if activation fails.
 
 ```bash
 (
