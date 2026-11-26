@@ -6,7 +6,8 @@ import { draftBoardTiers } from "@/lib/award-tiers";
 import type { CaptainBoard, DraftBoard } from "@/lib/draft-types";
 import { useState } from "react";
 import { CaptainDraftOverview } from "./captain-draft-overview";
-import { DraftBoardView, draftLabels } from "./draft-board";
+import { CaptainDraftStatus } from "./captain-draft-status";
+import { DraftBoardView } from "./draft-board";
 import { DraftPick } from "./draft-pick";
 import { useStaffReadOnly } from "./staff-read-only";
 import { Action, EmptyState } from "./ui";
@@ -36,14 +37,17 @@ export function LiveDraft({
     connected,
     authorizationLost,
   } = usePoll<DraftBoard | CaptainBoard>(endpoint, initial);
-  const canPick = Boolean(
-    !readOnly &&
+  const ownTurn = Boolean(
     captainId &&
+    connected &&
     board?.state === "live" &&
     board.activeTeam?.captain.osuId === captainId &&
-    connected &&
     "eligiblePool" in board,
   );
+  const canPick = ownTurn && !readOnly;
+  const connection = connected
+    ? tr("Connected · updates every 2s")
+    : tr("Reconnecting · showing last published state");
   if (authorizationLost)
     return (
       <section className="panel" role="alert">
@@ -62,44 +66,21 @@ export function LiveDraft({
         captainId ? "captain-draft-room" : presenter ? "presenter-view" : ""
       }
     >
-      <div className={captainId ? "captain-draft-status" : "section-title"}>
-        {captainId && board ? (
-          <div
-            className="captain-draft-turn"
-            role="status"
-            aria-label={tr("Current draft turn")}
-          >
-            <span
-              className={`badge ${board.state === "live" ? "status-accepted" : "status-pending"}`}
-            >
-              {tr(draftLabels[board.state])}
-            </span>
-            <span>
-              {board.turnCount
-                ? tr("Pick {value0} of {value1}", {
-                    value0: Math.min(board.turnIndex + 1, board.turnCount),
-                    value1: board.turnCount,
-                  })
-                : tr("No picks configured")}
-            </span>
-            <strong>
-              {board.activeTeam?.name ??
-                tr(
-                  board.state === "completed" || board.state === "finalized"
-                    ? "The draft is complete."
-                    : "Awaiting the next stage.",
-                )}
-            </strong>
-          </div>
-        ) : (
-          !captainId && <p className="eyebrow">{tr("OCLR / LIVE DRAFT")}</p>
-        )}
-        <p className="connection-state small" role="status">
-          {connected
-            ? tr("Connected · updates every 2s")
-            : tr("Reconnecting · showing last published state")}
-        </p>
-      </div>
+      {captainId && board ? (
+        <CaptainDraftStatus
+          board={board}
+          captainId={captainId}
+          ownTurn={ownTurn}
+          connection={connection}
+        />
+      ) : (
+        <div className={captainId ? "captain-draft-status" : "section-title"}>
+          {!captainId && <p className="eyebrow">{tr("OCLR / LIVE DRAFT")}</p>}
+          <p className="connection-state small" role="status">
+            {connection}
+          </p>
+        </div>
+      )}
       {feedback &&
         board &&
         feedback.sessionId === board.sessionId &&
@@ -110,23 +91,6 @@ export function LiveDraft({
         )}
       {board ? (
         <>
-          {captainId && "eligiblePool" in board && (
-            <p className="captain-draft-turns muted small">
-              {tr("Your configured turns:")}{" "}
-              {(board.turnSequence ?? [])
-                .flatMap((teamId, index) =>
-                  board.rosters.some(
-                    (r) =>
-                      r.team.id === teamId &&
-                      r.team.captain.osuId === captainId,
-                  )
-                    ? [index + 1]
-                    : [],
-                )
-                .join(", ") || tr("None")}
-              .
-            </p>
-          )}
           {captainId && "eligiblePool" in board ? (
             (() => {
               const own = board.rosters.find(
