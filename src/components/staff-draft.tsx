@@ -1,6 +1,7 @@
 "use client";
 import { useStaffReadOnly } from "./staff-read-only";
 
+import { draftBoardTiers } from "@/lib/award-tiers";
 import { useAppTranslations } from "@/i18n/shared";
 
 import { useState } from "react";
@@ -146,6 +147,11 @@ export function StaffDraftRoom({
       </p>
     );
   const session = data.session;
+  const pickFeedback =
+    feedback?.sessionId === session?.id &&
+    feedback?.version === session?.publicVersion
+      ? feedback?.message
+      : undefined;
   const teamMap = new Map<string, DraftTeam>(
     data.teams.map((t) => [
       t.team.id,
@@ -184,6 +190,10 @@ export function StaffDraftRoom({
         pool: null,
       }
     : null;
+  const tiers =
+    preview && session
+      ? draftBoardTiers(preview, session.turnSequence)
+      : undefined;
   const canPick = Boolean(!readOnly && connected && session?.state === "live");
   return (
     <>
@@ -192,13 +202,6 @@ export function StaffDraftRoom({
           ? tr("Connected · updates every 2s")
           : tr("Reconnecting · actions may be stale")}
       </p>
-      {feedback &&
-        feedback.sessionId === session?.id &&
-        feedback.version === session.publicVersion && (
-          <p className="notice" role="status">
-            {tr(feedback.message)}
-          </p>
-        )}
       {session?.state === "live" && !data.availablePool.length && (
         <p className="notice" role="status">
           {tr(
@@ -231,7 +234,9 @@ export function StaffDraftRoom({
               }
               pool={data.availablePool}
               staff
+              tiers={tiers}
               enabled={canPick}
+              feedback={pickFeedback}
               onFeedback={(message, publicVersion) =>
                 setFeedback({
                   message,
@@ -241,13 +246,18 @@ export function StaffDraftRoom({
               }
             />
           )}
+          {!currentTeam && pickFeedback && (
+            <p className="notice" role="status">
+              {tr(pickFeedback)}
+            </p>
+          )}
           <h2 className="section-space">{tr("Staff preview")}</h2>
           <p className="muted small">
             {tr(
               "Private operational state. This preview is not the public broadcast.",
             )}
           </p>
-          {preview && <DraftBoardView board={preview} privatePreview />}
+          {preview && <DraftBoardView board={preview} privateTiers={tiers} />}
         </>
       )}
       <Controls

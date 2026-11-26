@@ -1,0 +1,24 @@
+.badge {
+  --tier-saturation: 65%;
+  display: inline-block;
+  flex: none;
+  padding: 0.12rem 0.45rem;
+  border: 1px solid hsl(var(--tier-hue) var(--tier-saturation) 46% / 0.6);
+  border-radius: 0.45rem;
+  background: hsl(var(--tier-hue) var(--tier-saturation) 48% / 0.12);
+  color: hsl(var(--tier-hue) var(--tier-saturation) 27%);
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.badge[data-draft-tier="0"] {
+  --tier-saturation: 16%;
+}
+:global(html[data-theme="dark"]) .badge,
+:global([data-broadcast]) .badge {
+  border-color: hsl(var(--tier-hue) var(--tier-saturation) 67% / 0.8);
+  background: hsl(var(--tier-hue) var(--tier-saturation) 62% / 0.16);
+  color: hsl(var(--tier-hue) var(--tier-saturation) 88%);
+}

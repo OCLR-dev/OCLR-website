@@ -2,13 +2,15 @@
 import Image from "next/image";
 import { useAppTranslations } from "@/i18n/shared";
 
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef } from "react";
 import type {
   BroadcastBoard,
   DraftBoard,
   DraftIdentity,
 } from "@/lib/draft-types";
 import { Avatar } from "./avatar";
+import { DraftTierBadge } from "./draft-tier-badge";
+import { BroadcastRatingRadars } from "./player-rating-radar";
 import { draftLabels } from "./draft-board";
 import { RemoteReadOnlyContext } from "./staff-read-only";
 import { usePoll } from "./use-poll";
@@ -84,13 +86,11 @@ const format = (value: number | null | undefined) =>
 
 export function BroadcastDraft({
   slug,
-  name,
   initial,
   available,
   background,
 }: {
   slug: string;
-  name: string;
   initial: BroadcastBoard | null;
   available: boolean;
   background: "opaque" | "transparent";
@@ -189,18 +189,6 @@ export function BroadcastDraft({
               }
             }
           });
-        root.current
-          ?.querySelectorAll<HTMLElement>("[data-roster-player]")
-          .forEach((el) => {
-            if (
-              additions.some(
-                (p) =>
-                  String(p.player.osuId) === el.dataset.rosterPlayer &&
-                  p.team.id === el.dataset.team,
-              )
-            )
-              enter(el, "oclr-roster", 150);
-          });
       }
       // Corrections update immediately; ordinary turn and status transitions settle softly.
       if (
@@ -234,28 +222,17 @@ export function BroadcastDraft({
     return () => animations.forEach((a) => a.cancel());
   }, [board, connected, received]);
   const latest = board?.picks.at(-1);
-  const tiers = new Map(
-    board?.picks.map(({ team, player, tier }) => [
-      `${team.id}:${player.osuId}`,
-      tier,
-    ]),
-  );
-  const [rosterPage, setRosterPage] = useState<{
-    key: string;
-    page: number;
-  } | null>(null);
-  const rosterKey = `${board?.sessionId}:${board?.activeTeam?.id ?? "complete"}`;
-  const pageCount = Math.ceil((board?.rosters.length ?? 0) / 2);
-  const activeIndex =
-    board?.rosters.findIndex((r) => r.team.id === board.activeTeam?.id) ?? -1;
-  const rosterIndex = Math.min(
-    Math.max(0, pageCount - 1),
-    rosterPage?.key === rosterKey
-      ? rosterPage.page
-      : Math.max(0, Math.floor(activeIndex / 2)),
-  );
-  const visibleRosters =
-    board?.rosters.slice(rosterIndex * 2, rosterIndex * 2 + 2) ?? [];
+  const seasonEleven = slug === "s11" || slug === "dev-s11";
+  const waitingForFirstPick = !latest && board?.state === "live";
+  const showFirstPickHeadline = seasonEleven && waitingForFirstPick;
+  const ratings = latest?.ratings;
+  const ratingNumber = new Intl.NumberFormat(tr.locale, {
+    maximumFractionDigits: 2,
+  });
+  const etxNumber = new Intl.NumberFormat(tr.locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
   const complete = board?.state === "completed" || board?.state === "finalized";
   return (
     <div
@@ -266,7 +243,7 @@ export function BroadcastDraft({
     >
       <header className={styles.header}>
         <div className={styles.brand}>
-          {slug === "s11" || slug === "dev-s11" ? (
+          {seasonEleven ? (
             <Image
               src="/branding/oclr-s11-logo.svg"
               alt="OCLR S11"
@@ -281,8 +258,7 @@ export function BroadcastDraft({
           )}
         </div>
         <div className={styles.heading}>
-          <p className="eyebrow">{tr("CAPTAIN DRAFT")}</p>
-          <h1>{name}</h1>
+          <h1>{tr("Draft Day")}</h1>
         </div>
         <div className={styles.status}>
           <strong data-live-status data-state={board?.state ?? "waiting"}>
@@ -304,14 +280,31 @@ export function BroadcastDraft({
           data-featured
           aria-label={tr("Latest published selection")}
         >
-          <p className="eyebrow">
-            {latest
-              ? tr("PICK {value0} / SELECTED", {
-                  value0: String(latest.turnIndex + 1).padStart(2, "0"),
-                })
-              : tr("THE NEXT TEAM STORY")}
-            {latest?.tier ? ` · Tier ${latest.tier}` : null}
-          </p>
+          {!showFirstPickHeadline && (
+            <div className={styles.selectionHeading}>
+              <p className={styles.stageLabel}>
+                {latest
+                  ? latest.roundPosition
+                    ? tr(
+                        "Round {round} · Pick {position} · Overall pick {overall}",
+                        {
+                          ...latest.roundPosition,
+                          overall: latest.turnIndex + 1,
+                        },
+                      )
+                    : tr("Overall pick {overall}", {
+                        overall: latest.turnIndex + 1,
+                      })
+                  : tr("Latest published selection")}
+              </p>
+              {latest?.tier ? (
+                <DraftTierBadge
+                  tier={latest.tier}
+                  className={styles.featuredTier}
+                />
+              ) : null}
+            </div>
+          )}
           <div
             className={styles.featured}
             aria-live="polite"
@@ -319,11 +312,26 @@ export function BroadcastDraft({
           >
             {latest && <Portrait player={latest.player} featured />}
             <div className={styles.identity}>
-              <h2 data-reveal="name">
-                {latest?.player.username ?? tr("The stage is ready.")}
+              <h2
+                data-reveal="name"
+                className={showFirstPickHeadline ? styles.firstPick : undefined}
+              >
+                {latest?.player.username ??
+                  (showFirstPickHeadline
+                    ? tr("The OCLR S11 first overall pick is...")
+                    : tr("No picks published yet."))}
               </h2>
               {latest ? (
                 <>
+                  {latest.careerAppearance && (
+                    <p className={styles.appearance}>
+                      {latest.careerAppearance === 1
+                        ? tr("First OCLR appearance")
+                        : tr("OCLR appearance {count}", {
+                            count: latest.careerAppearance,
+                          })}
+                    </p>
+                  )}
                   <dl
                     className={styles.statistics}
                     data-reveal="stats"
@@ -332,12 +340,8 @@ export function BroadcastDraft({
                     }
                   >
                     <div>
-                      <dt>
-                        PP <small>{"osu!standard"}</small>
-                      </dt>
-                      <dd>
-                        {format(latest.player.profile?.pp)} <small>pp</small>
-                      </dd>
+                      <dt>PP</dt>
+                      <dd>{format(latest.player.profile?.pp)}</dd>
                     </div>
                     <div>
                       <dt>
@@ -356,20 +360,36 @@ export function BroadcastDraft({
                           : "—"}
                       </dd>
                     </div>
+                    <div>
+                      <dt>o!TR</dt>
+                      <dd>
+                        {ratings?.otr == null
+                          ? "—"
+                          : ratingNumber.format(ratings.otr)}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>{tr("SIP")}</dt>
+                      <dd>
+                        {ratings?.sip == null
+                          ? "—"
+                          : ratingNumber.format(ratings.sip)}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>{tr("ETX")}</dt>
+                      <dd>
+                        {ratings?.etx == null
+                          ? "—"
+                          : etxNumber.format(ratings.etx)}
+                      </dd>
+                    </div>
                   </dl>
-                  <div data-reveal="team">
-                    <p className={styles.destination}>{latest.team.name}</p>
-                    <p className={styles.caption}>
-                      {tr("Selected by Captain ")}
-                      {latest.team.captain.username}
-                    </p>
-                  </div>
+                  <p data-reveal="team" className={styles.destination}>
+                    {latest.team.name}
+                  </p>
                 </>
-              ) : (
-                <p className={styles.caption}>
-                  {tr("Selections appear here when published.")}
-                </p>
-              )}
+              ) : null}
             </div>
           </div>
         </section>
@@ -378,12 +398,12 @@ export function BroadcastDraft({
           data-turn-card
           aria-label={tr("Current published captain turn")}
         >
-          <p className="eyebrow">
+          <p className={styles.stageLabel}>
             {complete
               ? tr("DRAFT COMPLETE")
               : board?.state === "paused"
                 ? tr("ON HOLD")
-                : tr("CURRENT TURN")}
+                : tr("Next pick")}
           </p>
           <h2>
             {board?.activeTeam?.name ??
@@ -391,10 +411,9 @@ export function BroadcastDraft({
                 ? tr("Teams assembled.")
                 : tr("Waiting for the next stage."))}
           </h2>
-          {board?.activeTeam && (
-            <p className={styles.caption}>
-              {tr("Captain ")}
-              {board.activeTeam.captain.username}
+          {board?.activeRound && (
+            <p className={styles.round}>
+              {tr("Round {round} · Pick {position}", board.activeRound)}
             </p>
           )}
           <div className={styles.progress}>
@@ -403,106 +422,35 @@ export function BroadcastDraft({
                 ? `${Math.min(board.turnIndex + (complete ? 0 : 1), board.turnCount)} / ${board.turnCount}`
                 : "—"}
             </span>
-            <p>
-              {complete
-                ? tr("Configured picks completed")
-                : tr("Configured pick order")}
-            </p>
+            <p>{tr("Overall pick order")}</p>
           </div>
         </section>
       </div>
 
       <div className={styles.details}>
         <section
-          className={styles.rosters}
-          data-rosters
-          aria-label={tr("Published roster progress")}
-          tabIndex={0}
+          className={styles.ratings}
+          data-ratings
+          aria-labelledby="broadcast-ratings-heading"
         >
-          <div className={styles.rosterHeading}>
-            <h2>{tr("Team rosters ")}</h2>
-            {pageCount > 1 && (
-              <div className={styles.pages}>
-                <button
-                  type="button"
-                  aria-label={tr("Previous teams")}
-                  disabled={rosterIndex === 0}
-                  onClick={() =>
-                    setRosterPage({ key: rosterKey, page: rosterIndex - 1 })
-                  }
-                >
-                  ←
-                </button>
-                <span>
-                  {rosterIndex * 2 + 1}–
-                  {Math.min(rosterIndex * 2 + 2, board!.rosters.length)} /{" "}
-                  {board!.rosters.length}
-                </span>
-                <button
-                  type="button"
-                  aria-label={tr("Next teams")}
-                  disabled={rosterIndex === pageCount - 1}
-                  onClick={() =>
-                    setRosterPage({ key: rosterKey, page: rosterIndex + 1 })
-                  }
-                >
-                  →
-                </button>
-              </div>
-            )}
-          </div>
-          {board?.rosters.length ? (
-            <div className={styles.rosterGrid}>
-              {visibleRosters.map(({ team, players }) => (
-                <article
-                  key={team.id}
-                  data-active={board.activeTeam?.id === team.id}
-                >
-                  <h3>{team.name}</h3>
-                  <p className={styles.caption}>
-                    {tr("Captain ")}
-                    {team.captain.username}
-                  </p>
-                  <p className={styles.count}>
-                    {players.length}{" "}
-                    {players.length === 1 ? tr("player") : tr("players")}
-                  </p>
-                  <ul data-dense={players.length > 6}>
-                    {players.map((player) => {
-                      const tier = tiers.get(`${team.id}:${player.osuId}`);
-                      return (
-                        <li
-                          key={player.osuId}
-                          data-roster-player={player.osuId}
-                          data-team={team.id}
-                        >
-                          <Portrait player={player} />
-                          <span title={player.username}>{player.username}</span>
-                          {player.osuId === team.captain.osuId ? (
-                            <small>{tr("Captain")}</small>
-                          ) : tier ? (
-                            <small>{`Tier ${tier}`}</small>
-                          ) : null}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </article>
-              ))}
-            </div>
+          <h2 id="broadcast-ratings-heading">{tr("Player ratings")}</h2>
+          {latest ? (
+            <BroadcastRatingRadars ratings={ratings} />
           ) : (
             <p className={styles.caption}>
-              {tr("Team rosters have not been published.")}
+              {waitingForFirstPick
+                ? tr("Draft in progress...")
+                : tr("No rating data")}
             </p>
           )}
         </section>
         <section
           className={styles.history}
           data-history
-          aria-label={tr("Recent published selections")}
+          aria-labelledby="broadcast-results-heading"
           tabIndex={0}
         >
-          <h2>{tr("Recent picks")}</h2>
+          <h2 id="broadcast-results-heading">{tr("Recent draft results")}</h2>
           {board?.picks.length ? (
             <ol>
               {board.picks
@@ -516,22 +464,17 @@ export function BroadcastDraft({
                     <Portrait player={pick.player} />
                     <div>
                       <strong>{pick.player.username}</strong>
-                      {pick.tier ? (
-                        <small
-                          className={styles.historyTier}
-                        >{`Tier ${pick.tier}`}</small>
-                      ) : null}
-                      <p>
-                        {pick.team.name} {tr(" · Captain ")}
-                        {pick.team.captain.username}
-                      </p>
+                      <p>{pick.team.name}</p>
                     </div>
+                    {pick.tier ? <DraftTierBadge tier={pick.tier} /> : null}
                   </li>
                 ))}
             </ol>
           ) : (
             <p className={styles.caption}>
-              {tr("No selections published yet.")}
+              {waitingForFirstPick
+                ? tr("Draft in progress...")
+                : tr("No selections published yet.")}
             </p>
           )}
         </section>

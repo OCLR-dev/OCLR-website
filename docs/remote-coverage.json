@@ -421,10 +421,10 @@
       "kind": "page",
       "authority": "saved-read",
       "operations": [
-        "captainSetup",
         "mappoolWorkspace",
         "staffAccess",
         "staffFixtures",
+        "staffTeams",
         "streamingWorkspace",
         "tournamentForAdmin",
         "tournamentList"
@@ -435,7 +435,7 @@
         "src/lib/auth/staff.ts#staffAccess",
         "src/lib/tournament-reads.ts#tournamentForAdmin",
         "src/lib/tournament-reads.ts#tournamentList",
-        "src/lib/captain-reads.ts#captainSetup",
+        "src/lib/team-reads.ts#staffTeams",
         "src/lib/fixture-reads.ts#staffFixtures",
         "src/lib/mappool-reads.ts#mappoolWorkspace",
         "src/lib/streaming-workspace.ts#streamingWorkspace"

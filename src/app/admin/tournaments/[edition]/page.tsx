@@ -9,7 +9,7 @@ import { remotePage } from "@/lib/remote-page";
 import { tournamentForAdmin, tournamentList } from "@/lib/tournament-reads";
 import Link from "next/link";
 import { TournamentDashboardSummary } from "@/components/tournament-dashboard-summary";
-import { captainSetup } from "@/lib/captain-reads";
+import { staffTeams } from "@/lib/team-reads";
 import { staffFixtures } from "@/lib/fixture-reads";
 import { mappoolWorkspace } from "@/lib/mappool-reads";
 import { streamingWorkspace } from "@/lib/streaming-workspace";
@@ -34,13 +34,11 @@ async function Issue271Page({
     const hasFixtures =
       canRead(grants, "manage_fixtures", slug) ||
       canRead(grants, "record_results", slug);
-    const [data, setup, pools, fixtures, streams] = await Promise.all([
+    const [data, teams, pools, fixtures, streams] = await Promise.all([
       canRead(grants, "configure_tournament", slug)
         ? tournamentForAdmin(actor, slug)
         : null,
-      canRead(grants, "manage_captains", slug)
-        ? captainSetup(actor, slug)
-        : null,
+      canRead(grants, "manage_teams", slug) ? staffTeams(actor, slug) : null,
       canRead(grants, "view_replays", slug)
         ? mappoolWorkspace(actor, slug)
         : null,
@@ -83,7 +81,7 @@ async function Issue271Page({
         </header>
         <TournamentDashboardSummary
           base={`/admin/tournaments/${slug}`}
-          captains={setup?.captains ?? null}
+          teams={teams?.teams ?? null}
           pools={pools}
           fixtures={fixtures}
           streams={streams}

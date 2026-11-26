@@ -103,7 +103,10 @@ test.describe("published OBS browser-source rehearsal", () => {
     const current = page.getByRole("region", {
       name: "Current published captain turn",
     });
-    await expect(current).toContainText(fixture.a.username);
+    await expect(current).toContainText(
+      fixture.teamRows.find(({ captainId }) => captainId === fixture.a.osuId)!
+        .name,
+    );
     await expect(page.locator(".site-header")).toBeHidden();
     await expect(page.getByRole("button")).toHaveCount(0);
     expect(
@@ -111,9 +114,7 @@ test.describe("published OBS browser-source rehearsal", () => {
         .locator("[data-broadcast]")
         .evaluate((el) => getComputedStyle(el).backgroundColor),
     ).toBe("rgb(9, 12, 23)");
-    await expect(selection).toContainText(
-      "Selections appear here when published.",
-    );
+    await expect(selection).toContainText("No picks published yet.");
     await pick(captain, fixture.players[0].osuId);
     await page.waitForResponse(
       (res) => new URL(res.url()).pathname === endpoint && res.status() === 200,
@@ -130,9 +131,13 @@ test.describe("published OBS browser-source rehearsal", () => {
       }),
     ).toBeVisible();
     await expect(selection).toContainText(
-      `Selected by Captain ${fixture.a.username}`,
+      fixture.teamRows.find(({ captainId }) => captainId === fixture.a.osuId)!
+        .name,
     );
-    await expect(current).toContainText(fixture.b.username);
+    await expect(current).toContainText(
+      fixture.teamRows.find(({ captainId }) => captainId === fixture.b.osuId)!
+        .name,
+    );
 
     // A lagging response must never rewind the already displayed published turn.
     await page.route(`**${endpoint}*`, (route) =>
@@ -159,12 +164,16 @@ test.describe("published OBS browser-source rehearsal", () => {
       }),
     ).toBeVisible();
     await expect(selection).toContainText(
-      `Selected by Captain ${fixture.b.username}`,
+      fixture.teamRows.find(({ captainId }) => captainId === fixture.b.osuId)!
+        .name,
     );
     await expect(page.locator("[data-broadcast]")).not.toContainText(
       fixture.staff.username,
     );
-    await expect(current).toContainText(fixture.a.username); // Explicit repeating order, A → B → A → B.
+    await expect(current).toContainText(
+      fixture.teamRows.find(({ captainId }) => captainId === fixture.a.osuId)!
+        .name,
+    ); // Explicit repeating order, A → B → A → B.
 
     await command("pause");
     await expect(page.locator("[data-state]")).toHaveText("Paused");
@@ -203,7 +212,7 @@ test.describe("published OBS browser-source rehearsal", () => {
     await expect(current).toContainText("Teams assembled.");
     await expect(
       page
-        .getByRole("region", { name: "Recent published selections" })
+        .getByRole("region", { name: "Recent draft results" })
         .getByRole("listitem"),
     ).toHaveCount(4);
     expect(
@@ -273,14 +282,12 @@ test.describe("published OBS browser-source rehearsal", () => {
     expect(hidden.status()).toBe(200);
     await expect(
       selection.getByRole("heading", {
-        name: "The stage is ready.",
+        name: "No picks published yet.",
         exact: true,
       }),
     ).toBeVisible();
     await expect(
-      page
-        .getByRole("region", { name: "Published roster progress" })
-        .getByRole("listitem"),
+      page.getByRole("region", { name: "Player ratings" }).getByRole("figure"),
     ).toHaveCount(0);
     const retracted = await (await context.request.get(overlay)).text();
     for (const player of fixture.players)

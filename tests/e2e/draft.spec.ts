@@ -318,9 +318,15 @@ test.describe("isolated multi-captain rehearsal", () => {
     await expect(
       staff.page.getByLabel("Pending selection", { exact: true }),
     ).toContainText(fixture.players[1].username);
+    const poolNote = staff.page
+      .getByRole("region", { name: "Player pool", exact: true })
+      .getByRole("note");
+    const hint = await poolNote.textContent();
+    expect(hint).toContain("Drag a player into");
     await staff.page.route(
       `**/api/tournaments/${slug}/draft/picks`,
       async (route) => {
+        await expect(poolNote).toHaveText(hint!);
         const response = await route.fetch();
         expect(response.status()).toBe(200);
         await expect(
@@ -564,7 +570,9 @@ test.describe("isolated multi-captain rehearsal", () => {
     }
     const [captainResponse, staffResponse] = await Promise.all([
       a.page.waitForResponse((response) => response.url().endsWith(pickPath)),
-      staff.page.waitForResponse((response) => response.url().endsWith(pickPath)),
+      staff.page.waitForResponse((response) =>
+        response.url().endsWith(pickPath),
+      ),
       a.page.getByRole("button", { name: "Confirm Pick", exact: true }).click(),
       staff.page
         .getByRole("button", {

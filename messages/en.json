@@ -5314,6 +5314,17 @@
     "m08f64868f5fa": "The role preview form is invalid.",
     "mbbe79a9975f6": "Practice changes save automatically.",
     "m5d14e740cec1": "Your team is picking now",
-    "m173c4151c9ee": "{value0} of {value1} players submitted availability"
+    "m173c4151c9ee": "{value0} of {value1} players submitted availability",
+    "m270b6ca6b1f7": "Draft Day",
+    "m731aebd24c00": "Round {round} · Pick {position} · Overall pick {overall}",
+    "m92dac1314ce3": "Overall pick {overall}",
+    "m3caa933814cd": "Overall pick order",
+    "m38a1390bcc7a": "First OCLR appearance",
+    "m4c29fdfb1ea0": "OCLR appearance {count}",
+    "mabd77de8da39": "Next pick",
+    "mddff837c1980": "Round {round} · Pick {position}",
+    "md294fe3976e6": "Recent draft results",
+    "mbb0ebaa52662": "The OCLR S11 first overall pick is...",
+    "mcaccfdee5559": "Draft in progress..."
   }
 }

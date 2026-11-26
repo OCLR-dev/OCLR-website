@@ -5314,6 +5314,17 @@
     "m08f64868f5fa": "角色預覽表單無效。",
     "mbbe79a9975f6": "練圖變更會自動儲存。",
     "m5d14e740cec1": "輪到你的隊伍選擇",
-    "m173c4151c9ee": "已有 {value0} / {value1} 名隊員填報可用時間"
+    "m173c4151c9ee": "已有 {value0} / {value1} 名隊員填報可用時間",
+    "m270b6ca6b1f7": "選秀大會",
+    "m731aebd24c00": "第 {round} 輪 · 第 {position} 順位 · 總第 {overall} 順位",
+    "m92dac1314ce3": "總第 {overall} 順位",
+    "m3caa933814cd": "總順位",
+    "m38a1390bcc7a": "首次參加 OCLR",
+    "m4c29fdfb1ea0": "第 {count} 次參加 OCLR",
+    "mabd77de8da39": "下一選擇",
+    "mddff837c1980": "第 {round} 輪 · 第 {position} 順位",
+    "md294fe3976e6": "最近選秀結果",
+    "mbb0ebaa52662": "OCLR S11 選秀狀元是...",
+    "mcaccfdee5559": "選秀進行中..."
   }
 }

@@ -36,8 +36,9 @@ the changed official time; staff see a reminder to check coverage. Same-start
 conflicts use known teams/operators, without inventing a match duration.
 
 A fixture needs a future, known official start and confirmed published opponents.
-TBA first scheduling stays in the existing Admin editor. Locked/completed or
-historical editions, cancelled/in-progress fixtures, saved results and recorded
+TBA first scheduling stays in the existing Admin editor. A draft setup lock leaves
+requests available. Completed or historical editions, cancelled/in-progress
+fixtures, saved results and recorded
 referee actions are ineligible. The service rechecks eligibility and current
 captains under the edition lock shared with existing competition operations.
 There is no inferred deadline, maximum reschedule count, player-majority vote or
@@ -46,7 +47,7 @@ automatic staffing commitment.
 Migration `0065_schedule_requests` adds private availability, requests and events.
 Database triggers invalidate active requests when the official schedule,
 opponents, lineage, captain appointment/publication, team publication,
-edition protection, results or referee activity change. Saved referee settings alone do not start a match. Dependent fixture requests
+edition completion or unpublication, results or referee activity change. Saved referee settings alone do not start a match. Dependent fixture requests
 are invalidated when parent results change. Reversing such changes does not
 restore old agreements. Time-based expiry is projected on read and rechecked on
 every command; GET never writes. Request events retain prior proposal versions. Team-facing history contains only

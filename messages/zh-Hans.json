@@ -5314,6 +5314,17 @@
     "m08f64868f5fa": "角色预览表单无效。",
     "mbbe79a9975f6": "练图改动会自动保存。",
     "m5d14e740cec1": "轮到你的队伍选择",
-    "m173c4151c9ee": "已有 {value0} / {value1} 名队员填报可用时间"
+    "m173c4151c9ee": "已有 {value0} / {value1} 名队员填报可用时间",
+    "m270b6ca6b1f7": "选秀大会",
+    "m731aebd24c00": "第 {round} 轮 · 第 {position} 順位 · 总第 {overall} 順位",
+    "m92dac1314ce3": "总第 {overall} 順位",
+    "m3caa933814cd": "总順位",
+    "m38a1390bcc7a": "首次参加 OCLR",
+    "m4c29fdfb1ea0": "第 {count} 次参加 OCLR",
+    "mabd77de8da39": "下一选择",
+    "mddff837c1980": "第 {round} 轮 · 第 {position} 順位",
+    "md294fe3976e6": "最近选秀结果",
+    "mbb0ebaa52662": "OCLR S11 选秀状元是...",
+    "mcaccfdee5559": "选秀进行中..."
   }
 }

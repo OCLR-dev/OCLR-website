@@ -52,8 +52,7 @@
   display: block;
   font-weight: 700;
 }
-.matchBody time,
-.number {
+.matchBody time {
   font-variant-numeric: tabular-nums;
 }
 .card h2 {
@@ -83,17 +82,6 @@
 }
 .list small {
   color: var(--color-muted);
-}
-.number {
-  display: grid;
-  place-items: center;
-  min-width: 1.7rem;
-  height: 1.7rem;
-  border-radius: 0.5rem;
-  background: var(--site-tint);
-  color: var(--site-accent-strong);
-  font-size: var(--text-support);
-  font-weight: 650;
 }
 .pool strong {
   flex: 1 1 7rem;
