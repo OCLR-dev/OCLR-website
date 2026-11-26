@@ -16,12 +16,14 @@ export async function InformationDocument({
   document,
   active,
   stages,
+  nextStageChangeAt,
   rulesContent,
   ruleSections,
 }: {
   rulesContent?: ReactNode;
   ruleSections?: { id: string; heading: string }[];
   stages?: TournamentStage[];
+  nextStageChangeAt?: number;
   document: TournamentInformation;
   active: { label: string; detail?: string; href: string; action: string };
 }) {
@@ -87,6 +89,7 @@ export async function InformationDocument({
           <TournamentStageScroll
             id="stages"
             stages={stages ?? [{ ...active, id: "active", state: "current" }]}
+            nextStageChangeAt={nextStageChangeAt}
             labels={{
               title: tr("Tournament stages"),
               previous: tr("Scroll to earlier stages"),
