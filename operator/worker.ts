@@ -100,6 +100,56 @@ async function connection(name = database) {
   await c.connect();
   return c;
 }
+async function vectorExtension(c: Client) {
+  const { rows } = await c.query<{ version: string; schema: string }>(
+    `SELECT e.extversion AS version, n.nspname AS schema
+     FROM pg_extension e JOIN pg_namespace n ON n.oid = e.extnamespace
+     WHERE e.extname = 'vector'`,
+  );
+  return rows[0];
+}
+async function restoreVectorTemplate(current: Client) {
+  const source = await vectorExtension(current);
+  if (!source) return null;
+
+  const name = process.env.OCLR_OPERATOR_RESTORE_TEMPLATE;
+  if (
+    !name ||
+    !/^[a-z][a-z0-9_]{0,39}$/.test(name) ||
+    [database, "postgres", "template0", "template1"].includes(name)
+  )
+    throw Error("Configure a dedicated pgvector restore template");
+
+  const template = await connection(name);
+  try {
+    const extension = await vectorExtension(template);
+    const {
+      rows: [state],
+    } = await template.query<{
+      owned: boolean;
+      empty: boolean;
+    }>(`
+      SELECT pg_get_userbyid(datdba) = current_user AS owned,
+        NOT EXISTS (
+          SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+          WHERE n.nspname !~ '^pg_' AND n.nspname <> 'information_schema'
+        ) AND NOT EXISTS (
+          SELECT 1 FROM pg_extension WHERE extname NOT IN ('plpgsql', 'vector')
+        ) AS empty
+      FROM pg_database WHERE datname = current_database()
+    `);
+    if (
+      !state?.owned ||
+      !state.empty ||
+      extension?.version !== source.version ||
+      extension?.schema !== source.schema
+    )
+      throw Error("The pgvector restore template is incompatible");
+  } finally {
+    await template.end();
+  }
+  return name;
+}
 async function inventory(c: Client) {
   const tables = (
     await c.query(
@@ -170,6 +220,7 @@ function media() {
 }
 let stopped = false,
   switched = false;
+let vectorTemplate: string | null = null;
 const candidate = database + "_r_" + id.slice(0, 8),
   previous = database + "_p_" + id.slice(0, 8);
 try {
@@ -218,6 +269,10 @@ try {
     await current.query(
       "SELECT id,hash,created_at FROM drizzle.__drizzle_migrations LIMIT 0",
     );
+    if (job.action === "restore") {
+      phase = "restore-template";
+      vectorTemplate = await restoreVectorTemplate(current);
+    }
   } finally {
     await current.end();
   }
@@ -313,7 +368,9 @@ try {
       phase = "isolated-restore";
       const admin = await connection("postgres");
       try {
-        await admin.query(`CREATE DATABASE ${q(candidate)} TEMPLATE template0`);
+        await admin.query(
+          `CREATE DATABASE ${q(candidate)} TEMPLATE ${q(vectorTemplate ?? "template0")}`,
+        );
         const input = join(root, id + ".restore");
         writeFileSync(input, restored, { mode: 0o600 });
         tool(
@@ -323,6 +380,8 @@ try {
             "--single-transaction",
             "--no-owner",
             "--no-acl",
+            // The DBA owns the extension copied from the template.
+            ...(vectorTemplate ? ["--no-comments"] : []),
             "--dbname",
             candidate,
             input,
