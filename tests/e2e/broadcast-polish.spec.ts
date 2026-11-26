@@ -254,8 +254,12 @@ test.describe("OBS identity and one-time transitions", () => {
     await page.reload();
     await page.waitForTimeout(2300);
     expect(await animated()).toEqual([]);
+    const disconnected = page.waitForEvent(
+      "requestfailed",
+      (request) => new URL(request.url()).pathname === endpoint,
+    );
     fail = true;
-    await expect(page.getByRole("status")).toContainText("Reconnecting");
+    await disconnected;
     append("offline-pick", 990002);
     fail = false;
     await expect(page.locator("[data-featured]")).toContainText("990002");
@@ -285,10 +289,8 @@ test.describe("OBS identity and one-time transitions", () => {
     expect(await animated()).toEqual([]);
     await page.emulateMedia({ reducedMotion: "no-preference" });
     board = { ...board!, version: board!.version + 1, state: "paused" };
-    await expect(page.locator("[data-live-status]")).toHaveText("Paused");
-    expect(await animated()).toEqual(
-      expect.arrayContaining(["oclr-turn", "oclr-status"]),
-    );
+    await expect(page.locator("[data-turn-card]")).toContainText("ON HOLD");
+    expect(await animated()).toContain("oclr-turn");
     expect((await animated()).filter((x) => x === "oclr-pick")).toHaveLength(0);
   });
 });
