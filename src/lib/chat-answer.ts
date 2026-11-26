@@ -99,6 +99,9 @@ export function chatAnswer({
           evidence.historicalCounts
             ? "Report verified historical counts by season with their exact kind and scope. List unavailable counts as unavailable. Only total comparable counts if asked and all needed counts are available. A per-season distinct count cannot establish a cross-season unique count."
             : "",
+          evidence.draftRecommendation
+            ? "For a draft recommendation, name only supplied selectable candidates. The public draft pool excludes captains and assigned players. If a metric is requested, use it and state how many candidates have it. Confirm a named player is selectable only if the supplied candidate evidence establishes that. With no candidate evidence, explain the missing public draft pool, season or metric as applicable. A paused or ready draft can provide planning options but does not authorize a pick now."
+            : "",
           evidence.playerDirectory
             ? "For player directory questions, use the supplied published roster and metric summaries. Explain the metric and its coverage when comparing players. Lower numeric osu!standard rank is better. A missing metric is unknown, and equal metric values are ties. The sample and top entries are excerpts of the directory. Use the provided coverage counts and never infer values outside those excerpts. Unless the user specifies one metric, present metrics separately without declaring one overall strongest player."
             : "",
@@ -124,7 +127,10 @@ export function chatAnswer({
           edition: evidence.edition,
           asOf: new Date().toISOString(),
           currentQuestion: question,
-          previousTurns: evidence.greeting ? [] : previousTurns,
+          previousTurns:
+            evidence.greeting || evidence.draftRecommendation
+              ? []
+              : previousTurns,
           verifiedCount,
           artworkSearch: evidence.artworkSearch,
           seasonScope: evidence.seasonScope,
@@ -196,6 +202,7 @@ export function chatAnswer({
                 );
                 if (verifiedCount) cited.add(String(verifiedCount.source));
                 if (
+                  evidence.draftRecommendation ||
                   evidence.playerProfile ||
                   evidence.playerDirectory ||
                   evidence.mappoolDirectory ||
