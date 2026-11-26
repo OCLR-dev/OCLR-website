@@ -185,6 +185,16 @@
   justify-content: center;
   overflow: hidden;
 }
+.selection,
+.ratings {
+  position: relative;
+}
+.broadcast [data-outgoing-pick] {
+  position: absolute;
+  z-index: 1;
+  margin: 0;
+  pointer-events: none;
+}
 .selection[data-first-pick-waiting] {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

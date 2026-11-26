@@ -248,6 +248,7 @@ test.describe("OBS identity and one-time transitions", () => {
       expect.arrayContaining([
         "oclr-pick",
         "oclr-pick-ratings",
+        "oclr-outgoing-pick",
         "oclr-turn",
         "oclr-history",
       ]),
