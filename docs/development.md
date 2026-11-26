@@ -49,6 +49,20 @@ npm run db:local
 npm run db:migrate
 ```
 
+## Preview roles locally
+
+Use the dedicated [local demo database](#local-frontend-database-and-demo-content). Run `npm run db:seed:dev` again on an existing demo to add the role accounts and preserve its saved edits. Generate an access code and start Next.js on loopback:
+
+```sh
+oclr_preview_code=$(node -p 'require("node:crypto").randomBytes(32).toString("base64url")')
+printf '%s\n' "$oclr_preview_code"
+APP_URL=http://127.0.0.1:3000 OCLR_LOCAL_ROLE_PREVIEW_KEY="$oclr_preview_code" npm run dev -- --hostname 127.0.0.1
+```
+
+Open [the development role preview](http://127.0.0.1:3000/dev/roles) and enter the code from your terminal. The list includes a global Admin, all staff roles, captains and members from four teams, pending applicants, and a player without a registration. Use the site banner to switch accounts or exit. The previous osu! session, if still valid, resumes on exit. The preview lasts up to eight hours, and switching accounts ends the previous preview session and its linked credentials.
+
+Pages and actions check the selected account's saved grants, assignments, team ownership and publication state as usual. For workflows that depend on a particular tournament state, use the demo Admin to configure that state. The preview is available only in `next dev` with the loopback app origin and confirmed local demo database. The access code is a local secret. Keep it out of source, URLs and shared logs.
+
 ## Phone and LAN preview
 
 On a trusted network, start the dev server with the host's private IPv4 address as `APP_URL`. Open that same origin on the phone so asset loading and same-origin writes use the correct host.

@@ -22,6 +22,11 @@ import { hasDeveloperAccess } from "@/lib/developer-api";
 import { chatConfiguration } from "@/lib/chat-config";
 import type { ChatEdition } from "@/lib/chat-edition";
 import { currentUser } from "@/lib/auth/user";
+import {
+  localRolePreviewCookie,
+  localRolePreviewKey,
+} from "@/lib/auth/local-role-preview-config";
+import { localRolePreviewPath } from "@/lib/local-role-preview-model";
 import { SiteFrame } from "@/components/site-frame";
 import { Header } from "@/components/header";
 import { AppearanceProvider } from "@/components/appearance-provider";
@@ -99,6 +104,7 @@ async function RootLayoutContent({
   const theme = resolveTheme(themePreference, systemTheme);
   const remote = remoteMode();
   const route = await headers();
+  const rolePreviewAvailable = Boolean(localRolePreviewKey(route.get("host")));
   let remoteFailure: string | undefined;
   let defaultAppearance: Appearance = "default";
   if (!remote) defaultAppearance = await defaultSiteAppearance();
@@ -229,6 +235,29 @@ async function RootLayoutContent({
                     : null
                 }
               />
+              {rolePreviewAvailable && (
+                <div className="container">
+                  <div className="notice flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <a className="text-link" href={localRolePreviewPath}>
+                      {tr("Development role preview")}
+                    </a>
+                    {user && preferences.has(localRolePreviewCookie) && (
+                      <>
+                        <span>
+                          {tr("Viewing as {username}", {
+                            username: user.username,
+                          })}
+                        </span>
+                        <form action="/auth/logout" method="post">
+                          <button className="secondary" type="submit">
+                            {tr("Exit role preview")}
+                          </button>
+                        </form>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
               {authUnavailable && (
                 <div className="container">
                   <p className="notice" role="status">

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { localRolePreviewAction } from "./local-role-preview-model";
 import type { WriteApiOperation } from "./write-api-contract";
 
 const remotePath = "/api/remote/connection";
@@ -14,7 +15,10 @@ const remoteErrors = {
 };
 const remoteConnected = z.discriminatedUnion("state", [
   z.strictObject({ state: z.literal("anonymous"), expiresAt: z.null() }),
-  z.strictObject({ state: z.literal("developer"), expiresAt: z.iso.datetime() }),
+  z.strictObject({
+    state: z.literal("developer"),
+    expiresAt: z.iso.datetime(),
+  }),
 ]);
 
 export const changeRemoteConnectionWrite = {
@@ -26,7 +30,10 @@ export const changeRemoteConnectionWrite = {
   request: z.discriminatedUnion("mode", [
     z.strictObject({ mode: z.literal("refresh") }),
     z.strictObject({ mode: z.literal("anonymous") }),
-    z.strictObject({ mode: z.literal("developer"), token: z.string().max(100) }),
+    z.strictObject({
+      mode: z.literal("developer"),
+      token: z.string().max(100),
+    }),
   ]),
   actionField: "mode",
   summary: "Connect to the saved-read backend or refresh local snapshots",
@@ -38,13 +45,16 @@ export const changeRemoteConnectionWrite = {
   response: z.strictObject({ state: z.literal("refreshed") }),
   additionalSuccess: {
     201: {
-      description: "A new anonymous or Developer connection replaced the previous connection.",
+      description:
+        "A new anonymous or Developer connection replaced the previous connection.",
       response: remoteConnected,
       headers: {
         ...noStore,
-        "Set-Cookie": z.string().describe(
-          "Opaque oclr_remote_session, HttpOnly and SameSite=Strict. Secure on HTTPS.",
-        ),
+        "Set-Cookie": z
+          .string()
+          .describe(
+            "Opaque oclr_remote_session, HttpOnly and SameSite=Strict. Secure on HTTPS.",
+          ),
       },
     },
   },
@@ -84,10 +94,13 @@ export const disconnectRemoteWrite = {
   description:
     "Clears the local connection, its public cache, and the browser's opaque cookie. A missing connection also returns disconnected.",
   successStatus: 200,
-  successDescription: "The browser is disconnected from the local remote session.",
+  successDescription:
+    "The browser is disconnected from the local remote session.",
   successHeaders: {
     ...noStore,
-    "Set-Cookie": z.string().describe("Expires the oclr_remote_session cookie."),
+    "Set-Cookie": z
+      .string()
+      .describe("Expires the oclr_remote_session cookie."),
   },
   response: z.strictObject({ state: z.literal("disconnected") }),
   errors: {
@@ -98,6 +111,45 @@ export const disconnectRemoteWrite = {
   consumers: [remoteConsumer],
 } as const satisfies WriteApiOperation;
 
+export const switchLocalRolePreviewWrite = {
+  id: "switchLocalRolePreview",
+  path: localRolePreviewAction,
+  method: "POST",
+  access: "same-origin",
+  requestMediaType: "application/x-www-form-urlencoded",
+  maxBodyBytes: 256,
+  request: z.strictObject({
+    account: z.string().regex(/^[1-9]\d{0,15}$/),
+    code: z.string().max(43).optional(),
+  }),
+  summary: "Start or switch a local synthetic role preview",
+  description:
+    "Requires explicitly enabled loopback development and the dedicated demo database. The first selection requires the local access code. An active preview cookie allows switching between seeded accounts and the previous preview session is revoked.",
+  successStatus: 303,
+  successDescription:
+    "Empty redirect to /dev/roles. A successful switch sets the preview cookie. An invalid code or unavailable account redirects back with a form error.",
+  successHeaders: {
+    ...noStore,
+    Location: z.url(),
+    "Set-Cookie": z
+      .string()
+      .describe(
+        "Opaque HttpOnly local role preview cookie on a successful switch.",
+      ),
+  },
+  response: null,
+  errors: {
+    400: "Invalid form fields.",
+    403: "Origin or authentication channel rejected.",
+    404: "Local role preview is disabled or unavailable on this host.",
+    409: "The previous preview session was already replaced or expired.",
+    413: "The form body exceeds the byte limit.",
+    415: "Content-Type must be application/x-www-form-urlencoded.",
+    500: "Unexpected failure.",
+  },
+  consumers: ["src/app/dev/roles/page.tsx"],
+} as const satisfies WriteApiOperation;
+
 export const logoutWrite = {
   id: "logout",
   path: "/auth/logout",
@@ -105,15 +157,18 @@ export const logoutWrite = {
   access: "same-origin",
   summary: "Sign out of the browser session",
   description:
-    "Revokes the current site session from its cookie when present. No request fields are read. A missing session still clears the cookie and redirects to the login confirmation page.",
+    "Revokes the current site session from its cookie when present. No request fields are read. A missing session still clears the cookie and redirects to the login confirmation page. An active local role preview exits to /dev/roles and preserves the osu! session.",
   successStatus: 303,
-  successDescription: "Empty redirect to /login?loggedOut=1.",
+  successDescription:
+    "Empty redirect to /login?loggedOut=1 or /dev/roles when exiting a local role preview.",
   successHeaders: {
     ...noStore,
     Location: z.url(),
-    "Set-Cookie": z.string().describe(
-      "Clears __Host-oclr_session or the local oclr_session cookie with Max-Age=0.",
-    ),
+    "Set-Cookie": z
+      .string()
+      .describe(
+        "Clears the current site or local role preview cookie with Max-Age=0.",
+      ),
   },
   response: null,
   errors: {

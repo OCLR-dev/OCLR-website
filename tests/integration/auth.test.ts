@@ -13,9 +13,18 @@ import { db, closeDb } from "../../src/db";
 import { users, sessions, oauthStates } from "../../src/db/schema";
 import { GET as start } from "../../src/app/auth/osu/route";
 import { GET as callback } from "../../src/app/auth/osu/callback/route";
+import { POST as switchRole } from "../../src/app/auth/dev-role/route";
+import * as previewConfig from "../../src/lib/auth/local-role-preview-config";
+import { demoPlayers } from "../../src/lib/local-role-preview-model";
 import { POST as logout } from "../../src/app/auth/logout/route";
 import { logoutWrite } from "../../src/lib/browser-connection-write-contracts";
-import { createSession, readSession } from "../../src/lib/auth/sessions";
+import {
+  createSession,
+  readSession,
+  readSessionContext,
+  revokeSession,
+  switchLocalRolePreviewSession,
+} from "../../src/lib/auth/sessions";
 import { hashToken, randomToken } from "../../src/lib/auth/tokens";
 import { eq, sql } from "drizzle-orm";
 const testUrl = process.env.TEST_DATABASE_URL;
@@ -60,6 +69,100 @@ describe.skipIf(!testUrl)(
         },
       );
     }
+    it("switches existing demo accounts through the form and restores the original browser session on exit", async () => {
+      const origin = "https://oclr.example.test";
+      const key = randomToken();
+      const [captain, player] = demoPlayers;
+      await db()
+        .insert(users)
+        .values([captain, player, { osuId: 160300, username: "Normal" }]);
+      const normal = await createSession(160300);
+      const browserCookie = `__Host-oclr_session=${normal.token}`;
+      const previewCookie = previewConfig.localRolePreviewCookie;
+      // Exercise the real handler and session store against the isolated test database.
+      // The real configuration boundary has separate coverage without touching the preview DB.
+      const config = vi
+        .spyOn(previewConfig, "localRolePreviewKey")
+        .mockReturnValue(key);
+      try {
+        function post(
+          path: string,
+          token?: string,
+          fields?: Record<string, string>,
+        ) {
+          return new NextRequest(`${origin}${path}`, {
+            method: "POST",
+            headers: {
+              origin,
+              host: new URL(origin).host,
+              cookie: token
+                ? `${browserCookie}; ${previewCookie}=${token}`
+                : browserCookie,
+            },
+            body: fields ? new URLSearchParams(fields) : undefined,
+          });
+        }
+        const first = await switchRole(
+          post("/auth/dev-role", undefined, {
+            code: key,
+            account: String(captain.osuId),
+          }),
+        );
+        expect(first.status).toBe(303);
+        expect(first.headers.get("location")).toBe(`${origin}/dev/roles`);
+        const firstToken = first.cookies.get(previewCookie)!.value;
+        expect(await readSession(firstToken, key)).toEqual(captain);
+        expect(first.cookies.has("__Host-oclr_session")).toBe(false);
+
+        const second = await switchRole(
+          post("/auth/dev-role", firstToken, { account: String(player.osuId) }),
+        );
+        expect(second.status).toBe(303);
+        const secondToken = second.cookies.get(previewCookie)!.value;
+        expect(await readSession(secondToken, key)).toEqual(player);
+        expect(await readSession(firstToken, key)).toBeNull();
+
+        const exit = await logout(post("/auth/logout", secondToken));
+        expect(exit.headers.get("location")).toBe(`${origin}/dev/roles`);
+        expect(exit.cookies.get(previewCookie)?.maxAge).toBe(0);
+        expect(exit.cookies.has("__Host-oclr_session")).toBe(false);
+        expect(await readSession(secondToken, key)).toBeNull();
+        expect(await readSession(normal.token)).toMatchObject({
+          osuId: 160300,
+        });
+      } finally {
+        config.mockRestore();
+      }
+    });
+    it("isolates preview cookies and rotates only the previously selected synthetic session", async () => {
+      const key = randomToken();
+      await db()
+        .insert(users)
+        .values([
+          { osuId: 160301, username: "Demo_Captain" },
+          { osuId: 160302, username: "Demo_Member" },
+        ]);
+      const normal = await createSession(160301);
+      const captain = await switchLocalRolePreviewSession(160301, key);
+      expect(await readSession(captain.token)).toBeNull();
+      expect(await readSession(captain.token, randomToken())).toBeNull();
+      expect(await readSession(normal.token, key)).toBeNull();
+      expect(await readSessionContext(captain.token, key)).toMatchObject({
+        osuId: 160301,
+      });
+      const member = await switchLocalRolePreviewSession(160302, key, captain);
+      expect(member.expiresAt).toEqual(captain.expiresAt);
+      expect(await readSession(captain.token, key)).toBeNull();
+      await expect(
+        switchLocalRolePreviewSession(160301, key, captain),
+      ).rejects.toMatchObject({ status: 409 });
+      expect(await readSession(member.token, key)).toMatchObject({
+        osuId: 160302,
+      });
+      await revokeSession(member.token, key);
+      expect(await readSession(member.token, key)).toBeNull();
+      expect(await readSession(normal.token)).toMatchObject({ osuId: 160301 });
+    });
     it("accepts one valid callback, persists stable identity, hashes sessions and rejects replay", async () => {
       const provider = vi
         .fn()

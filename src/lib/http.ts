@@ -15,12 +15,7 @@ export function requireSameOrigin(request: Request) {
       "Request origin was not accepted. Refresh the page and try again.",
     );
 }
-export async function readJson(
-  request: Request,
-  limit = defaultJsonBodyLimit,
-): Promise<unknown> {
-  if (!request.headers.get("content-type")?.startsWith("application/json"))
-    throw new HttpError(415, "Send JSON data.");
+export async function readBoundedBody(request: Request, limit: number) {
   // Bound the actual stream as well as Content-Length; do not trust the header.
   const reader = request.body?.getReader();
   if (!reader) throw new HttpError(400, "A request body is required.");
@@ -29,7 +24,7 @@ export async function readJson(
   try {
     while (true) {
       const { done, value } = await reader.read();
-      if (done) break;
+      if (done) return Buffer.concat(chunks);
       size += value.byteLength;
       if (size > limit) {
         await reader.cancel();
@@ -37,7 +32,19 @@ export async function readJson(
       }
       chunks.push(value);
     }
-    return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+  } finally {
+    reader.releaseLock();
+  }
+}
+
+export async function readJson(
+  request: Request,
+  limit = defaultJsonBodyLimit,
+): Promise<unknown> {
+  if (!request.headers.get("content-type")?.startsWith("application/json"))
+    throw new HttpError(415, "Send JSON data.");
+  try {
+    return JSON.parse((await readBoundedBody(request, limit)).toString("utf8"));
   } catch (error) {
     if (error instanceof HttpError) throw error;
     throw new HttpError(400, "The request contains invalid JSON.");

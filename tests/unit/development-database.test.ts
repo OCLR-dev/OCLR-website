@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   assertDevelopmentDatabase,
   developmentEnvironment,
-} from "../../scripts/development-database";
+} from "../../src/lib/development-database";
 
 const local = "postgresql://127.0.0.1:55434/oclr_frontend_test";
 describe("local development seed database boundary", () => {

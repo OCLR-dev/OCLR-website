@@ -60,6 +60,7 @@ import {
 import {
   changeRemoteConnectionWrite,
   disconnectRemoteWrite,
+  switchLocalRolePreviewWrite,
   logoutWrite,
 } from "../src/lib/browser-connection-write-contracts";
 import {
@@ -211,6 +212,7 @@ const operations: readonly WriteApiOperation[] = [
   deleteDesktopSessionWrite,
   changeRemoteConnectionWrite,
   disconnectRemoteWrite,
+  switchLocalRolePreviewWrite,
   logoutWrite,
   queueAdminBackupWrite,
   refreshStaffProfileWrite,

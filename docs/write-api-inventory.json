@@ -1434,6 +1434,20 @@
     }
   },
   {
+    "route": "/auth/dev-role",
+    "source": "src/app/auth/dev-role/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "switchLocalRolePreview",
+        "access": "same-origin",
+        "consumers": [
+          "src/app/dev/roles/page.tsx"
+        ]
+      }
+    }
+  },
+  {
     "route": "/auth/logout",
     "source": "src/app/auth/logout/route.ts",
     "methods": {
