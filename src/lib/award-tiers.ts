@@ -17,6 +17,24 @@ export function draftBoardTiers(
     ).map(({ userId, tier }) => [userId, tier]),
   );
 }
+/** A round needs one configured turn for every team. Custom partial or
+ * repeated-team passes have no authoritative round positions. */
+export function draftRoundPositions(sequence: readonly string[]) {
+  const width = new Set(sequence).size;
+  const positions = new Map<number, { round: number; position: number }>();
+  if (!width) return positions;
+  for (let start = 0; start + width <= sequence.length; start += width) {
+    if (new Set(sequence.slice(start, start + width)).size !== width) continue;
+    for (let position = 0; position < width; position++) {
+      positions.set(start + position, {
+        round: start / width + 1,
+        position: position + 1,
+      });
+    }
+  }
+  return positions;
+}
+
 /** Only complete, explicit passes over the same teams establish draft rounds.
  * Irregular custom orders have no inferred round: never guess a Tier. */
 export function draftAwardTiers(
@@ -24,18 +42,12 @@ export function draftAwardTiers(
   picks: { playerId: number; teamId: string; turnIndex: number }[],
   captainIds: number[],
 ): AwardTier[] {
-  const teamIds = new Set(sequence);
+  const positions = draftRoundPositions(sequence);
   const captainTiers = [...new Set(captainIds)].map((userId) => ({
     userId,
     tier: 0,
   }));
-  if (!teamIds.size) return captainTiers;
-  const validRounds = new Set<number>();
-  for (let start = 0; start < sequence.length; start += teamIds.size) {
-    const pass = sequence.slice(start, start + teamIds.size);
-    if (pass.length === teamIds.size && new Set(pass).size === teamIds.size)
-      validRounds.add(Math.floor(start / teamIds.size) + 1);
-  }
+  if (!positions.size) return captainTiers;
   const duplicates = new Set(
     picks
       .filter((p, i) =>
@@ -49,12 +61,11 @@ export function draftAwardTiers(
   );
   const drafted = picks
     .flatMap((p) => {
-      const tier = Math.floor(p.turnIndex / teamIds.size) + 1;
+      const tier = positions.get(p.turnIndex)?.round;
       return !captainIds.includes(p.playerId) &&
         !duplicates.has(p.playerId) &&
-        p.turnIndex >= 0 &&
         sequence[p.turnIndex] === p.teamId &&
-        validRounds.has(tier)
+        tier !== undefined
         ? [{ userId: p.playerId, tier }]
         : [];
     })

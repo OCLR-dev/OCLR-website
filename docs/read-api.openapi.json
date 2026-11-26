@@ -22221,6 +22221,12 @@
         "type": "array",
         "items": { "$ref": "#/components/schemas/Readad4070db87c2" }
       },
+      "Read61d115ccf6b4": {
+        "anyOf": [
+          { "type": "null", "x-oclr-undefined": true },
+          { "$ref": "#/components/schemas/Read7b5b3cfffa80" }
+        ]
+      },
       "Read653b5ad68e9f": {
         "type": "array",
         "items": { "$ref": "#/components/schemas/Readc19c7482b9cd" }
@@ -22634,6 +22640,23 @@
           }
         },
         "required": ["attemptId", "beatmapId", "category", "winnerTeamId"],
+        "additionalProperties": false
+      },
+      "Read7b5b3cfffa80": {
+        "type": "object",
+        "properties": {
+          "round": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "position": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": ["round", "position"],
         "additionalProperties": false
       },
       "Read7d636b0ac467": {
@@ -25628,6 +25651,9 @@
                         }
                       ]
                     },
+                    "roundPosition": {
+                      "$ref": "#/components/schemas/Read61d115ccf6b4"
+                    },
                     "ratings": {
                       "anyOf": [
                         { "type": "null", "x-oclr-undefined": true },
@@ -25705,7 +25731,8 @@
                 }
               },
               "rosters": { "$ref": "#/components/schemas/Reade8074981c738" },
-              "pool": { "$ref": "#/components/schemas/Readf25d5821cb15" }
+              "pool": { "$ref": "#/components/schemas/Readf25d5821cb15" },
+              "activeRound": { "$ref": "#/components/schemas/Read61d115ccf6b4" }
             },
             "required": [
               "sessionId",

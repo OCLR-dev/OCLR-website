@@ -1760,6 +1760,12 @@
       "type": "array",
       "items": { "$ref": "#/$defs/Readad4070db87c2" }
     },
+    "Read61d115ccf6b4": {
+      "anyOf": [
+        { "type": "null", "x-oclr-undefined": true },
+        { "$ref": "#/$defs/Read7b5b3cfffa80" }
+      ]
+    },
     "Read653b5ad68e9f": {
       "type": "array",
       "items": { "$ref": "#/$defs/Readc19c7482b9cd" }
@@ -2158,6 +2164,23 @@
         "winnerTeamId": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
       },
       "required": ["attemptId", "beatmapId", "category", "winnerTeamId"],
+      "additionalProperties": false
+    },
+    "Read7b5b3cfffa80": {
+      "type": "object",
+      "properties": {
+        "round": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "position": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": ["round", "position"],
       "additionalProperties": false
     },
     "Read7d636b0ac467": {
@@ -5035,6 +5058,7 @@
                       }
                     ]
                   },
+                  "roundPosition": { "$ref": "#/$defs/Read61d115ccf6b4" },
                   "ratings": {
                     "anyOf": [
                       { "type": "null", "x-oclr-undefined": true },
@@ -5103,7 +5127,8 @@
               }
             },
             "rosters": { "$ref": "#/$defs/Reade8074981c738" },
-            "pool": { "$ref": "#/$defs/Readf25d5821cb15" }
+            "pool": { "$ref": "#/$defs/Readf25d5821cb15" },
+            "activeRound": { "$ref": "#/$defs/Read61d115ccf6b4" }
           },
           "required": [
             "sessionId",

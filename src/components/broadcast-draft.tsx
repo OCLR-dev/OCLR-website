@@ -278,11 +278,23 @@ export function BroadcastDraft({
         >
           <p className="eyebrow">
             {latest
-              ? tr("PICK {value0} / SELECTED", {
-                  value0: String(latest.turnIndex + 1).padStart(2, "0"),
-                })
+              ? latest.roundPosition
+                ? tr(
+                    "Round {round} · Pick {position} · Overall pick {overall}",
+                    {
+                      ...latest.roundPosition,
+                      overall: latest.turnIndex + 1,
+                    },
+                  )
+                : tr("Overall pick {overall}", {
+                    overall: latest.turnIndex + 1,
+                  })
               : tr("THE NEXT TEAM STORY")}
-            {latest?.tier ? ` · Tier ${latest.tier}` : null}
+            {latest?.tier ? (
+              <span
+                className={styles.pickTier}
+              >{` / Tier ${latest.tier}`}</span>
+            ) : null}
           </p>
           <div
             className={styles.featured}
@@ -349,13 +361,9 @@ export function BroadcastDraft({
                       </dd>
                     </div>
                   </dl>
-                  <div data-reveal="team">
-                    <p className={styles.destination}>{latest.team.name}</p>
-                    <p className={styles.caption}>
-                      {tr("Selected by Captain ")}
-                      {latest.team.captain.username}
-                    </p>
-                  </div>
+                  <p data-reveal="team" className={styles.destination}>
+                    {latest.team.name}
+                  </p>
                 </>
               ) : (
                 <p className={styles.caption}>
@@ -383,10 +391,9 @@ export function BroadcastDraft({
                 ? tr("Teams assembled.")
                 : tr("Waiting for the next stage."))}
           </h2>
-          {board?.activeTeam && (
-            <p className={styles.caption}>
-              {tr("Captain ")}
-              {board.activeTeam.captain.username}
+          {board?.activeRound && (
+            <p className={styles.round}>
+              {tr("Round {round}", { round: board.activeRound.round })}
             </p>
           )}
           <div className={styles.progress}>
@@ -395,11 +402,7 @@ export function BroadcastDraft({
                 ? `${Math.min(board.turnIndex + (complete ? 0 : 1), board.turnCount)} / ${board.turnCount}`
                 : "—"}
             </span>
-            <p>
-              {complete
-                ? tr("Configured picks completed")
-                : tr("Configured pick order")}
-            </p>
+            <p>{tr("Overall pick order")}</p>
           </div>
         </section>
       </div>

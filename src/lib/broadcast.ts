@@ -1,7 +1,7 @@
 import { db, readOnlyData } from "@/db";
 import { userProfileCache } from "@/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
-import { draftBoardTiers } from "./award-tiers";
+import { draftBoardTiers, draftRoundPositions } from "./award-tiers";
 import { getPublicEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { releasedDraftData } from "./draft-reads";
@@ -54,6 +54,12 @@ async function databasePublicBroadcastDraft(
   if (!released) return null;
   const { snapshot, turnSequence } = released;
   const tiers = draftBoardTiers(snapshot, turnSequence);
+  const positions = draftRoundPositions(turnSequence);
+  const activeRound =
+    snapshot.activeTeam &&
+    snapshot.activeTeam.id === turnSequence[snapshot.turnIndex]
+      ? positions.get(snapshot.turnIndex)
+      : undefined;
   const latest = snapshot.picks.at(-1);
   const featured = latest?.player.osuId;
   const ratings =
@@ -66,11 +72,14 @@ async function databasePublicBroadcastDraft(
         ).catch(() => undefined);
   const board: BroadcastBoard = {
     ...snapshot,
+    ...(activeRound ? { activeRound } : {}),
     picks: snapshot.picks.map((pick) => {
       const tier = tiers.get(pick.player.osuId);
+      const roundPosition = tier ? positions.get(pick.turnIndex) : undefined;
       return {
         ...pick,
         ...(tier ? { tier } : {}),
+        ...(roundPosition ? { roundPosition } : {}),
         ...(pick.id === latest?.id && ratings ? { ratings } : {}),
       };
     }),

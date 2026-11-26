@@ -120,6 +120,14 @@
   margin: 8px 0 18px;
   overflow-wrap: anywhere;
 }
+.round {
+  color: #e9b8fc;
+  font-weight: 650;
+  margin: 0;
+}
+.pickTier {
+  text-transform: none;
+}
 .progress {
   display: flex;
   align-items: end;

@@ -5315,6 +5315,9 @@
     "mbbe79a9975f6": "Practice changes save automatically.",
     "m5d14e740cec1": "Your team is picking now",
     "m173c4151c9ee": "{value0} of {value1} players submitted availability",
-    "m270b6ca6b1f7": "Draft Day"
+    "m270b6ca6b1f7": "Draft Day",
+    "m731aebd24c00": "Round {round} · Pick {position} · Overall pick {overall}",
+    "m92dac1314ce3": "Overall pick {overall}",
+    "m3caa933814cd": "Overall pick order"
   }
 }

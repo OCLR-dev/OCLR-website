@@ -55,10 +55,16 @@ const core = {
 };
 const pool = z.union([z.null(), z.array(identity)]);
 export const draftBoardReadContract = z.strictObject({ ...core, pool });
+const draftRoundPosition = z.strictObject({
+  round: z.number().int().positive(),
+  position: z.number().int().positive(),
+});
 export const broadcastDraftReadContract = draftBoardReadContract.extend({
+  activeRound: draftRoundPosition.optional(),
   picks: z.array(
     pick.extend({
       tier: z.number().int().positive().optional(),
+      roundPosition: draftRoundPosition.optional(),
       ratings: z
         .strictObject({
           otr: nullableNumber,

@@ -206,6 +206,12 @@ describe.skipIf(!url)("public broadcast profile projection", () => {
     }
     const published = (await publicBroadcastDraft(slug))!;
     expect(published.picks.map(({ tier }) => tier)).toEqual([1, 1, 2]);
+    expect(published.picks.map(({ roundPosition }) => roundPosition)).toEqual([
+      { round: 1, position: 1 },
+      { round: 1, position: 2 },
+      { round: 2, position: 1 },
+    ]);
+    expect(published.activeRound).toEqual({ round: 2, position: 2 });
     const captainBoard = (await captainDraft(f.a, slug))!;
     const captainTiers = draftBoardTiers(
       captainBoard,
@@ -224,7 +230,12 @@ describe.skipIf(!url)("public broadcast profile projection", () => {
     expect(held.picks.map(({ id }) => id)).toEqual(
       published.picks.map(({ id }) => id),
     );
-    expect(held.picks.every((pick) => pick.tier === undefined)).toBe(true);
+    expect(
+      held.picks.every(
+        (pick) => pick.tier === undefined && pick.roundPosition === undefined,
+      ),
+    ).toBe(true);
+    expect(held.activeRound).toBeUndefined();
   });
   it("keeps the board available with stale/missing/error data and defers at most the featured refresh using existing backoff", async () => {
     await cache(f.players[0].osuId, "osu", 31 * 60000, 503);
