@@ -11,7 +11,6 @@ import type {
 import { Avatar } from "./avatar";
 import { DraftTierBadge } from "./draft-tier-badge";
 import { BroadcastRatingRadars } from "./player-rating-radar";
-import { draftLabels } from "./draft-board";
 import { RemoteReadOnlyContext } from "./staff-read-only";
 import { usePoll } from "./use-poll";
 import styles from "./broadcast-draft.module.css";
@@ -190,7 +189,7 @@ export function BroadcastDraft({
             }
           });
       }
-      // Corrections update immediately; ordinary turn and status transitions settle softly.
+      // Corrections update immediately; ordinary turn transitions settle softly.
       if (
         board.picks.length >= old.picks.length &&
         old.picks.every((p, i) => board.picks[i]?.id === p.id)
@@ -201,11 +200,6 @@ export function BroadcastDraft({
           old.state !== board.state
         )
           enter(root.current?.querySelector("[data-turn-card]"), "oclr-turn");
-        if (old.state !== board.state)
-          enter(
-            root.current?.querySelector("[data-live-status]"),
-            "oclr-status",
-          );
       }
     }
     positions.current = new Map(
@@ -242,36 +236,31 @@ export function BroadcastDraft({
       data-background={background}
     >
       <header className={styles.header}>
-        <div className={styles.brand}>
-          {seasonEleven ? (
-            <Image
-              src="/branding/oclr-s11-logo.svg"
-              alt="OCLR S11"
-              width={1200}
-              height={490}
-              unoptimized
-            />
-          ) : (
-            <>
-              OCLR<span>osu! Chinese League Rookie</span>
-            </>
-          )}
-        </div>
-        <div className={styles.heading}>
+        <div className={styles.branding}>
+          <div className={styles.brand}>
+            {seasonEleven ? (
+              <Image
+                src="/branding/oclr-s11-logo.svg"
+                alt="OCLR S11"
+                width={1200}
+                height={490}
+                unoptimized
+              />
+            ) : (
+              <>
+                OCLR<span>osu! Chinese League Rookie</span>
+              </>
+            )}
+          </div>
           <h1>{tr("Draft Day")}</h1>
         </div>
-        <div className={styles.status}>
-          <strong data-live-status data-state={board?.state ?? "waiting"}>
-            {board
-              ? tr(draftLabels[board.state])
-              : tr("Awaiting published draft")}
-          </strong>
-          <p role="status">
-            {connected
-              ? tr("Connected · updates every 2s")
-              : tr("Reconnecting · last published state")}
-          </p>
-        </div>
+        <section
+          className={styles.streamChat}
+          aria-labelledby="stream-chat-title"
+        >
+          <h2 id="stream-chat-title">{tr("Live stream chat")}</h2>
+          <div className={styles.streamChatSlot} data-stream-chat-slot />
+        </section>
       </header>
 
       <div className={styles.stage}>
@@ -396,6 +385,7 @@ export function BroadcastDraft({
         <section
           className={styles.turn}
           data-turn-card
+          data-state={board?.state ?? "waiting"}
           aria-label={tr("Current published captain turn")}
         >
           <p className={styles.stageLabel}>
