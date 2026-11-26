@@ -361,10 +361,6 @@ export function BroadcastRatingRadars({
     <div className={styles.broadcastCharts}>
       {charts.map(({ label, title, axes }) => (
         <figure className={styles.broadcastChart} key={label}>
-          <figcaption>
-            <strong>{label}</strong>
-            <span>{title}</span>
-          </figcaption>
           {axes.some(({ value }) => value !== null) ? (
             <>
               <RatingPlot axes={axes} locale={tr.locale} highlighted={null} />
@@ -382,6 +378,10 @@ export function BroadcastRatingRadars({
           ) : (
             <p>{tr("No rating data")}</p>
           )}
+          <figcaption>
+            <strong>{label}</strong>
+            <span>{title}</span>
+          </figcaption>
         </figure>
       ))}
     </div>
