@@ -11,6 +11,7 @@ import { sql, eq } from "drizzle-orm";
 import { db, closeDb } from "@/db";
 import {
   users,
+  playerNames,
   historicalStatistics,
   captains,
   sessions,
@@ -35,6 +36,7 @@ import { POST } from "@/app/api/chat/route";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { historicalArchive } from "../fixtures/historical-archive";
+import { liruQuestions } from "../fixtures/liru-regression-questions";
 import { assertTestDatabase } from "../database";
 
 vi.mock("server-only", () => ({}));
@@ -75,25 +77,6 @@ function completion(text: string) {
       "data: [DONE]\n\n",
     { headers: { "content-type": "text/event-stream" } },
   );
-}
-
-function countProvider() {
-  return vi.fn(async (url: unknown, init: RequestInit) => {
-    expect(String(url)).toBe("https://provider.example/v1/chat/completions");
-    const { messages } = JSON.parse(String(init.body));
-    expect(messages[0].content).toContain(
-      "preserve its exact number, scope and qualifications",
-    );
-    const { verifiedCount, evidence } = JSON.parse(messages.at(-1).content);
-    expect(verifiedCount).toMatchObject({
-      count: expect.any(Number),
-      source: 1,
-    });
-    expect(evidence).toHaveLength(1);
-    expect(evidence[0].source).toBe(1);
-    // The client still receives the verified public source if the model omits the citation marker.
-    return completion(verifiedCount.publicAnswer);
-  });
 }
 
 const season = (slug: string, body: string) => ({
@@ -433,14 +416,9 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
         },
       ]);
     context.token = (await createSession(accepted)).token;
-    const upstream = countProvider();
+    const upstream = vi.fn();
     vi.stubGlobal("fetch", upstream);
-    for (const question of [
-      "有多少人報名了",
-      "選手有多少",
-      "报名人数是多少？",
-      "How many people have registered?",
-    ]) {
+    for (const question of liruQuestions.registration) {
       const response = await ask(["你可以回答什麼", question], {
         edition: cup,
       });
@@ -473,9 +451,9 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     ).toContain(`historical roster lists ${archive.players.length}`);
     await seedEditions([{ ...season(cup, "Registration"), published: false }]);
     expect((await ask(["有多少人報名了"], { edition: cup })).status).toBe(404);
-    expect(upstream).toHaveBeenCalledTimes(6);
+    expect(upstream).not.toHaveBeenCalled();
   });
-  it("sends public season counts to generation and attaches matching citations without embedding", async () => {
+  it("returns public season counts and citations before any provider call", async () => {
     const archive = structuredClone(historicalArchive);
     const current = "empty-local-counts";
     await seedEditions([
@@ -492,7 +470,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       .insert(users)
       .values({ osuId: 1425071, username: "Local counts" });
     context.token = (await createSession(1425071)).token;
-    const upstream = countProvider();
+    const upstream = vi.fn();
     vi.stubGlobal("fetch", upstream);
     vi.stubEnv("OCLR_CHAT_EMBEDDING_MODEL", "synthetic-test");
     try {
@@ -523,7 +501,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       expect(
         await (await ask(["本屆有幾支隊伍？"], { edition: current })).text(),
       ).toContain("0 published teams");
-      expect(upstream).toHaveBeenCalledTimes(7);
+      expect(upstream).not.toHaveBeenCalled();
     } finally {
       vi.stubEnv("OCLR_CHAT_EMBEDDING_MODEL", "");
     }
@@ -547,8 +525,8 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       ["賽程還剩幾場？", 0, "schedule"],
       ["公開的賽果有幾場？", 1, "results"],
     ] as const) {
-      const { total } = await chatEvidence(slug, question, "");
-      expect(total, question).toMatchObject({
+      const { counts } = await chatEvidence(slug, question, "");
+      expect(counts?.entries[0].total, question).toMatchObject({
         count: expected,
         source: { url: `/tournaments/${slug}/${path}` },
       });
@@ -710,6 +688,24 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
         set: { profile },
       });
 
+    const alias = liruQuestions.publicAlias;
+    await db()
+      .insert(playerNames)
+      .values([
+        {
+          osuId: player.osuId,
+          username: alias.name,
+          source: "osu_previous",
+          published: true,
+        },
+        {
+          osuId: player.osuId,
+          username: alias.privateName,
+          source: "account",
+          published: false,
+        },
+      ])
+      .onConflictDoNothing();
     const question = "Synthetic Lookup是誰";
     const path = `/players/${player.osuId}`;
     const upstream = vi.fn(async (url: unknown, init: RequestInit) => {
@@ -727,13 +723,14 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       return completion("A public OCLR player.");
     });
     vi.stubGlobal("fetch", upstream);
-    for (const query of [question, "Who is synthetic lookup?", path]) {
+    for (const query of [question, path, ...alias.questions]) {
       expect((await chatEvidence(cup, query, "")).sources).toEqual([
         expect.objectContaining({ url: path, title: player.username }),
       ]);
     }
     for (const query of [
       "Hidden Applicant是誰",
+      alias.privateQuestion,
       `/players/${applicant.osuId}`,
     ]) {
       expect((await chatEvidence(cup, query, "")).sources).toEqual([]);
@@ -1046,7 +1043,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     const upstream = vi.fn();
     vi.stubEnv("OCLR_CHAT_EMBEDDING_MODEL", "synthetic-embedding");
     vi.stubGlobal("fetch", upstream);
-    const question = "從歷史記錄查看哪些選手擅長DT？";
+    const [question, ...variants] = liruQuestions.historicalDt;
     const request = await ask([question]);
     expect(request.status).toBe(200);
     const stream = await request.text();
@@ -1059,6 +1056,28 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     expect(stream).toContain(s6Top);
     expect(stream.indexOf(s7Top)).toBeLessThan(stream.indexOf(s6Top));
     expect(stream).toContain('"url":"/tournaments/s7/statistics"');
+
+    for (const variant of variants) {
+      const evidence = await chatEvidence(slug, variant, "");
+      expect(evidence.technical, variant).toMatchObject({
+        status: "mod-history",
+        report: {
+          category: "DT",
+        },
+      });
+      const result = evidence.technical;
+      expect(
+        result?.status === "mod-history" && result.report.rows.slice(0, 2),
+        variant,
+      ).toMatchObject([
+        { editionSlug: "s7", ratedMaps: 3, averageEffectiveRating: 2 },
+        {
+          editionSlug: "s6",
+          ratedMaps: 3,
+          averageEffectiveRating: expect.closeTo(1.6, 8),
+        },
+      ]);
+    }
 
     const scoped = await (await ask([question, "只看第六季"])).text();
     expect(scoped).toContain("| S6 | Historical Captain A [1] | 3 | 1.6 |");
@@ -1139,7 +1158,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
 
     const upstream = vi.fn();
     vi.stubGlobal("fetch", upstream);
-    const question = "本屆有多少隊長？";
+    const { count: question, recheck } = liruQuestions.captains;
     const current = await ask([question], { edition: captainEdition });
     expect(current.status).toBe(200);
     const currentStream = await current.text();
@@ -1148,7 +1167,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       '"url":"/tournaments/captain-count-test/teams"',
     );
 
-    const previous = await ask(["第3季有多少隊長？", "應該不止吧"], {
+    const previous = await ask(["第3季有多少隊長？", recheck], {
       edition: captainEdition,
       previousAnswers: ["4 位"],
     });
@@ -1160,7 +1179,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       .update(captains)
       .set({ published: false })
       .where(eq(captains.userId, fixture[0].osuId));
-    const rechecked = await ask([question, "應該不止吧"], {
+    const rechecked = await ask([question, recheck], {
       edition: captainEdition,
       previousAnswers: ["4 位"],
     });
@@ -1427,5 +1446,65 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     } finally {
       vi.stubEnv("OCLR_CHAT_MODEL", "test-chat");
     }
+  });
+  it("reuses the count across season changes and keeps unavailable counts distinct from zero", async () => {
+    const current = "s12";
+    const archive = {
+      ...structuredClone(historicalArchive),
+      editionSlug: "s13",
+      draftMode: "final-tiers" as const,
+      picks: [],
+    };
+    await seedEditions([
+      { ...season(current, "Count scope"), name: "Synthetic Season 12" },
+      {
+        ...edition,
+        slug: archive.editionSlug,
+        name: "Synthetic Season 13",
+        archive,
+        status: "completed",
+        registration: null,
+      },
+      { ...season("s14", "Unpublished"), published: false },
+    ]);
+    const user = { osuId: 1582006, username: "Synthetic count history reader" };
+    await db().insert(users).values(user);
+    context.token = (await createSession(user.osuId)).token;
+    const upstream = vi.fn();
+    vi.stubGlobal("fetch", upstream);
+
+    const askCount = async (questions: string[], previousAnswers?: string[]) =>
+      (await ask(questions, { edition: current, previousAnswers })).text();
+    const switched = await askCount(
+      ["本屆有幾支隊伍？", "那第十三季呢？", "再查一次"],
+      ["999 位", "777 位"],
+    );
+    expect(switched).toContain(
+      "Synthetic Season 13 · This season has 2 published teams.",
+    );
+    expect(switched).toContain("/tournaments/s13/teams");
+    expect(switched).not.toMatch(/\/tournaments\/s12\/teams|999|777/);
+
+    const counts = await askCount(["第十二季、第十三季有幾支隊伍？"]);
+    expect(counts).toContain(
+      "Synthetic Season 12 · This season has 0 published teams.",
+    );
+    expect(counts).toContain(
+      "Synthetic Season 13 · This season has 2 published teams.",
+    );
+    expect(counts).toContain("/tournaments/s12/teams");
+    expect(counts).toContain("/tournaments/s13/teams");
+
+    const unavailable = await askCount([
+      "How many published draft picks in Season 13?",
+    ]);
+    expect(unavailable).toContain(
+      "Published data for this analysis is currently unavailable.",
+    );
+    expect(unavailable).not.toContain("0 published draft picks");
+    expect(await askCount(["第十四季有幾支隊伍？"])).toContain(
+      "No published data is available for S14.",
+    );
+    expect(upstream).not.toHaveBeenCalled();
   });
 });

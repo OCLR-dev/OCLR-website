@@ -12,7 +12,11 @@ import {
 } from "./chat-draft-candidates";
 import { chatPlayerProfile, selfPlayerRequest } from "./chat-player-profile";
 import { artworkQuery, artworkSources } from "./chat-artwork";
-import { seasonCount, seasonCountIntent } from "./chat-season-counts";
+import {
+  seasonCount,
+  seasonCountRequest,
+  type SeasonCountReport,
+} from "./chat-season-counts";
 import {
   chatSeasonScope,
   seasonOnlyFollowup,
@@ -46,7 +50,7 @@ function nextMatchQuestion(question: string) {
 type ChatEvidence = {
   edition: string;
   sources: ChatSource[];
-  total: Awaited<ReturnType<typeof seasonCount>>;
+  counts?: SeasonCountReport;
   blocked?: NonNullable<ReturnType<typeof chatRequestBlockReason>>;
   technical?: Awaited<ReturnType<typeof chatTechnicalAnalysis>>;
   greeting?: true;
@@ -58,7 +62,6 @@ type ChatEvidence = {
   competitionPage?: true;
   artworkSearch?: string;
   seasonScope?: ChatSeasonSummary;
-  historicalCounts?: { unavailable: string[] };
 };
 
 export async function chatEvidence(
@@ -70,12 +73,12 @@ export async function chatEvidence(
   onEmbeddingFallback?: (error: unknown) => void,
   previousAnswer = "",
   requesterId?: number,
+  previousQuestions: readonly string[] = previous ? [previous] : [],
 ): Promise<ChatEvidence> {
   const selected = await getPublicEdition(slug);
   if (!selected) throw new HttpError(404, "Tournament not found.");
   const blocked = chatRequestBlockReason(question);
-  if (blocked)
-    return { edition: selected.name, blocked, total: null, sources: [] };
+  if (blocked) return { edition: selected.name, blocked, sources: [] };
   if (
     /^(?:(?:莉露[，,\s]*)?(?:你好|您好|嗨|哈[囉啰]|早安|早上好|午安|晚安)(?:[，,\s]*莉露)?|(?:hello|hi|hey|good morning|good afternoon|good evening)(?:[,\s]+liru)?)\s*[?!.，,。？！]*$/i.test(
       question.trim().normalize("NFKC"),
@@ -84,7 +87,6 @@ export async function chatEvidence(
     return {
       edition: selected.name,
       greeting: true as const,
-      total: null,
       sources: [],
     };
   if (
@@ -94,7 +96,6 @@ export async function chatEvidence(
   ) {
     return {
       edition: selected.name,
-      total: null,
       sources: [
         {
           title: selected.name,
@@ -107,7 +108,7 @@ export async function chatEvidence(
   const selfRequest =
     requesterId === undefined ? undefined : selfPlayerRequest(question);
   if (selfRequest === "identity")
-    return { edition: selected.name, selfRequest, total: null, sources: [] };
+    return { edition: selected.name, selfRequest, sources: [] };
 
   const draft = draftRecommendationRequest(question, previous);
   const direct = chatAnalysisIntent(question, "");
@@ -127,9 +128,37 @@ export async function chatEvidence(
         direct ? "" : previous,
         signal,
       ),
-      total: null,
       sources: [],
     };
+  const count = draft ? null : seasonCountRequest(question, previousQuestions);
+  if (count) {
+    const countScope = await chatSeasonScope(
+      selected,
+      count.scopeQuestion,
+      "",
+      false,
+    );
+    const editions = countScope?.editions ?? [selected];
+    const entries = [];
+    const sources = [];
+    for (const edition of editions) {
+      signal?.throwIfAborted();
+      const total = await seasonCount(edition, count.kind, now);
+      entries.push({ edition: edition.name, total });
+      if (total) sources.push(total.source);
+    }
+    return {
+      edition: editions.length === 1 ? editions[0].name : selected.name,
+      counts: {
+        entries,
+        unavailable: countScope?.summary.unavailable ?? [],
+        showEdition: countScope !== null,
+      },
+      seasonScope: countScope?.summary,
+      sources,
+    };
+  }
+
   // Prior answers can supply search terms for references, but only current
   // publication-checked hits are returned as evidence.
   const refersBack =
@@ -139,25 +168,12 @@ export async function chatEvidence(
   const previousSearch =
     refersBack && previousAnswer ? previous + "\n" + previousAnswer : previous;
 
-  const recheck =
-    previous &&
-    /^(?:(?:[應应][該该])?不[止只](?:吧|[嗎吗])?|(?:再|重新)[查算][一1]次|(?:are you sure|is that all|check again))[。？！?!.]*$/i.test(
-      question.normalize("NFKC").trim(),
-    );
-  const priorScope = recheck
-    ? await chatSeasonScope(selected, previous, "", false)
-    : null;
-  const priorQuestion = priorScope?.question || previous;
-  const recheckCaptains =
-    recheck && seasonCountIntent(priorQuestion) === "captains";
-  const scope = recheckCaptains
-    ? priorScope
-    : await chatSeasonScope(
-        selected,
-        question,
-        previous,
-        refersBack || !!draft?.previous,
-      );
+  const scope = await chatSeasonScope(
+    selected,
+    question,
+    previous,
+    refersBack || !!draft?.previous,
+  );
   if (draft) {
     const target =
       !scope || scope.summary.allPublished
@@ -169,7 +185,6 @@ export async function chatEvidence(
       edition: target?.name ?? selected.name,
       draftRecommendation: true as const,
       seasonScope: scope?.summary.allPublished ? undefined : scope?.summary,
-      total: null,
       sources: target
         ? await draftCandidateSources(target, question, draft.previous)
         : [],
@@ -186,14 +201,13 @@ export async function chatEvidence(
       selfRequest,
       playerProfile: true,
       seasonScope: scope?.summary,
-      total: null,
       sources: profile ? [profile] : [],
     };
   }
   if (!scope)
     return seasonEvidence(
       selected,
-      recheckCaptains ? priorQuestion : question,
+      question,
       previous,
       previousSearch,
       now,
@@ -219,7 +233,6 @@ export async function chatEvidence(
           scopedQuestion,
           previous,
           previousSearch,
-          now,
           signal,
           onEmbeddingFallback,
         );
@@ -232,36 +245,11 @@ async function historyEvidence(
   question: string,
   previous: string,
   previousSearch: string,
-  now: number,
   signal?: AbortSignal,
   onEmbeddingFallback?: (error: unknown) => void,
 ) {
-  const base = { edition: selected.name, total: null };
+  const base = { edition: selected.name };
   if (!editions.length) return { ...base, sources: [] };
-  const count = seasonCountIntent(question);
-  if (count) {
-    const sources = [];
-    const unavailableCounts = [];
-    for (const edition of editions) {
-      const result = await seasonCount(edition, count, now);
-      if (result)
-        sources.push({
-          ...result.source,
-          title: edition.name + " · " + result.source.title,
-          text: JSON.stringify({
-            edition: edition.name,
-            ...result,
-            source: undefined,
-          }),
-        });
-      else unavailableCounts.push(edition.name);
-    }
-    return {
-      ...base,
-      historicalCounts: { unavailable: unavailableCounts },
-      sources,
-    };
-  }
   const player = await chatPlayerProfile(selected, question, previous);
   if (player)
     return { ...base, playerProfile: true as const, sources: [player] };
@@ -323,20 +311,10 @@ async function seasonEvidence(
     return {
       edition: edition.name,
       artworkSearch: visual,
-      total: null,
       sources:
         indexed.length || !visual
           ? sources.slice(0, 8)
           : rankedSources(sources, visual, 8),
-    };
-  }
-  const countIntent = seasonCountIntent(question);
-  if (countIntent) {
-    const total = await seasonCount(edition, countIntent, now);
-    return {
-      edition: edition.name,
-      total,
-      sources: total ? [total.source] : [],
     };
   }
   if (mappoolLink) {
@@ -344,7 +322,6 @@ async function seasonEvidence(
     return {
       edition: edition.name,
       mappoolDirectory: true as const,
-      total: null,
       sources: [
         overview,
         ...rankedSources(maps, question + " " + previous, 6, true),
@@ -365,7 +342,6 @@ async function seasonEvidence(
       return {
         edition: edition.name,
         competitionPage: true as const,
-        total: null,
         sources: next
           ? [overview, matchSource(edition, next)]
           : [
@@ -383,7 +359,6 @@ async function seasonEvidence(
     return {
       edition: edition.name,
       competitionPage: true as const,
-      total: null,
       sources: [overview, ...rankedSources(details, context, 6, true)],
     };
   }
@@ -392,7 +367,6 @@ async function seasonEvidence(
     return {
       edition: edition.name,
       playerProfile: true as const,
-      total: null,
       sources: [player],
     };
   if (
@@ -403,7 +377,6 @@ async function seasonEvidence(
   ) {
     return {
       edition: edition.name,
-      total: null,
       sources: await searchSeasonIndex(
         edition,
         question,
@@ -419,7 +392,6 @@ async function seasonEvidence(
     return {
       edition: edition.name,
       playerDirectory: true as const,
-      total: null,
       sources: chatPlayerDirectorySources(
         slug,
         await chatDirectoryPlayers(edition),
@@ -508,5 +480,5 @@ async function seasonEvidence(
       s,
     ]),
   );
-  return { edition: edition.name, total: null, sources: [...unique.values()] };
+  return { edition: edition.name, sources: [...unique.values()] };
 }

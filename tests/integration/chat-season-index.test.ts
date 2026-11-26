@@ -36,6 +36,7 @@ import {
   statisticsSource,
 } from "../fixtures/archive-statistics";
 import { historicalArchive } from "../fixtures/historical-archive";
+import { liruQuestions } from "../fixtures/liru-regression-questions";
 import { sipRating } from "../fixtures/sip-response";
 import { assertTestDatabase } from "../database";
 
@@ -134,7 +135,8 @@ it.skipIf(!url)(
       .update(vectors)
       .set({ embeddingVector: null })
       .where(eq(vectors.editionSlug, archived.slug));
-    const question = "星際旋律是哪首？";
+    const { questions, title } = liruQuestions.beatmap;
+    const [question] = questions;
     const beforeBackfill = await searchSeasonIndex(archived, question, "");
     expect(
       beforeBackfill.some((s) => s.text.includes("Historical Title")),
@@ -160,6 +162,20 @@ it.skipIf(!url)(
           s.url.includes("/mappools/") && s.text.includes("Historical Title"),
       ),
     ).toBe(true);
+    for (const variant of questions) {
+      const evidence = await chatEvidence(archived.slug, variant, "");
+      expect(evidence.counts, variant).toBeUndefined();
+      expect(evidence.sources.slice(0, 8), variant).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            url: expect.stringContaining(
+              `/tournaments/${archived.slug}/mappools/`,
+            ),
+            text: expect.stringContaining(title),
+          }),
+        ]),
+      );
+    }
     expect(
       (await searchSeasonIndex(other, "星際旋律是哪首？", "")).some((s) =>
         s.text.includes("Historical Title"),
@@ -179,15 +195,23 @@ it.skipIf(!url)(
     expect(calls).toEqual([["星際旋律是哪首?"]]);
     expect(await chatEvidence(other.slug, "第七屆有幾隊？", "")).toMatchObject({
       edition: archived.name,
-      total: { kind: "teams", count: 2 },
+      counts: { entries: [{ total: { kind: "teams", count: 2 } }] },
     });
     const counts = await chatEvidence(other.slug, "歷屆有幾隊？", "");
     expect(counts).toMatchObject({
-      historicalCounts: { unavailable: [] },
+      counts: {
+        unavailable: [],
+        entries: expect.arrayContaining([
+          expect.objectContaining({
+            edition: archived.name,
+            total: expect.objectContaining({ kind: "teams", count: 2 }),
+          }),
+        ]),
+      },
       sources: expect.arrayContaining([
         expect.objectContaining({
           url: `/tournaments/${archived.slug}/teams`,
-          text: expect.stringContaining('"count":2'),
+          text: "teams: 2",
         }),
       ]),
     });
@@ -216,11 +240,13 @@ it.skipIf(!url)(
     const changed = structuredClone(archived);
     changed.archive.pools[0].maps[0].title = "Replacement track";
     await seedEditions([changed]);
-    expect(
-      (await searchSeasonIndex(changed, "Historical Title", "")).some((s) =>
-        s.text.includes("Historical Title"),
-      ),
-    ).toBe(false);
+    for (const variant of questions) {
+      const evidence = await chatEvidence(changed.slug, variant, "");
+      expect(
+        evidence.sources.some((source) => source.text.includes(title)),
+        variant,
+      ).toBe(false);
+    }
     calls.length = 0;
     expect(await refreshChatIndex()).toMatchObject({
       updated: 1,
@@ -1138,7 +1164,9 @@ it.skipIf(!url)(
         data: body.input.map((value: string, index: number) => ({
           object: "embedding",
           index,
-          embedding: /美少女|藍髮/.test(value) ? [1, 0] : [0, 1],
+          embedding: /美少女|藍髮|蓝发|anime girl/i.test(value)
+            ? [1, 0]
+            : [0, 1],
         })),
         model: body.model,
         usage: { prompt_tokens: 1, total_tokens: 1 },
@@ -1147,27 +1175,38 @@ it.skipIf(!url)(
     const indexed = await refreshChatIndex();
     expect(indexed.failed).toBe(0);
     expect(visions).toBe(3);
-    const visual = "譜面BG圖是美少女的譜面/map";
+    const {
+      original: visual,
+      standalone,
+      clarification,
+      questions,
+      expectedUrl,
+    } = liruQuestions.artwork;
     const results = (await chatEvidence(season.slug, visual, "選手有多少"))
       .sources;
     expect(results).toHaveLength(1);
     expect(results[0]).toMatchObject({
-      url: "https://osu.ppy.sh/beatmaps/123456",
+      url: expectedUrl,
       text: first,
     });
     expect(results[0].title).toContain(maps[0].slot);
-    const standalone = "有哪些背景圖有美少女";
     const evidence = await chatEvidence(season.slug, standalone, "");
     expect(evidence).toMatchObject({
       artworkSearch: "美少女",
       sources: results,
     });
     expect(
-      await chatEvidence(season.slug, "我說的就是譜面背景", standalone),
+      await chatEvidence(season.slug, clarification, standalone),
     ).toMatchObject({ artworkSearch: "美少女", sources: results });
-    expect(
-      await chatEvidence(season.slug, "藍髮的譜面背景圖有哪些？", ""),
-    ).toMatchObject({ artworkSearch: "藍髮", sources: results });
+    for (const { question, subject } of questions) {
+      const evidence = await chatEvidence(season.slug, question, "");
+      expect(evidence.artworkSearch, question).toContain(subject);
+      expect(evidence.sources.slice(0, 8), question).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ url: expectedUrl, text: first }),
+        ]),
+      );
+    }
     const livePath = `/tournaments/${live.slug}/mappools`;
     const liveUrl = "https://oclr.org" + livePath;
     const overview = await chatEvidence(live.slug, liveUrl, "");
