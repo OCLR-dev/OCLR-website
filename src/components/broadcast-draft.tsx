@@ -235,6 +235,9 @@ export function BroadcastDraft({
       data-broadcast
       data-background={background}
     >
+      {background === "opaque" && (
+        <div className={styles.starlight} aria-hidden="true" />
+      )}
       <header className={styles.header}>
         <div className={styles.branding}>
           <div className={styles.brand}>

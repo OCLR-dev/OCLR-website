@@ -30,9 +30,56 @@
     url("/branding/home-hero/nebula-v2-1600.webp") center / cover no-repeat;
   transform: scale(1.04);
 }
+.starlight {
+  --star-glow: radial-gradient(
+    circle,
+    #f5e9ff 0 7%,
+    #d9b8ffb3 12%,
+    #bd8cff45 30%,
+    transparent 65%
+  );
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.starlight::before,
+.starlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.38;
+}
+.starlight::before {
+  background:
+    var(--star-glow) 8% 1.1% / 13px 13px no-repeat,
+    var(--star-glow) 34% 2.4% / 8px 8px no-repeat,
+    var(--star-glow) 1.2% 29% / 12px 12px no-repeat,
+    var(--star-glow) 65.4% 48% / 10px 10px no-repeat,
+    var(--star-glow) 98.1% 37% / 15px 15px no-repeat,
+    var(--star-glow) 43% 98.8% / 13px 13px no-repeat,
+    var(--star-glow) 84% 97.8% / 9px 9px no-repeat;
+}
+.starlight::after {
+  background:
+    var(--star-glow) 19% 2% / 8px 8px no-repeat,
+    var(--star-glow) 71% 1.3% / 15px 15px no-repeat,
+    var(--star-glow) 90% 2.1% / 10px 10px no-repeat,
+    var(--star-glow) 0.8% 67% / 10px 10px no-repeat,
+    var(--star-glow) 31% 52.1% / 13px 13px no-repeat,
+    var(--star-glow) 98.7% 76% / 10px 10px no-repeat,
+    var(--star-glow) 21% 98.2% / 15px 15px no-repeat,
+    var(--star-glow) 66% 98.7% / 9px 9px no-repeat;
+}
 @media (prefers-reduced-motion: no-preference) {
   .broadcast[data-background="opaque"]::before {
     animation: galaxy-drift 52s ease-in-out infinite alternate;
+  }
+  .starlight::before {
+    animation: star-twinkle 8s ease-in-out infinite;
+  }
+  .starlight::after {
+    animation: star-twinkle 11s -4s ease-in-out infinite;
   }
 }
 @keyframes galaxy-drift {
@@ -41,6 +88,18 @@
   }
   to {
     transform: translate3d(2%, -1.5%, 0) scale(1.12);
+  }
+}
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 0.28;
+  }
+  40% {
+    opacity: 0.86;
+  }
+  72% {
+    opacity: 0.44;
   }
 }
 .header {
