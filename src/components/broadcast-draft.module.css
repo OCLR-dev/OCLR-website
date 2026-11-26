@@ -110,6 +110,11 @@
   margin: 0 0 10px;
   overflow-wrap: anywhere;
 }
+.selection .firstPick {
+  color: #e9b8fc;
+  font-size: clamp(2rem, 4vw, 4rem);
+  line-height: 1.16;
+}
 .destination {
   line-height: 1.2;
   color: #e9b8fc;

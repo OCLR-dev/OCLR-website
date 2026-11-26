@@ -222,6 +222,9 @@ export function BroadcastDraft({
     return () => animations.forEach((a) => a.cancel());
   }, [board, connected, received]);
   const latest = board?.picks.at(-1);
+  const seasonEleven = slug === "s11" || slug === "dev-s11";
+  const waitingForFirstPick = !latest && board?.state === "live";
+  const showFirstPickHeadline = seasonEleven && waitingForFirstPick;
   const ratings = latest?.ratings;
   const ratingNumber = new Intl.NumberFormat(tr.locale, {
     maximumFractionDigits: 2,
@@ -240,7 +243,7 @@ export function BroadcastDraft({
     >
       <header className={styles.header}>
         <div className={styles.brand}>
-          {slug === "s11" || slug === "dev-s11" ? (
+          {seasonEleven ? (
             <Image
               src="/branding/oclr-s11-logo.svg"
               alt="OCLR S11"
@@ -277,29 +280,31 @@ export function BroadcastDraft({
           data-featured
           aria-label={tr("Latest published selection")}
         >
-          <div className={styles.selectionHeading}>
-            <p className={styles.stageLabel}>
-              {latest
-                ? latest.roundPosition
-                  ? tr(
-                      "Round {round} · Pick {position} · Overall pick {overall}",
-                      {
-                        ...latest.roundPosition,
+          {!showFirstPickHeadline && (
+            <div className={styles.selectionHeading}>
+              <p className={styles.stageLabel}>
+                {latest
+                  ? latest.roundPosition
+                    ? tr(
+                        "Round {round} · Pick {position} · Overall pick {overall}",
+                        {
+                          ...latest.roundPosition,
+                          overall: latest.turnIndex + 1,
+                        },
+                      )
+                    : tr("Overall pick {overall}", {
                         overall: latest.turnIndex + 1,
-                      },
-                    )
-                  : tr("Overall pick {overall}", {
-                      overall: latest.turnIndex + 1,
-                    })
-                : tr("Latest published selection")}
-            </p>
-            {latest?.tier ? (
-              <DraftTierBadge
-                tier={latest.tier}
-                className={styles.featuredTier}
-              />
-            ) : null}
-          </div>
+                      })
+                  : tr("Latest published selection")}
+              </p>
+              {latest?.tier ? (
+                <DraftTierBadge
+                  tier={latest.tier}
+                  className={styles.featuredTier}
+                />
+              ) : null}
+            </div>
+          )}
           <div
             className={styles.featured}
             aria-live="polite"
@@ -307,8 +312,14 @@ export function BroadcastDraft({
           >
             {latest && <Portrait player={latest.player} featured />}
             <div className={styles.identity}>
-              <h2 data-reveal="name">
-                {latest?.player.username ?? tr("No picks published yet.")}
+              <h2
+                data-reveal="name"
+                className={showFirstPickHeadline ? styles.firstPick : undefined}
+              >
+                {latest?.player.username ??
+                  (showFirstPickHeadline
+                    ? tr("The OCLR S11 first overall pick is...")
+                    : tr("No picks published yet."))}
               </h2>
               {latest ? (
                 <>
@@ -426,7 +437,11 @@ export function BroadcastDraft({
           {latest ? (
             <BroadcastRatingRadars ratings={ratings} />
           ) : (
-            <p className={styles.caption}>{tr("No rating data")}</p>
+            <p className={styles.caption}>
+              {waitingForFirstPick
+                ? tr("Draft in progress...")
+                : tr("No rating data")}
+            </p>
           )}
         </section>
         <section
@@ -457,7 +472,9 @@ export function BroadcastDraft({
             </ol>
           ) : (
             <p className={styles.caption}>
-              {tr("No selections published yet.")}
+              {waitingForFirstPick
+                ? tr("Draft in progress...")
+                : tr("No selections published yet.")}
             </p>
           )}
         </section>
