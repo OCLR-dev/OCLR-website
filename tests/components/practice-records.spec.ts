@@ -359,6 +359,82 @@ for (const theme of ["light", "dark"]) {
   });
 }
 
+test("autosave keeps newer edits across Mods and confirms the same request after a failure", async ({
+  page,
+}) => {
+  await page.clock.install({ time: new Date("2026-11-01T12:00:00Z") });
+  await page.clock.pauseAt(new Date("2026-11-01T12:01:00Z"));
+  const firstSave = Promise.withResolvers<void>();
+  const writes: Record<string, unknown>[] = [];
+  await page.route(
+    "**/api/tournaments/synthetic/player/practice",
+    async (route) => {
+      writes.push(route.request().postDataJSON());
+      const attempt = writes.length;
+      if (attempt === 1) await firstSave.promise;
+      if (attempt === 2) await route.abort();
+      else
+        await route.fulfill({
+          json: { saved: true, version: attempt === 1 ? 2 : attempt },
+        });
+    },
+  );
+  await page.goto("/practice-records");
+  const form = page.getByRole("form", { name: "My practice: NM1" });
+  const score = form.getByLabel("Practice score", { exact: true });
+  const comment = form.getByRole("textbox", {
+    name: "Practice comment",
+    exact: true,
+  });
+  await score.fill("910000");
+  await form
+    .getByRole("combobox", { name: "Feel", exact: true })
+    .selectOption("good");
+  await comment.fill("First note");
+  await expect(form.getByRole("status")).toHaveText("Unsaved changes");
+  await page.clock.runFor(749);
+  expect(writes).toHaveLength(0);
+  await page.clock.runFor(1);
+  await expect.poll(() => writes.length).toBe(1);
+  expect(writes[0]).toMatchObject({
+    expectedVersion: 1,
+    score: 910000,
+    feel: "good",
+    comment: "First note",
+  });
+  await expect(form.getByRole("status")).toHaveText("Saving…");
+
+  await comment.fill("Second note");
+  await page.getByRole("tab", { name: "HD", exact: true }).press("Enter");
+  await page.clock.runFor(750);
+  expect(writes).toHaveLength(1);
+  firstSave.resolve();
+  await page.getByRole("tab", { name: "NM", exact: true }).press("Enter");
+  await expect(comment).toHaveValue("Second note");
+  await expect(form.getByRole("status")).toHaveText("Unsaved changes");
+  await page.clock.runFor(750);
+  await expect(form.getByRole("alert")).toBeVisible();
+  expect(writes[1]).toMatchObject({
+    expectedVersion: 2,
+    comment: "Second note",
+  });
+
+  await comment.fill("Latest note");
+  await page.clock.runFor(750);
+  expect(writes).toHaveLength(2);
+  await form.getByRole("button", { name: "Retry" }).press("Enter");
+  await expect.poll(() => writes.length).toBe(3);
+  expect(writes[2]).toEqual(writes[1]);
+  await expect(comment).toHaveValue("Latest note");
+  await expect(form.getByRole("status")).toHaveText("Unsaved changes");
+  await page.clock.runFor(750);
+  await expect(form.getByRole("status")).toHaveText("Saved");
+  expect(writes[3]).toMatchObject({
+    expectedVersion: 3,
+    comment: "Latest note",
+  });
+});
+
 test("leaves the Mod tabs without activating an arrow-focused tab", async ({
   page,
 }) => {

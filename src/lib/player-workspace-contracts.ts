@@ -38,7 +38,7 @@ export const practiceWrite = {
   path: "/api/tournaments/{edition}/player/practice",
   request: practiceCommandSchema,
   summary: "Save or delete the signed-in player's own practice record",
-  description: `The mappool entry must be published. expectedContext must match the current chart and mod policy. Deletion returns the same versioned receipt as a save. ${workspacePolicy}`,
+  description: `The mappool entry must be published. The draft lock does not disable practice writes during an active edition. expectedContext must match the current chart and mod policy. Deletion returns the same versioned receipt as a save. ${workspacePolicy}`,
   errors: {
     ...errors,
     404: "The workspace, published mappool entry, or record is unavailable.",

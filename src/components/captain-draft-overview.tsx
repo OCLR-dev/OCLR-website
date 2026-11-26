@@ -12,13 +12,17 @@ export function CaptainDraftOverview({
   ownTeamId: string;
 }) {
   const tr = useAppTranslations();
+  const hasPicks = board.picks.length > 0;
   return (
     <div className="captain-draft-overview">
-      <section aria-label={tr("Team rosters")}>
+      <section
+        className="captain-roster-section"
+        aria-label={tr("Team rosters")}
+      >
         <div className="draft-room-heading">
           <h2>{tr("Team rosters")}</h2>
           <a className="context-link small" href="#captain-own-team">
-            {tr("My team")} ↑
+            {tr("My team")} <span aria-hidden="true">↑</span>
           </a>
         </div>
         <div className="captain-rosters">
@@ -56,13 +60,16 @@ export function CaptainDraftOverview({
       </section>
       <section
         className="captain-history"
+        data-empty={!hasPicks}
         aria-label={tr("Published pick history")}
       >
         <div className="draft-room-heading">
           <h2>{tr("Pick history")}</h2>
-          <span className="muted small">{board.picks.length}</span>
+          {hasPicks && (
+            <span className="muted small">{board.picks.length}</span>
+          )}
         </div>
-        {board.picks.length ? (
+        {hasPicks ? (
           <ol
             className="captain-picks"
             reversed

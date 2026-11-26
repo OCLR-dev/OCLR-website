@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, type ComponentProps } from "react";
+import { useEffect, useId, useRef, useState, type ComponentProps } from "react";
 import dynamic from "next/dynamic";
 import { useAppTranslations } from "@/i18n/shared";
 import type { ScheduleWorkspace } from "@/lib/schedule-reads";
@@ -78,6 +78,7 @@ function FixtureEditor({
       timeStyle: "short",
     }).format(new Date(value));
   const canCaptain = data.captain && f.participant;
+  const availabilityHeading = useId();
   const action = (action: string, label: string, description?: string) => (
     <Mutation
       key={JSON.stringify([action, request?.version, f.version, note])}
@@ -349,22 +350,53 @@ function FixtureEditor({
         </div>
       )}
       {canCaptain && (
-        <section>
-          <h3>{tr("Team availability")}</h3>
-          <p className="muted">
-            {tr("{value0} players have not submitted availability.", {
-              value0: f.unreported,
-            })}
-          </p>
-          <ul>
-            {f.roster.map((m) => (
-              <li key={m.userId}>
-                <strong>{m.username}</strong>:{" "}
-                {m.intervals.length
-                  ? m.intervals
-                      .map((i) => `${time(i.start)} – ${time(i.end)}`)
-                      .join("; ")
-                  : tr("Not submitted")}
+        <section
+          className="schedule-team-availability"
+          aria-labelledby={availabilityHeading}
+        >
+          <div className="schedule-availability-heading">
+            <h3 id={availabilityHeading}>{tr("Team availability")}</h3>
+            {f.roster.length > 0 && (
+              <label className="schedule-availability-progress">
+                <span className="muted small">
+                  {tr("{value0} of {value1} players submitted availability", {
+                    value0: f.roster.length - f.unreported,
+                    value1: f.roster.length,
+                  })}
+                </span>
+                <progress
+                  value={f.roster.length - f.unreported}
+                  max={f.roster.length}
+                />
+              </label>
+            )}
+          </div>
+          <ul className="schedule-availability-roster">
+            {f.roster.map((member) => (
+              <li key={member.userId}>
+                <div className="schedule-availability-member">
+                  <strong>{member.username}</strong>
+                  {member.intervals.length === 0 && (
+                    <span className="badge status-pending">
+                      {tr("Not submitted")}
+                    </span>
+                  )}
+                </div>
+                {member.intervals.length > 0 && (
+                  <ul className="schedule-availability-intervals">
+                    {member.intervals.map((interval) => (
+                      <li key={`${interval.start}-${interval.end}`}>
+                        <time dateTime={interval.start}>
+                          {time(interval.start)}
+                        </time>
+                        {" – "}
+                        <time dateTime={interval.end}>
+                          {time(interval.end)}
+                        </time>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ul>

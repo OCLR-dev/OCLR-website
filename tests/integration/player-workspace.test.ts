@@ -962,7 +962,7 @@ describe.skipIf(!url)("private player workspace #671", () => {
       vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
     }
   });
-  it("allows Developer personal practice and availability while keeping locked/completed editions read-only", async () => {
+  it("keeps practice writable during the draft lock and both workspaces read-only when completed", async () => {
     const cmd = await practice();
     await db().insert(staffRoles).values({
       userId: p.osuId,
@@ -985,6 +985,14 @@ describe.skipIf(!url)("private player workspace #671", () => {
       .update(editionState)
       .set({ lockedAt: new Date() })
       .where(eq(editionState.slug, slug));
+    expect((await playerPracticeWorkspace(p, slug)).readOnly).toBe(false);
+    await expect(
+      playerPracticeCommand(
+        p,
+        slug,
+        await practice(p, { expectedVersion: 1, score: 920000 }),
+      ),
+    ).resolves.toMatchObject({ saved: true, version: 2 });
     expect((await playerTimetableWorkspace(p, slug)).canEdit).toBe(false);
     await expect(
       playerTimetableCommand(p, slug, timetable({ expectedVersion: 1 })),
@@ -998,7 +1006,7 @@ describe.skipIf(!url)("private player workspace #671", () => {
       .where(eq(editionState.slug, slug));
     expect((await playerPracticeWorkspace(p, slug)).readOnly).toBe(true);
     await expect(
-      playerPracticeCommand(p, slug, await practice(p, { expectedVersion: 1 })),
+      playerPracticeCommand(p, slug, await practice(p, { expectedVersion: 2 })),
     ).rejects.toMatchObject({ status: 409 });
   });
 });

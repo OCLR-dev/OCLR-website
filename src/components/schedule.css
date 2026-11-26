@@ -54,6 +54,67 @@
   padding: 0.75rem 0;
   border-bottom: 1px solid var(--site-border);
 }
+.schedule-team-availability {
+  display: grid;
+  gap: 0.75rem;
+  padding-block: 1rem;
+  border-block: 1px solid var(--site-border);
+}
+.schedule-availability-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+.schedule-availability-heading h3 {
+  margin: 0;
+}
+.schedule-availability-progress {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+}
+.schedule-availability-progress progress {
+  width: min(8rem, 100%);
+  height: 0.5rem;
+  accent-color: var(--site-primary);
+}
+.schedule-availability-roster,
+.schedule-availability-intervals {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.schedule-availability-roster {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  align-items: start;
+  gap: 0.5rem;
+}
+.schedule-availability-roster > li {
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--site-border);
+  border-radius: var(--radius-panel);
+  background: var(--site-raised);
+}
+.schedule-availability-member {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  overflow-wrap: anywhere;
+}
+.schedule-availability-intervals {
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+  font-size: var(--text-support);
+  color: var(--site-muted);
+}
 .schedule-tool select,
 .schedule-tool textarea {
   max-width: 100%;
