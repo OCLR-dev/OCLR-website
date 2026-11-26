@@ -276,26 +276,26 @@ export function BroadcastDraft({
           data-featured
           aria-label={tr("Latest published selection")}
         >
-          <p className={styles.stageLabel}>
-            {latest
-              ? latest.roundPosition
-                ? tr(
-                    "Round {round} · Pick {position} · Overall pick {overall}",
-                    {
-                      ...latest.roundPosition,
+          <div className={styles.selectionHeading}>
+            <p className={styles.stageLabel}>
+              {latest
+                ? latest.roundPosition
+                  ? tr(
+                      "Round {round} · Pick {position} · Overall pick {overall}",
+                      {
+                        ...latest.roundPosition,
+                        overall: latest.turnIndex + 1,
+                      },
+                    )
+                  : tr("Overall pick {overall}", {
                       overall: latest.turnIndex + 1,
-                    },
-                  )
-                : tr("Overall pick {overall}", {
-                    overall: latest.turnIndex + 1,
-                  })
-              : tr("THE NEXT TEAM STORY")}
+                    })
+                : tr("THE NEXT TEAM STORY")}
+            </p>
             {latest?.tier ? (
-              <span
-                className={styles.pickTier}
-              >{` / Tier ${latest.tier}`}</span>
+              <span className={styles.tierBadge}>{`Tier ${latest.tier}`}</span>
             ) : null}
-          </p>
+          </div>
           <div
             className={styles.featured}
             aria-live="polite"
@@ -434,10 +434,10 @@ export function BroadcastDraft({
         <section
           className={styles.history}
           data-history
-          aria-label={tr("Recent published selections")}
+          aria-labelledby="broadcast-results-heading"
           tabIndex={0}
         >
-          <h2>{tr("Recent draft results")}</h2>
+          <h2 id="broadcast-results-heading">{tr("Draft results")}</h2>
           {board?.picks.length ? (
             <ol>
               {board.picks
@@ -456,11 +456,7 @@ export function BroadcastDraft({
                           className={styles.historyTier}
                         >{`Tier ${pick.tier}`}</small>
                       ) : null}
-                      <p>
-                        {tr("Captain {value0}", {
-                          value0: pick.team.captain.username,
-                        })}
-                      </p>
+                      <p>{pick.team.name}</p>
                     </div>
                   </li>
                 ))}
