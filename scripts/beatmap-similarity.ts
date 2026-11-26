@@ -10,6 +10,11 @@ import {
   snapshotSchema,
 } from "./beatmap-similarity-data";
 import { compareBeatmaps, describePools } from "./beatmap-similarity-ranking";
+import {
+  practiceSnapshotSchema,
+  readPracticeSnapshot,
+} from "./player-practice-data";
+import { playerPractice } from "./player-practice";
 
 const usage = `
 npm run beatmap:similarity -- snapshot [--editions s9,s10] [--osu-dir DIR]
@@ -20,7 +25,11 @@ npm run beatmap:similarity -- query --bid BID --mod MOD [--profile base|skills]
 npm run beatmap:similarity -- distribution
   [--editions s9,s10 | --snapshot FILE] [--osu-dir DIR] [--pool EDITION:POOL_ID]
 
-The query reads BEATMAP_SIMILARITY_DATABASE_URL for a PostgreSQL server with pgvector.
+npm run beatmap:similarity -- practice-snapshot [--osu-dir DIR]
+npm run beatmap:similarity -- player --osu-id ID [--validate]
+  [--snapshot FILE | --osu-dir DIR]
+
+The query and player commands read BEATMAP_SIMILARITY_DATABASE_URL for a PostgreSQL server with pgvector.
 JSON is written to stdout. Archive snapshots can be replayed offline.
 `;
 
@@ -83,8 +92,42 @@ async function main([command, ...args]: string[]) {
     );
     return;
   }
+  if (command === "practice-snapshot") {
+    const { values } = parseArgs({ args, options: { "osu-dir": string } });
+    console.log(
+      JSON.stringify(await readPracticeSnapshot(values["osu-dir"]), null, 2),
+    );
+    return;
+  }
+  if (command === "player") {
+    const { values } = parseArgs({
+      args,
+      options: {
+        "osu-id": string,
+        snapshot: string,
+        "osu-dir": string,
+        validate: { type: "boolean", default: false },
+      },
+    });
+    const osuId = bidSchema.parse(numericFlag(values["osu-id"], "--osu-id"));
+    if (values.snapshot !== undefined && values["osu-dir"] !== undefined)
+      throw new Error(
+        "--snapshot already contains the public map file features.",
+      );
+    const snapshot =
+      values.snapshot === undefined
+        ? await readPracticeSnapshot(values["osu-dir"])
+        : practiceSnapshotSchema.parse(
+            JSON.parse(await readFile(values.snapshot, "utf8")),
+          );
+    const report = await withDatabase((db) =>
+      playerPractice(db, snapshot, osuId, values.validate),
+    );
+    console.log(JSON.stringify(report, null, 2));
+    return;
+  }
   if (command !== "query")
-    throw new Error("Expected snapshot, query or distribution. Use --help.");
+    throw new Error("Unknown beatmap similarity command. Use --help.");
   const { values } = parseArgs({
     args,
     options: {
@@ -116,12 +159,28 @@ async function main([command, ...args]: string[]) {
     .min(1)
     .max(100)
     .parse(numericFlag(values.repeat, "--repeat") ?? 1);
+  const snapshot = await loadSnapshot(values);
+  const report = await withDatabase((db) =>
+    compareBeatmaps(db, snapshot, {
+      bid,
+      mod,
+      profile,
+      candidateEdition,
+      pool,
+      minStars,
+      maxStars,
+      repeat,
+    }),
+  );
+  console.log(JSON.stringify(report, null, 2));
+}
+
+async function withDatabase<T>(read: (db: Client) => Promise<T>) {
   const connectionString = process.env.BEATMAP_SIMILARITY_DATABASE_URL;
   if (!connectionString)
     throw new Error(
       "Set BEATMAP_SIMILARITY_DATABASE_URL to a PostgreSQL database with pgvector.",
     );
-  const snapshot = await loadSnapshot(values);
   const db = new Client({
     connectionString,
     connectionTimeoutMillis: 5_000,
@@ -133,17 +192,7 @@ async function main([command, ...args]: string[]) {
     } catch {
       throw new Error("Cannot connect to BEATMAP_SIMILARITY_DATABASE_URL.");
     }
-    const report = await compareBeatmaps(db, snapshot, {
-      bid,
-      mod,
-      profile,
-      candidateEdition,
-      pool,
-      minStars,
-      maxStars,
-      repeat,
-    });
-    console.log(JSON.stringify(report, null, 2));
+    return await read(db);
   } finally {
     await db.end();
   }

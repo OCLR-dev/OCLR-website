@@ -28,6 +28,7 @@ type Query = Filters & {
   mod: NonNullable<Slot["mod"]>;
   profile: keyof typeof profiles;
   repeat: number;
+  allowedBids?: ReadonlySet<number>;
 };
 type VerifiedSlot = Slot & {
   bid: number;
@@ -36,7 +37,7 @@ type VerifiedSlot = Slot & {
 };
 type MapVersion = VerifiedSlot & { sources: VerifiedSlot[] };
 
-function latestVersions(slots: Slot[], mod: Query["mod"]) {
+export function latestVersions(slots: Slot[], mod: Query["mod"]) {
   const versions = new Map<number, MapVersion>();
   const ordered = slots
     .filter(
@@ -295,6 +296,7 @@ export async function compareBeatmaps(
   const candidates = reference.filter(
     (row) =>
       row.bid !== input.bid &&
+      (!query.allowedBids || query.allowedBids.has(row.bid)) &&
       !poolBids.has(row.bid) &&
       (!query.candidateEdition ||
         row.sources.some(
