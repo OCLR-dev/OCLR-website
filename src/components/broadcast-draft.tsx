@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useAppTranslations } from "@/i18n/shared";
 
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef, type CSSProperties } from "react";
 import type {
   BroadcastBoard,
   DraftBoard,
@@ -76,6 +76,20 @@ function Portrait({
     </div>
   );
 }
+const tierHues = [165, 215, 282, 43, 338];
+
+function TierBadge({ tier }: { tier: number }) {
+  const hue = tierHues[tier - 1] ?? (tier * 137.508) % 360;
+  return (
+    <span
+      className={styles.tierBadge}
+      style={{ "--tier-hue": hue } as CSSProperties}
+    >
+      {`Tier ${tier}`}
+    </span>
+  );
+}
+
 const format = (value: number | null | undefined) =>
   value == null
     ? "—"
@@ -292,9 +306,7 @@ export function BroadcastDraft({
                     })
                 : tr("THE NEXT TEAM STORY")}
             </p>
-            {latest?.tier ? (
-              <span className={styles.tierBadge}>{`Tier ${latest.tier}`}</span>
-            ) : null}
+            {latest?.tier ? <TierBadge tier={latest.tier} /> : null}
           </div>
           <div
             className={styles.featured}
@@ -437,7 +449,7 @@ export function BroadcastDraft({
           aria-labelledby="broadcast-results-heading"
           tabIndex={0}
         >
-          <h2 id="broadcast-results-heading">{tr("Draft results")}</h2>
+          <h2 id="broadcast-results-heading">{tr("Recent draft results")}</h2>
           {board?.picks.length ? (
             <ol>
               {board.picks
@@ -453,11 +465,7 @@ export function BroadcastDraft({
                       <strong>{pick.player.username}</strong>
                       <p>{pick.team.name}</p>
                     </div>
-                    {pick.tier ? (
-                      <span
-                        className={styles.tierBadge}
-                      >{`Tier ${pick.tier}`}</span>
-                    ) : null}
+                    {pick.tier ? <TierBadge tier={pick.tier} /> : null}
                   </li>
                 ))}
             </ol>

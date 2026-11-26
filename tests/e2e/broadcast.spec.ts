@@ -213,7 +213,7 @@ test.describe("published OBS browser-source rehearsal", () => {
     await expect(page.locator("[data-state]")).toHaveText("Rosters finalized");
     await expect(current).toContainText("Teams assembled.");
     await expect(
-      page.getByRole("region", { name: "Draft results" }).getByRole("listitem"),
+      page.getByRole("region", { name: "Recent draft results" }).getByRole("listitem"),
     ).toHaveCount(4);
     expect(
       (

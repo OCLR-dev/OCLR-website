@@ -103,10 +103,10 @@
 .tierBadge {
   justify-self: end;
   padding: 0.25rem 0.7rem;
-  border: 1px solid #ad76c6;
+  border: 1px solid hsl(var(--tier-hue) 70% 67% / 0.8);
   border-radius: 0.45rem;
-  background: #6a388247;
-  color: #f2d4ff;
+  background: hsl(var(--tier-hue) 65% 62% / 0.16);
+  color: hsl(var(--tier-hue) 95% 88%);
   font-size: clamp(0.8rem, 1.15vw, 1.1rem);
   font-weight: 700;
   line-height: 1.2;
