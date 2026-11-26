@@ -200,7 +200,7 @@ export async function refreshChatIndex(
         } catch (error) {
           counts.failed++;
           report("source-read", undefined, error);
-          reportIndex({ ...progress, status: "error" });
+          reportIndex({ ...progress, status: "error" } as const);
           if (isArtwork) reportArtwork({ edition: slug, status: "error" });
           continue;
         }
@@ -339,7 +339,7 @@ export async function refreshChatIndex(
           completed: completed.size,
           pending: current.size - completed.size,
           failed: failed.size,
-        });
+        } as const);
 
         if (artwork) {
           const artworkProgress = {
