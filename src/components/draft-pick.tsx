@@ -7,6 +7,7 @@ import { useAppTranslations } from "@/i18n/shared";
 import { useId, useRef, useState } from "react";
 import type { DraftIdentity, DraftTeam } from "@/lib/draft-types";
 import { Avatar } from "./avatar";
+import { DraftTierBadge } from "./draft-tier-badge";
 function PlayerIdentity({ player }: { player: DraftIdentity }) {
   const tr = useAppTranslations();
 
@@ -306,17 +307,12 @@ export function DraftPick({
           }
         >
           {roster.map((p) => {
-            const tier = tiers?.get(p.osuId);
+            const tier =
+              p.osuId === team.captain.osuId ? 0 : tiers?.get(p.osuId);
             return (
               <li key={p.osuId}>
                 <PlayerIdentity player={p} />
-                {p.osuId === team.captain.osuId ? (
-                  <span className="badge">
-                    {tiers ? "Captain" : tr("Captain")}
-                  </span>
-                ) : tier ? (
-                  <span className="badge">{`Tier ${tier}`}</span>
-                ) : null}
+                {tier !== undefined && <DraftTierBadge tier={tier} />}
               </li>
             );
           })}

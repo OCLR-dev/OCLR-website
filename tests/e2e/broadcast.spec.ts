@@ -114,9 +114,7 @@ test.describe("published OBS browser-source rehearsal", () => {
         .locator("[data-broadcast]")
         .evaluate((el) => getComputedStyle(el).backgroundColor),
     ).toBe("rgb(9, 12, 23)");
-    await expect(selection).toContainText(
-      "Selections appear here when published.",
-    );
+    await expect(selection).toContainText("No picks published yet.");
     await pick(captain, fixture.players[0].osuId);
     await page.waitForResponse(
       (res) => new URL(res.url()).pathname === endpoint && res.status() === 200,
@@ -213,7 +211,9 @@ test.describe("published OBS browser-source rehearsal", () => {
     await expect(page.locator("[data-state]")).toHaveText("Rosters finalized");
     await expect(current).toContainText("Teams assembled.");
     await expect(
-      page.getByRole("region", { name: "Recent draft results" }).getByRole("listitem"),
+      page
+        .getByRole("region", { name: "Recent draft results" })
+        .getByRole("listitem"),
     ).toHaveCount(4);
     expect(
       (
@@ -282,7 +282,7 @@ test.describe("published OBS browser-source rehearsal", () => {
     expect(hidden.status()).toBe(200);
     await expect(
       selection.getByRole("heading", {
-        name: "The stage is ready.",
+        name: "No picks published yet.",
         exact: true,
       }),
     ).toBeVisible();

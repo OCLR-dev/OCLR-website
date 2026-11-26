@@ -100,17 +100,10 @@
 .selectionHeading .stageLabel {
   margin-bottom: 0;
 }
-.tierBadge {
+.selectionHeading .featuredTier {
   justify-self: end;
   padding: 0.25rem 0.7rem;
-  border: 1px solid hsl(var(--tier-hue) 70% 67% / 0.8);
-  border-radius: 0.45rem;
-  background: hsl(var(--tier-hue) 65% 62% / 0.16);
-  color: hsl(var(--tier-hue) 95% 88%);
   font-size: clamp(0.8rem, 1.15vw, 1.1rem);
-  font-weight: 700;
-  line-height: 1.2;
-  white-space: nowrap;
 }
 .selection h2 {
   font-size: clamp(28px, 2.4vw, 46px);
@@ -219,10 +212,6 @@
 .history strong {
   font-size: clamp(14px, 1vw, 18px);
   overflow-wrap: anywhere;
-}
-.history .tierBadge {
-  padding: 0.15rem 0.45rem;
-  font-size: 0.75rem;
 }
 .history li p {
   white-space: nowrap;

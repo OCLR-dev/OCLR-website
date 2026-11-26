@@ -1,6 +1,7 @@
 import { useAppTranslations } from "@/i18n/shared";
 import type { DraftBoard } from "@/lib/draft-types";
 import { Avatar } from "./avatar";
+import { DraftTierBadge } from "./draft-tier-badge";
 
 function PickList({
   picks,
@@ -96,11 +97,7 @@ export function DraftOverview({
                         >
                           {player.username}
                         </a>
-                        {tier !== undefined && (
-                          <span className="captain-roster-tier">
-                            {tier === 0 ? "Captain" : `Tier ${tier}`}
-                          </span>
-                        )}
+                        {tier !== undefined && <DraftTierBadge tier={tier} />}
                       </li>
                     );
                   })}

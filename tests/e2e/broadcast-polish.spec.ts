@@ -274,7 +274,7 @@ test.describe("OBS identity and one-time transitions", () => {
     expect(await animated()).toEqual([]);
     board = null;
     await expect(page.locator("[data-featured]")).toContainText(
-      "The stage is ready.",
+      "No picks published yet.",
     );
     board = { ...valid, sessionId: "replacement-session" };
     await expect(page.locator("[data-featured]")).toContainText("990002");

@@ -5624,16 +5624,6 @@ body:has([data-broadcast]) .site-shell {
   font-size: var(--text-small);
   overflow-wrap: anywhere;
 }
-.captain-roster-tier {
-  flex: none;
-  padding: 0.1rem 0.35rem;
-  border-radius: var(--radius-control);
-  background: var(--site-raised);
-  color: var(--site-accent);
-  font-size: var(--text-label);
-  font-weight: 650;
-  font-variant-numeric: tabular-nums;
-}
 .captain-roster .avatar,
 .captain-picks .avatar {
   flex: 0 0 1.5rem;

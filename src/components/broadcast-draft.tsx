@@ -2,13 +2,14 @@
 import Image from "next/image";
 import { useAppTranslations } from "@/i18n/shared";
 
-import { useContext, useEffect, useRef, type CSSProperties } from "react";
+import { useContext, useEffect, useRef } from "react";
 import type {
   BroadcastBoard,
   DraftBoard,
   DraftIdentity,
 } from "@/lib/draft-types";
 import { Avatar } from "./avatar";
+import { DraftTierBadge } from "./draft-tier-badge";
 import { BroadcastRatingRadars } from "./player-rating-radar";
 import { draftLabels } from "./draft-board";
 import { RemoteReadOnlyContext } from "./staff-read-only";
@@ -76,20 +77,6 @@ function Portrait({
     </div>
   );
 }
-const tierHues = [165, 215, 282, 43, 338];
-
-function TierBadge({ tier }: { tier: number }) {
-  const hue = tierHues[tier - 1] ?? (tier * 137.508) % 360;
-  return (
-    <span
-      className={styles.tierBadge}
-      style={{ "--tier-hue": hue } as CSSProperties}
-    >
-      {`Tier ${tier}`}
-    </span>
-  );
-}
-
 const format = (value: number | null | undefined) =>
   value == null
     ? "—"
@@ -304,9 +291,14 @@ export function BroadcastDraft({
                   : tr("Overall pick {overall}", {
                       overall: latest.turnIndex + 1,
                     })
-                : tr("THE NEXT TEAM STORY")}
+                : tr("Latest published selection")}
             </p>
-            {latest?.tier ? <TierBadge tier={latest.tier} /> : null}
+            {latest?.tier ? (
+              <DraftTierBadge
+                tier={latest.tier}
+                className={styles.featuredTier}
+              />
+            ) : null}
           </div>
           <div
             className={styles.featured}
@@ -316,7 +308,7 @@ export function BroadcastDraft({
             {latest && <Portrait player={latest.player} featured />}
             <div className={styles.identity}>
               <h2 data-reveal="name">
-                {latest?.player.username ?? tr("The stage is ready.")}
+                {latest?.player.username ?? tr("No picks published yet.")}
               </h2>
               {latest ? (
                 <>
@@ -386,11 +378,7 @@ export function BroadcastDraft({
                     {latest.team.name}
                   </p>
                 </>
-              ) : (
-                <p className={styles.caption}>
-                  {tr("Selections appear here when published.")}
-                </p>
-              )}
+              ) : null}
             </div>
           </div>
         </section>
@@ -438,9 +426,7 @@ export function BroadcastDraft({
           {latest ? (
             <BroadcastRatingRadars ratings={ratings} />
           ) : (
-            <p className={styles.caption}>
-              {tr("Selections appear here when published.")}
-            </p>
+            <p className={styles.caption}>{tr("No rating data")}</p>
           )}
         </section>
         <section
@@ -465,7 +451,7 @@ export function BroadcastDraft({
                       <strong>{pick.player.username}</strong>
                       <p>{pick.team.name}</p>
                     </div>
-                    {pick.tier ? <TierBadge tier={pick.tier} /> : null}
+                    {pick.tier ? <DraftTierBadge tier={pick.tier} /> : null}
                   </li>
                 ))}
             </ol>
