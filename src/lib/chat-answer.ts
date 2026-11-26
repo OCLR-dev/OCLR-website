@@ -91,8 +91,17 @@ export function chatAnswer({
           evidence.greeting
             ? "The current message is a greeting. Greet the user briefly in character and invite a question about the selected edition. Do not invent tournament facts or cite sources."
             : evidence.playerProfile
-              ? "Use the supplied OCLR public player profile for the resolved player's identity, published participation, team results and saved ratings. Distinguish the selected edition from other published seasons and distinguish team results from personal performance. An empty selected-edition record means no published participation was found for that edition. Treat ETX and SIP as saved profile observations. ETX mod values are stars, and SIP accuracy and combo are model shares from 0 to 1. Date saved metrics when relevant. Briefly redirect unrelated requests to this tournament."
-              : "Answer questions about the selected edition using only the supplied public evidence. Briefly redirect unrelated requests to this tournament.",
+              ? "Use the supplied OCLR public player profile for the resolved player's identity, published participation, team results and saved ratings. For general questions about a named player, use relevant participation, placements and team results from all published seasons in the profile. Name the seasons and separate team outcomes from individual ratings or performance. When the user explicitly names a season, lead with that season's data. Mention missing selected-edition evidence only when it matters to the question. Treat ETX and SIP as saved profile observations. ETX mod values are stars, and SIP accuracy and combo are model shares from 0 to 1. Date saved metrics when relevant. Briefly redirect unrelated requests to this tournament."
+              : "Answer questions about OCLR using only supplied public evidence and the specified season scope. Briefly redirect unrelated requests to OCLR.",
+          evidence.seasonScope
+            ? "Follow seasonScope. Answer across its published editions and attribute each fact to its season. If editions are unavailable, say no public records are available for those requested editions. Treat ranked results as excerpts and do not claim exhaustive coverage or merge unrelated seasons."
+            : "",
+          evidence.historicalCounts
+            ? "Report verified historical counts by season with their exact kind and scope. List unavailable counts as unavailable. Only total comparable counts if asked and all needed counts are available. A per-season distinct count cannot establish a cross-season unique count."
+            : "",
+          evidence.draftRecommendation
+            ? "For a draft recommendation, name only supplied selectable candidates. The public draft pool excludes captains and assigned players. If a metric is requested, use it and state how many candidates have it. Confirm a named player is selectable only if the supplied candidate evidence establishes that. With no candidate evidence, explain the missing public draft pool, season or metric as applicable. A paused or ready draft can provide planning options but does not authorize a pick now."
+            : "",
           evidence.playerDirectory
             ? "For player directory questions, use the supplied published roster and metric summaries. Explain the metric and its coverage when comparing players. Lower numeric osu!standard rank is better. A missing metric is unknown, and equal metric values are ties. The sample and top entries are excerpts of the directory. Use the provided coverage counts and never infer values outside those excerpts. Unless the user specifies one metric, present metrics separately without declaring one overall strongest player."
             : "",
@@ -118,9 +127,14 @@ export function chatAnswer({
           edition: evidence.edition,
           asOf: new Date().toISOString(),
           currentQuestion: question,
-          previousTurns: evidence.greeting ? [] : previousTurns,
+          previousTurns:
+            evidence.greeting || evidence.draftRecommendation
+              ? []
+              : previousTurns,
           verifiedCount,
           artworkSearch: evidence.artworkSearch,
+          seasonScope: evidence.seasonScope,
+          historicalCounts: evidence.historicalCounts,
           evidence: evidence.sources.map((s) => ({
             source: sources.findIndex((c) => c.url === s.url) + 1,
             title: tr ? tr(s.title) : s.title,
@@ -188,6 +202,7 @@ export function chatAnswer({
                 );
                 if (verifiedCount) cited.add(String(verifiedCount.source));
                 if (
+                  evidence.draftRecommendation ||
                   evidence.playerProfile ||
                   evidence.playerDirectory ||
                   evidence.mappoolDirectory ||

@@ -5,6 +5,7 @@ import {
   chatArtworkCaptions as captions,
   chatSourceVectors as vectors,
   draftSessions,
+  editionState,
   etxRatingCache,
   fixtures,
   importedPlayerRatings,
@@ -29,6 +30,7 @@ import { seedEditions } from "../fixtures/editions";
 import { seedPublicDirectory } from "../fixtures/players";
 import { edition } from "../fixtures/edition";
 import { historicalArchive } from "../fixtures/historical-archive";
+import { sipRating } from "../fixtures/sip-response";
 import { assertTestDatabase } from "../database";
 
 vi.mock("server-only", () => ({}));
@@ -37,6 +39,8 @@ const url = process.env.TEST_DATABASE_URL;
 const archived = {
   ...edition,
   slug: historicalArchive.editionSlug,
+  season: "7",
+  name: "Synthetic historical season",
   status: "completed" as const,
   registration: null,
   archive: structuredClone(historicalArchive),
@@ -62,7 +66,8 @@ beforeAll(async () => {
         object: "embedding",
         index,
         embedding:
-          text.includes("Historical Title") || text === "星際旋律是哪首？"
+          text.includes("Historical Title") ||
+          text.normalize("NFKC") === "星際旋律是哪首?"
             ? [1, 0]
             : [0, 1],
       })),
@@ -130,6 +135,47 @@ it.skipIf(!url)(
         s.text.includes("Historical Title"),
       ),
     ).toBe(false);
+    calls.length = 0;
+    const across = await chatEvidence(other.slug, "歷屆星際旋律是哪首？", "");
+    expect(across).toMatchObject({
+      seasonScope: { allPublished: true },
+      sources: expect.arrayContaining([
+        expect.objectContaining({
+          title: expect.stringContaining(archived.name),
+          text: expect.stringContaining("Historical Title"),
+        }),
+      ]),
+    });
+    expect(calls).toEqual([["星際旋律是哪首?"]]);
+    expect(await chatEvidence(other.slug, "第七屆有幾隊？", "")).toMatchObject({
+      edition: archived.name,
+      total: { kind: "teams", count: 2 },
+    });
+    const counts = await chatEvidence(other.slug, "歷屆有幾隊？", "");
+    expect(counts).toMatchObject({
+      historicalCounts: { unavailable: [] },
+      sources: expect.arrayContaining([
+        expect.objectContaining({
+          url: `/tournaments/${archived.slug}/teams`,
+          text: expect.stringContaining('"count":2'),
+        }),
+      ]),
+    });
+    const player = await chatEvidence(
+      other.slug,
+      "Historical Player是什麼水平的玩家？",
+      "",
+    );
+    expect(player.playerProfile).toBe(true);
+    expect(JSON.parse(player.sources[0].text)).toMatchObject({
+      selectedEditionParticipation: [],
+      otherPublishedParticipation: [
+        expect.objectContaining({ editionSlug: archived.slug }),
+      ],
+      publishedTeamResults: [
+        expect.objectContaining({ editionSlug: archived.slug, wins: 1 }),
+      ],
+    });
     embeddingUnavailable = true;
     expect(
       (await searchSeasonIndex(archived, "Historical Title", "")).some((s) =>
@@ -155,6 +201,16 @@ it.skipIf(!url)(
     vi.stubEnv("OCLR_CHAT_EMBEDDING_MODEL", "other-model");
     expect((await refreshChatIndex()).updated).toBeGreaterThan(1);
     await seedEditions([{ ...changed, published: false }]);
+    expect(await chatEvidence(other.slug, "S7的圖池", "")).toMatchObject({
+      seasonScope: { editions: [], unavailable: ["S7"] },
+      sources: [],
+    });
+    expect(
+      (
+        await chatEvidence(other.slug, "歷屆 Replacement track", "")
+      ).sources.some((source) => source.url.includes(archived.slug)),
+    ).toBe(false);
+
     expect((await refreshChatIndex()).removed).toBeGreaterThan(0);
     expect(
       await db()
@@ -283,6 +339,97 @@ it.skipIf(!url)(
       .where(eq(draftSessions.id, session.id));
     const draftAfter = await chatEvidence(slug, origin + "/draft", "");
     expect(draftAfter.sources[1].text).toContain("Synthetic released pick");
+
+    const recommendation = "我需要補充高AR強手，可以選誰？";
+    expect(await chatEvidence(slug, recommendation, "")).toMatchObject({
+      draftRecommendation: true,
+      sources: [],
+    });
+    const eligible = { osuId: 1431568, username: "Synthetic eligible player" };
+    await db().insert(users).values(eligible).onConflictDoNothing();
+    await db().insert(registrations).values({
+      userId: eligible.osuId,
+      editionSlug: slug,
+      status: "accepted",
+      rulesVersion: "test-v1",
+      answers: {},
+    });
+    const candidates = [
+      { osuId: home.captainId, username: "Synthetic captain" },
+      { osuId: home.memberId, username: "Synthetic released pick" },
+      eligible,
+    ];
+    await db()
+      .insert(sipRatingCache)
+      .values(
+        candidates.map(({ osuId }, index) => ({
+          osuId,
+          value: 4000,
+          fetchedAt: saved,
+          snapshot: {
+            rating: sipRating("overall", 4000),
+            modifications: null,
+            skillsets: { "High AR": sipRating("High AR", 8000 - 1000 * index) },
+          },
+        })),
+      )
+      .onConflictDoUpdate({
+        target: sipRatingCache.osuId,
+        set: { value: 4000, snapshot: sql`excluded.snapshot` },
+      });
+    await db()
+      .update(editionState)
+      .set({ poolPublished: true })
+      .where(eq(editionState.slug, slug));
+    const draftTeam = {
+      id: home.teamId,
+      name: "Synthetic published draft team",
+      captain: candidates[0],
+    };
+    await db()
+      .update(draftSessions)
+      .set({
+        publicSnapshot: {
+          sessionId: session.id,
+          version: 2,
+          state: "live",
+          turnIndex: 1,
+          turnCount: 2,
+          activeTeam: draftTeam,
+          pool: candidates,
+          rosters: [],
+          picks: [
+            {
+              id: session.id,
+              turnIndex: 0,
+              team: draftTeam,
+              player: candidates[1],
+            },
+          ],
+        },
+      })
+      .where(eq(draftSessions.id, session.id));
+    const suggestions = await chatEvidence(
+      slug,
+      recommendation,
+      "Synthetic captain是誰？",
+    );
+    expect(suggestions).toMatchObject({
+      draftRecommendation: true,
+      sources: [{ url: "/tournaments/" + slug + "/draft" }],
+    });
+    expect(JSON.parse(suggestions.sources[0].text)).toMatchObject({
+      selectablePlayers: 1,
+      candidatesWithRating: 1,
+      candidates: [{ name: eligible.username, metric: "High AR", value: 6000 }],
+    });
+    const namedPick = await chatEvidence(
+      slug,
+      "可以選 Synthetic captain 嗎？",
+      "",
+    );
+    expect(namedPick.draftRecommendation).toBe(true);
+    expect(namedPick.sources[0].text).not.toContain("Synthetic captain");
 
     await db()
       .update(teams)

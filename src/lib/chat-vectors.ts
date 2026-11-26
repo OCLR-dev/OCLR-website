@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { embedMany } from "ai";
 import { chatProvider } from "./chat-provider";
-import { and, eq, ne, sql } from "drizzle-orm";
+import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { chatSourceVectors as vectors } from "@/db/schema";
 import type { Edition } from "./editions";
@@ -55,14 +55,18 @@ export async function normalizedEmbeddings(
 }
 
 export async function searchSeasonIndex(
-  edition: Edition,
+  edition: Edition | Edition[],
   question: string,
   previous: string,
   signal?: AbortSignal,
   collection?: "artwork" | "players",
   onEmbeddingFallback?: (error: unknown) => void,
 ) {
+  const editions = Array.isArray(edition) ? edition : [edition];
+  if (!editions.length) return [];
+  const publicEditions = new Map(editions.map((item) => [item.slug, item]));
   const metadata = {
+    editionSlug: vectors.editionSlug,
     digest: vectors.digest,
     collection: vectors.collection,
     title: vectors.title,
@@ -71,7 +75,10 @@ export async function searchSeasonIndex(
     model: vectors.model,
   };
   const scope = and(
-    eq(vectors.editionSlug, edition.slug),
+    inArray(
+      vectors.editionSlug,
+      editions.map((item) => item.slug),
+    ),
     collection
       ? eq(vectors.collection, collection)
       : ne(vectors.collection, "artwork"),
@@ -135,21 +142,29 @@ export async function searchSeasonIndex(
       lexical
         .flatMap((row, i) => [row, ...semantic.slice(i, i + 1)])
         .concat(semantic)
-        .map((row) => [row.digest, row]),
+        .map((row) => [row.editionSlug + ":" + row.digest, row]),
     ).values(),
   ];
-  const reads = new Map<ChatCollection, Map<string, ChatSource>>();
+  const reads = new Map<string, Map<string, ChatSource>>();
   const sources: ChatSource[] = [];
   for (const hit of hits) {
-    if (!reads.has(hit.collection)) {
-      const current = await seasonContent(edition, hit.collection);
+    const owner = publicEditions.get(hit.editionSlug);
+    if (!owner) continue;
+    const key = hit.editionSlug + ":" + hit.collection;
+    if (!reads.has(key)) {
+      const current = await seasonContent(owner, hit.collection);
       reads.set(
-        hit.collection,
+        key,
         new Map(current.map((s) => [sourceDigest(hit.collection, s), s])),
       );
     }
-    const current = reads.get(hit.collection)!.get(hit.digest);
-    if (current) sources.push(current);
+    const current = reads.get(key)!.get(hit.digest);
+    if (current)
+      sources.push(
+        editions.length > 1
+          ? { ...current, title: owner.name + " · " + current.title }
+          : current,
+      );
     if (sources.length >= 8) break;
   }
   return sources;
