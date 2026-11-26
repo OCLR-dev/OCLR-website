@@ -24,8 +24,20 @@ test("stop a pending turn, retry with sources, and start fresh in another editio
       ),
     }),
   );
-  const reply =
-    "**Ask the referee.**\n\n**本屆已公布 3 個圖池。 ～** [1]\n\n> 原文。～\n\n- First option\n- Second option";
+  const reply = [
+    "**Ask the referee.**",
+    "",
+    "**本屆已公布 3 個圖池。 ～** [1]",
+    "",
+    "> 原文。～",
+    "",
+    "- First option",
+    "- Second option",
+    "",
+    "| 賽季 | 選手 | 有評分的 DT 圖數 | 平均有效評分 |",
+    "| --- | --- | ---: | ---: |",
+    "| Season 1 | Synthetic Player | 3/3 | 0.8718 |",
+  ].join("\n");
   const editions: string[] = [];
   await page.route("**/api/chat", async (route) => {
     count++;
@@ -155,6 +167,20 @@ test("stop a pending turn, retry with sources, and start fresh in another editio
   await expect(
     page.getByRole("listitem").filter({ hasText: "First option" }),
   ).toBeVisible();
+  const table = history.getByRole("table");
+  await expect(
+    table.getByRole("columnheader", { name: "有評分的 DT 圖數" }),
+  ).toBeVisible();
+  await expect(table.getByRole("cell", { name: "0.8718" })).toHaveCSS(
+    "text-align",
+    "right",
+  );
+  await expect(table.locator("..")).toHaveCSS("overflow-x", "auto");
+  const widths = await table.evaluate((element) => ({
+    viewport: element.parentElement!.clientWidth,
+    history: element.closest('[role="log"]')!.clientWidth,
+  }));
+  expect(widths.viewport).toBeLessThanOrEqual(widths.history);
   await expect(
     page.getByRole("status").filter({ hasText: "Loading…" }),
   ).toHaveCount(0);
@@ -176,6 +202,9 @@ test("stop a pending turn, retry with sources, and start fresh in another editio
     history.getByText("本屆已公布 3 個圖池～", { exact: true }),
   ).toBeVisible();
   await expect(history.locator("blockquote")).toHaveText("原文。～");
+  await expect(
+    table.getByRole("cell", { name: "Synthetic Player" }),
+  ).toBeVisible();
   await sourceToggle.click();
   await expect(sourceLink).toBeVisible();
   expect(count).toBe(2);

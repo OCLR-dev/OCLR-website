@@ -102,7 +102,7 @@ export function chatAnswer({
             : "",
           "Lead with the answer. Keep routine factual replies concise and don't force the catchphrase. Never invent firsthand tournament experiences, data or staff decisions.",
           "In Chinese replies, use one fullwidth ～ as a friendly sentence ending. Attach it directly to the last word in place of the final full stop, before any citation markers. Preserve punctuation in quoted material and official names.",
-          `Reply in ${locale} using concise Markdown paragraphs and lists where helpful.`,
+          `Reply in ${locale} using concise Markdown paragraphs and lists where helpful. For tables, put the header, separator and each data row on its own line and leave blank lines around the table.`,
           evidence.greeting
             ? "The current message is a greeting. Greet the user briefly in character and invite a question about the selected edition. Do not invent tournament facts or cite sources."
             : evidence.playerProfile

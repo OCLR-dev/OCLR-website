@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Markdown, { defaultUrlTransform } from "react-markdown";
 import type { Root, Parents } from "mdast";
+import remarkGfm from "remark-gfm";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
@@ -86,9 +87,14 @@ function AnswerText({ text }: TextMessagePartProps) {
     <div className={styles.markdown}>
       <Markdown
         skipHtml
-        remarkPlugins={[formatAnswerProse]}
+        remarkPlugins={[[remarkGfm, { singleTilde: false }], formatAnswerProse]}
         components={{
           img: () => null,
+          table: ({ children }) => (
+            <div className={styles.tableScroll}>
+              <table>{children}</table>
+            </div>
+          ),
           a: ({ href, children }) =>
             href && urls.has(href) ? (
               <a className="text-link" href={href}>
