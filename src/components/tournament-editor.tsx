@@ -1423,7 +1423,7 @@ export function TournamentEditor({
 
   const id = useId();
   const router = useRouter();
-  const requested = useSearchParams().get("section");
+  const requested = useSearchParams()?.get("section");
   const section =
     requested &&
     (["general", "registration", "rules", "schedule", "publication"].includes(

@@ -54,7 +54,7 @@ export function RemoteBoundary({
   children: ReactNode;
   error?: string;
 }) {
-  const path = usePathname();
+  const path = usePathname() ?? "";
   const [failure, setFailure] = useState<{ path: string; code: string } | null>(
     null,
   );

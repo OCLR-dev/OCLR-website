@@ -75,7 +75,7 @@ export function PlayerEditionView({
 }) {
   const tr = useAppTranslations();
   const params = useSearchParams();
-  const urlEdition = params.get("edition");
+  const urlEdition = params?.get("edition") ?? null;
   const [selected, setSelected] = useState(initial);
   const [previousEdition, setPreviousEdition] = useState(urlEdition);
   const [noticeDismissed, setNoticeDismissed] = useState(false);
