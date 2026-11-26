@@ -318,7 +318,7 @@ export function BroadcastDraft({
               >
                 {latest?.player.username ??
                   (showFirstPickHeadline
-                    ? tr("The OCLR S11 first overall pick is...")
+                    ? tr("Starting soon...")
                     : tr("No picks published yet."))}
               </h2>
               {latest ? (
