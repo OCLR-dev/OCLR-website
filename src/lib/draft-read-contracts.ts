@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { etxModsSchema } from "./etx-rating-model";
+import { sipSkillsets } from "./sip-rating-model";
 
 const nullableNumber = z.union([z.null(), z.number()]);
 const nullableString = z.union([z.null(), z.string()]);
@@ -54,7 +56,23 @@ const core = {
 const pool = z.union([z.null(), z.array(identity)]);
 export const draftBoardReadContract = z.strictObject({ ...core, pool });
 export const broadcastDraftReadContract = draftBoardReadContract.extend({
-  picks: z.array(pick.extend({ tier: z.number().int().positive().optional() })),
+  picks: z.array(
+    pick.extend({
+      tier: z.number().int().positive().optional(),
+      ratings: z
+        .strictObject({
+          otr: nullableNumber,
+          sip: nullableNumber,
+          etx: nullableNumber,
+          etxMods: etxModsSchema.nullable(),
+          sipSkills: z.partialRecord(
+            z.enum(sipSkillsets),
+            z.number().finite().nonnegative(),
+          ),
+        })
+        .optional(),
+    }),
+  ),
 });
 export const captainBoardReadContract = draftBoardReadContract.extend({
   // Snapshots published before roster capacity was included omit this field.

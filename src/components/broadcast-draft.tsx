@@ -2,13 +2,14 @@
 import Image from "next/image";
 import { useAppTranslations } from "@/i18n/shared";
 
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef } from "react";
 import type {
   BroadcastBoard,
   DraftBoard,
   DraftIdentity,
 } from "@/lib/draft-types";
 import { Avatar } from "./avatar";
+import { BroadcastRatingRadars } from "./player-rating-radar";
 import { draftLabels } from "./draft-board";
 import { RemoteReadOnlyContext } from "./staff-read-only";
 import { usePoll } from "./use-poll";
@@ -187,18 +188,6 @@ export function BroadcastDraft({
               }
             }
           });
-        root.current
-          ?.querySelectorAll<HTMLElement>("[data-roster-player]")
-          .forEach((el) => {
-            if (
-              additions.some(
-                (p) =>
-                  String(p.player.osuId) === el.dataset.rosterPlayer &&
-                  p.team.id === el.dataset.team,
-              )
-            )
-              enter(el, "oclr-roster", 150);
-          });
       }
       // Corrections update immediately; ordinary turn and status transitions settle softly.
       if (
@@ -232,28 +221,14 @@ export function BroadcastDraft({
     return () => animations.forEach((a) => a.cancel());
   }, [board, connected, received]);
   const latest = board?.picks.at(-1);
-  const tiers = new Map(
-    board?.picks.map(({ team, player, tier }) => [
-      `${team.id}:${player.osuId}`,
-      tier,
-    ]),
-  );
-  const [rosterPage, setRosterPage] = useState<{
-    key: string;
-    page: number;
-  } | null>(null);
-  const rosterKey = `${board?.sessionId}:${board?.activeTeam?.id ?? "complete"}`;
-  const pageCount = Math.ceil((board?.rosters.length ?? 0) / 2);
-  const activeIndex =
-    board?.rosters.findIndex((r) => r.team.id === board.activeTeam?.id) ?? -1;
-  const rosterIndex = Math.min(
-    Math.max(0, pageCount - 1),
-    rosterPage?.key === rosterKey
-      ? rosterPage.page
-      : Math.max(0, Math.floor(activeIndex / 2)),
-  );
-  const visibleRosters =
-    board?.rosters.slice(rosterIndex * 2, rosterIndex * 2 + 2) ?? [];
+  const ratings = latest?.ratings;
+  const ratingNumber = new Intl.NumberFormat(tr.locale, {
+    maximumFractionDigits: 2,
+  });
+  const etxNumber = new Intl.NumberFormat(tr.locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
   const complete = board?.state === "completed" || board?.state === "finalized";
   return (
     <div
@@ -329,12 +304,8 @@ export function BroadcastDraft({
                     }
                   >
                     <div>
-                      <dt>
-                        PP <small>{"osu!standard"}</small>
-                      </dt>
-                      <dd>
-                        {format(latest.player.profile?.pp)} <small>pp</small>
-                      </dd>
+                      <dt>PP</dt>
+                      <dd>{format(latest.player.profile?.pp)}</dd>
                     </div>
                     <div>
                       <dt>
@@ -351,6 +322,30 @@ export function BroadcastDraft({
                         {latest.player.profile?.globalRank != null
                           ? `#${format(latest.player.profile.globalRank)}`
                           : "—"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>o!TR</dt>
+                      <dd>
+                        {ratings?.otr == null
+                          ? "—"
+                          : ratingNumber.format(ratings.otr)}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>{tr("SIP")}</dt>
+                      <dd>
+                        {ratings?.sip == null
+                          ? "—"
+                          : ratingNumber.format(ratings.sip)}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>{tr("ETX")}</dt>
+                      <dd>
+                        {ratings?.etx == null
+                          ? "—"
+                          : etxNumber.format(ratings.etx)}
                       </dd>
                     </div>
                   </dl>
@@ -411,85 +406,16 @@ export function BroadcastDraft({
 
       <div className={styles.details}>
         <section
-          className={styles.rosters}
-          data-rosters
-          aria-label={tr("Published roster progress")}
-          tabIndex={0}
+          className={styles.ratings}
+          data-ratings
+          aria-labelledby="broadcast-ratings-heading"
         >
-          <div className={styles.rosterHeading}>
-            <h2>{tr("Team rosters ")}</h2>
-            {pageCount > 1 && (
-              <div className={styles.pages}>
-                <button
-                  type="button"
-                  aria-label={tr("Previous teams")}
-                  disabled={rosterIndex === 0}
-                  onClick={() =>
-                    setRosterPage({ key: rosterKey, page: rosterIndex - 1 })
-                  }
-                >
-                  ←
-                </button>
-                <span>
-                  {rosterIndex * 2 + 1}–
-                  {Math.min(rosterIndex * 2 + 2, board!.rosters.length)} /{" "}
-                  {board!.rosters.length}
-                </span>
-                <button
-                  type="button"
-                  aria-label={tr("Next teams")}
-                  disabled={rosterIndex === pageCount - 1}
-                  onClick={() =>
-                    setRosterPage({ key: rosterKey, page: rosterIndex + 1 })
-                  }
-                >
-                  →
-                </button>
-              </div>
-            )}
-          </div>
-          {board?.rosters.length ? (
-            <div className={styles.rosterGrid}>
-              {visibleRosters.map(({ team, players }) => (
-                <article
-                  key={team.id}
-                  data-active={board.activeTeam?.id === team.id}
-                >
-                  <h3>{team.name}</h3>
-                  <p className={styles.caption}>
-                    {tr("Captain ")}
-                    {team.captain.username}
-                  </p>
-                  <p className={styles.count}>
-                    {players.length}{" "}
-                    {players.length === 1 ? tr("player") : tr("players")}
-                  </p>
-                  <ul data-dense={players.length > 6}>
-                    {players.map((player) => {
-                      const tier = tiers.get(`${team.id}:${player.osuId}`);
-                      return (
-                        <li
-                          key={player.osuId}
-                          data-roster-player={player.osuId}
-                          data-team={team.id}
-                        >
-                          <Portrait player={player} />
-                          <span title={player.username}>{player.username}</span>
-                          {player.osuId === team.captain.osuId ? (
-                            <small>{tr("Captain")}</small>
-                          ) : tier ? (
-                            <small>{`Tier ${tier}`}</small>
-                          ) : null}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </article>
-              ))}
-            </div>
+          <h2 id="broadcast-ratings-heading">{tr("Player ratings")}</h2>
+          {latest ? (
+            <BroadcastRatingRadars ratings={ratings} />
           ) : (
             <p className={styles.caption}>
-              {tr("Team rosters have not been published.")}
+              {tr("Selections appear here when published.")}
             </p>
           )}
         </section>
@@ -519,8 +445,9 @@ export function BroadcastDraft({
                         >{`Tier ${pick.tier}`}</small>
                       ) : null}
                       <p>
-                        {pick.team.name} {tr(" · Captain ")}
-                        {pick.team.captain.username}
+                        {tr("Captain {value0}", {
+                          value0: pick.team.captain.username,
+                        })}
                       </p>
                     </div>
                   </li>

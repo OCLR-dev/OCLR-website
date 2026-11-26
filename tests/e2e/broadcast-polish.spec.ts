@@ -10,7 +10,7 @@ import { pickPlayer } from "../../src/lib/draft";
 import { staffDraft } from "../../src/lib/draft-reads";
 import { profileResponse } from "../fixtures/osu-profile";
 import { normalizeOsuProfile } from "../../src/lib/osu-profile-model";
-import type { DraftBoard } from "../../src/lib/draft-types";
+import type { BroadcastBoard as DraftBoard } from "../../src/lib/draft-types";
 const slug = "overlay-103-test",
   endpoint = `/api/tournaments/${slug}/draft`,
   overlay = `/tournaments/${slug}/draft/overlay`;
@@ -79,7 +79,7 @@ async function fits(page: Page) {
   for (const selector of [
     "[data-featured]",
     "[data-turn-card]",
-    "[data-rosters]",
+    "[data-ratings]",
     "[data-history]",
   ]) {
     const size = await page
@@ -95,7 +95,7 @@ test.use({ video: { mode: "on", size: { width: 1280, height: 720 } } });
 test.describe("OBS identity and one-time transitions", () => {
   test.skip(!process.env.TEST_DATABASE_URL);
   test.afterAll(closeDb);
-  test("broadcast compositions, transparent canvas, languages, missing data and crowded rosters fit intended sizes", async ({
+  test("broadcast compositions, transparent canvas, languages, rating charts and missing data fit intended sizes", async ({
     page,
     context,
     isMobile,
@@ -107,6 +107,13 @@ test.describe("OBS identity and one-time transitions", () => {
     test.setTimeout(120000);
     const initial = await seed(page, 4);
     let board: DraftBoard | null = structuredClone(initial);
+    board.picks.at(-1)!.ratings = {
+      otr: 1500,
+      sip: 130,
+      etx: 8.5,
+      etxMods: { NM: 8.5, HD: 7.3, HR: 8, DT: 8.9, FM: 6.5 },
+      sipSkills: { Aim: 7.3, Tapping: 6.7, Precision: 6.9 },
+    };
     await page.route(`**${endpoint}*`, (r) => r.fulfill({ json: board }));
     for (const locale of ["en", "zh-Hans", "zh-Hant"]) {
       await context.addCookies([
@@ -127,6 +134,10 @@ test.describe("OBS identity and one-time transitions", () => {
             "#15,066",
           );
           await expect(page.locator("[data-featured] img")).toBeVisible();
+          await expect(page.locator("[data-featured]")).toContainText("8.50");
+          await expect(page.locator("[data-ratings] figure svg")).toHaveCount(
+            2,
+          );
           await expect(page.locator("[data-broadcast] footer")).toHaveCount(0);
           await fits(page);
         }
@@ -141,17 +152,6 @@ test.describe("OBS identity and one-time transitions", () => {
       fetchedAt: null,
     };
     board.picks.at(-1)!.player.username = "A long featured username";
-    board.rosters = Array.from({ length: 8 }, (_, i) => ({
-      team: {
-        ...initial.rosters[i % 2].team,
-        id: `synthetic-${i}`,
-        name: `Synthetic long team ${i + 1}`,
-      },
-      players: Array.from({ length: 8 }, (_, n) => ({
-        osuId: 800000 + i * 10 + n,
-        username: `Long synthetic roster ${n + 1}`,
-      })),
-    }));
     for (const [width, height] of [
       [1920, 1080],
       [1600, 900],
@@ -165,12 +165,7 @@ test.describe("OBS identity and one-time transitions", () => {
       );
       await expect(page.locator("[data-profile-status]")).toContainText("—");
       await fits(page);
-      const buttons = page.locator("[data-rosters] button");
-      await buttons.last().focus();
-      await buttons.last().press("Enter");
-      await expect(page.locator("[data-rosters]")).toContainText(
-        "Synthetic long team 3",
-      );
+      await expect(page.locator("[data-ratings] figure svg")).toHaveCount(0);
       expect(
         (
           await new AxeBuilder({ page })
@@ -250,12 +245,7 @@ test.describe("OBS identity and one-time transitions", () => {
       "New public player 990001",
     );
     expect(await animated()).toEqual(
-      expect.arrayContaining([
-        "oclr-pick",
-        "oclr-turn",
-        "oclr-roster",
-        "oclr-history",
-      ]),
+      expect.arrayContaining(["oclr-pick", "oclr-turn", "oclr-history"]),
     );
     await page.waitForTimeout(1000);
     const count = (await animated()).length;

@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+export const sipSkillsets = [
+  "Aim",
+  "Tapping",
+  "Low AR",
+  "High AR",
+  "High BPM",
+  "Precision",
+  "Technical",
+] as const;
+
 const label = z.string().trim().min(1).max(64);
 const share = z.number().min(0).max(1);
 // Project the provider's fields, not its response object or identity metadata.

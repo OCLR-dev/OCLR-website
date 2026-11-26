@@ -5034,6 +5034,68 @@
                         "maximum": 9007199254740991
                       }
                     ]
+                  },
+                  "ratings": {
+                    "anyOf": [
+                      { "type": "null", "x-oclr-undefined": true },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "otr": {
+                            "anyOf": [{ "type": "null" }, { "type": "number" }]
+                          },
+                          "sip": {
+                            "anyOf": [{ "type": "null" }, { "type": "number" }]
+                          },
+                          "etx": {
+                            "anyOf": [{ "type": "null" }, { "type": "number" }]
+                          },
+                          "etxMods": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string",
+                                  "enum": ["NM", "HD", "HR", "DT", "FM"]
+                                },
+                                "additionalProperties": {
+                                  "type": "number",
+                                  "minimum": 0
+                                }
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "sipSkills": {
+                            "type": "object",
+                            "propertyNames": {
+                              "type": "string",
+                              "enum": [
+                                "Aim",
+                                "Tapping",
+                                "Low AR",
+                                "High AR",
+                                "High BPM",
+                                "Precision",
+                                "Technical"
+                              ]
+                            },
+                            "additionalProperties": {
+                              "type": "number",
+                              "minimum": 0
+                            }
+                          }
+                        },
+                        "required": [
+                          "otr",
+                          "sip",
+                          "etx",
+                          "etxMods",
+                          "sipSkills"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
                   }
                 },
                 "required": ["id", "turnIndex", "team", "player"],

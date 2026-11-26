@@ -9,7 +9,15 @@ import {
 } from "vitest";
 import { eq, sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
-import { userProfileCache, teams, draftSessions } from "../../src/db/schema";
+
+import {
+  userProfileCache,
+  teams,
+  draftSessions,
+  otrRatingCache,
+  sipRatingCache,
+  etxRatingCache,
+} from "../../src/db/schema";
 import { prepareDraft } from "../fixtures/draft";
 import { pickPlayer } from "../../src/lib/draft";
 import { captainDraft, staffDraft } from "../../src/lib/draft-reads";
@@ -109,6 +117,81 @@ describe.skipIf(!url)("public broadcast profile projection", () => {
     expect(deferred).toHaveLength(0);
     expect(getOsuUserProfile).not.toHaveBeenCalled();
     expect((await db().select().from(draftSessions))[0]).toEqual(before);
+  });
+  it("adds only the latest public player's saved rating totals and radar values", async () => {
+    const [first, featured, hidden] = f.players;
+    const session = (await staffDraft(f.staff, slug)).session!;
+    await pickPlayer(f.staff, slug, {
+      sessionId: session.id,
+      turnIndex: session.turnIndex,
+      candidateId: featured.osuId,
+      expectedVersion: session.version,
+      idempotencyKey: randomUUID(),
+    });
+    const now = new Date();
+    const sample = {
+      name: "Synthetic rating",
+      value: 123.4,
+      sr: 5.8,
+      globalRank: 90,
+      countryRank: 10,
+      pp: 400,
+      accuracy: 0.94,
+      combo: 0.7,
+    };
+    await db()
+      .insert(sipRatingCache)
+      .values({
+        osuId: featured.osuId,
+        value: sample.value,
+        fetchedAt: now,
+        snapshot: {
+          rating: sample,
+          modifications: null,
+          skillsets: { Aim: sample, UnknownCategory: sample },
+        },
+      });
+    await db()
+      .insert(etxRatingCache)
+      .values({
+        osuId: featured.osuId,
+        rating: {
+          value: 8.5,
+          provisional: null,
+          outdated: false,
+          mods: { NM: 8.5, HD: 7.82 },
+        },
+        fetchedAt: now,
+        attemptedOn: now.toISOString().slice(0, 10),
+      });
+    await db()
+      .insert(otrRatingCache)
+      .values(
+        [first, featured, hidden].map(({ osuId }) => ({
+          osuId,
+          retryAt: now,
+          rating: {
+            value: 1542,
+            fetchedAt: now.toISOString(),
+            profileUrl: "https://otr.stagec.net/players/" + osuId,
+          },
+        })),
+      )
+      .onConflictDoUpdate({
+        target: otrRatingCache.osuId,
+        set: { rating: sql`excluded.rating`, retryAt: now },
+      });
+    const board = (await publicBroadcastDraft(slug))!;
+    expect(board.picks[0].ratings).toBeUndefined();
+    expect(board.picks[1].ratings).toEqual({
+      otr: 1542,
+      sip: 123.4,
+      etx: 8.5,
+      etxMods: { NM: 8.5, HD: 7.82 },
+      sipSkills: { Aim: 5.8 },
+    });
+    expect(JSON.stringify(board)).not.toContain("otr.stagec.net");
+    expect(getOsuUserProfile).not.toHaveBeenCalled();
   });
   it("uses the released round for each pick and omits Tier when the order is newer than the board", async () => {
     for (const player of f.players.slice(1, 3)) {

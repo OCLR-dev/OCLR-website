@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { db, readOnlyData } from "@/db";
 import { userProfileCache } from "@/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { draftBoardTiers } from "./award-tiers";
@@ -8,23 +8,71 @@ import { releasedDraftData } from "./draft-reads";
 import type { BroadcastBoard, DraftIdentity } from "./draft-types";
 import { frontendResource } from "./frontend-resource";
 import { getOsuUserProfile, PROFILE_TTL_MS } from "./osu-profiles";
+import { readListedPlayerRatings } from "./listed-player-ratings";
+import { readCachedOtrRatings } from "./otr-rating-cache";
+import { importedRatingsEdition } from "./player-rating-import-contract";
+import { publicPlayerStillListed } from "./players";
+import { profileOtrSchema, profileSipTotal } from "./profile-ratings-model";
+import { sipSkillsets } from "./sip-rating-model";
 
-/** Enrich only already-published identities. One cache read; only the featured
- * player may refresh after the response. No provider fan-out on roster polls. */
+async function readFeaturedRatings(
+  osuId: number,
+  slug: string,
+  includeCsv: boolean,
+): Promise<BroadcastBoard["picks"][number]["ratings"]> {
+  return readOnlyData(async () => {
+    if (!(await publicPlayerStillListed(osuId, slug))) return undefined;
+    const ratings = await readListedPlayerRatings([osuId], includeCsv);
+    const cachedOtr = await readCachedOtrRatings([osuId]);
+    const saved = ratings.get(osuId)!;
+    const otr = profileOtrSchema.safeParse(cachedOtr.get(osuId));
+    const skills = saved.sip.api?.snapshot?.skillsets;
+    return {
+      otr: otr.success ? otr.data.value : null,
+      sip: profileSipTotal({ ...saved, otr: null }),
+      etx: saved.etx?.value ?? null,
+      etxMods: saved.etx?.mods ?? null,
+      sipSkills: Object.fromEntries(
+        sipSkillsets.flatMap((skill) => {
+          const value = skills?.[skill]?.sr;
+          return value !== undefined && value >= 0 ? [[skill, value]] : [];
+        }),
+      ),
+    };
+  });
+}
+
+/** Enrich published identities from saved data. Only the featured player's
+ * basic osu! profile may refresh after the response. Ratings stay cache-only. */
 async function databasePublicBroadcastDraft(
   slug: string,
   defer?: (work: () => Promise<void>) => void,
 ): Promise<BroadcastBoard | null> {
-  if (!(await getPublicEdition(slug)) || !process.env.DATABASE_URL) return null;
+  const edition = await getPublicEdition(slug);
+  if (!edition || !process.env.DATABASE_URL) return null;
   const released = await releasedDraftData(slug, true);
   if (!released) return null;
   const { snapshot, turnSequence } = released;
   const tiers = draftBoardTiers(snapshot, turnSequence);
+  const latest = snapshot.picks.at(-1);
+  const featured = latest?.player.osuId;
+  const ratings =
+    featured === undefined
+      ? undefined
+      : await readFeaturedRatings(
+          featured,
+          slug,
+          slug === importedRatingsEdition && !edition.archive,
+        ).catch(() => undefined);
   const board: BroadcastBoard = {
     ...snapshot,
     picks: snapshot.picks.map((pick) => {
       const tier = tiers.get(pick.player.osuId);
-      return tier ? { ...pick, tier } : pick;
+      return {
+        ...pick,
+        ...(tier ? { tier } : {}),
+        ...(pick.id === latest?.id && ratings ? { ratings } : {}),
+      };
     }),
   };
   const identities = [
@@ -45,7 +93,6 @@ async function databasePublicBroadcastDraft(
       );
     const cached = new Map(rows.map((r) => [r.osuId, r]));
     const now = Date.now();
-    const featured = board.picks.at(-1)?.player.osuId;
     const row = featured ? cached.get(featured) : undefined;
     if (
       featured &&

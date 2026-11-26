@@ -1,6 +1,8 @@
 import { useId, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { etxMods, type EtxMod } from "@/lib/etx-rating-model";
+import type { BroadcastBoard } from "@/lib/draft-types";
+import { sipSkillsets } from "@/lib/sip-rating-model";
 import { getModInfo } from "@/lib/mod-colors";
 import { accentForColor, accentForColors } from "@/lib/panel-accent";
 import type { ProfileRatings } from "@/lib/profile-ratings-model";
@@ -14,16 +16,6 @@ const sipMods = [
   ["HD", "Hidden"],
   ["HR", "Hard Rock"],
   ["DT", "Double Time"],
-] as const;
-
-const sipSkills = [
-  "Aim",
-  "Tapping",
-  "Low AR",
-  "High AR",
-  "High BPM",
-  "Precision",
-  "Technical",
 ] as const;
 
 const center = { x: 160, y: 120 };
@@ -57,7 +49,7 @@ function RatingPlot({
   axes: RatingAxis[];
   locale: string;
   highlighted: string | null;
-  onPreview: (label: string | null) => void;
+  onPreview?: (label: string | null) => void;
 }) {
   const gradient = useId();
   const highest = Math.max(10, ...axes.map(({ value }) => value ?? 0));
@@ -159,8 +151,8 @@ function RatingPlot({
             <g
               key={label}
               data-highlighted={highlighted === label || undefined}
-              onMouseEnter={() => onPreview(label)}
-              onMouseLeave={() => onPreview(null)}
+              onMouseEnter={onPreview ? () => onPreview(label) : undefined}
+              onMouseLeave={onPreview ? () => onPreview(null) : undefined}
             >
               <circle cx={point.x} cy={point.y} r="12" fill="transparent" />
               <circle
@@ -314,7 +306,7 @@ export function PlayerRatingRadar({ ratings }: { ratings?: ProfileRatings }) {
     {
       id: "player-rating-sip-skills",
       title: `${tr("SIP")} · ${tr("Skillset ratings")}`,
-      axes: sipSkills.map((label) => ({
+      axes: sipSkillsets.map((label) => ({
         label,
         value: starRating(sip?.skillsets?.[label]?.sr),
       })),
@@ -333,5 +325,65 @@ export function PlayerRatingRadar({ ratings }: { ratings?: ProfileRatings }) {
         ))}
       </div>
     </section>
+  );
+}
+
+export function BroadcastRatingRadars({
+  ratings,
+}: {
+  ratings?: BroadcastBoard["picks"][number]["ratings"];
+}) {
+  const tr = useAppTranslations();
+  const format = new Intl.NumberFormat(tr.locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  const charts: { label: string; title: string; axes: RatingAxis[] }[] = [
+    {
+      label: tr("ETX"),
+      title: tr("Mod ratings"),
+      axes: etxMods.map((mod) => ({
+        label: mod,
+        mod,
+        value: ratings?.etxMods?.[mod] ?? null,
+      })),
+    },
+    {
+      label: tr("SIP"),
+      title: tr("Skillset ratings"),
+      axes: sipSkillsets.map((label) => ({
+        label,
+        value: ratings?.sipSkills[label] ?? null,
+      })),
+    },
+  ];
+  return (
+    <div className={styles.broadcastCharts}>
+      {charts.map(({ label, title, axes }) => (
+        <figure className={styles.broadcastChart} key={label}>
+          <figcaption>
+            <strong>{label}</strong>
+            <span>{title}</span>
+          </figcaption>
+          {axes.some(({ value }) => value !== null) ? (
+            <>
+              <RatingPlot axes={axes} locale={tr.locale} highlighted={null} />
+              <ul className="sr-only">
+                {axes.map(({ label, value }) => (
+                  <li key={label}>
+                    {label}{" "}
+                    {value === null
+                      ? tr("No rating data")
+                      : format.format(value)}
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p>{tr("No rating data")}</p>
+          )}
+        </figure>
+      ))}
+    </div>
   );
 }

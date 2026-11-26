@@ -278,9 +278,7 @@ test.describe("published OBS browser-source rehearsal", () => {
       }),
     ).toBeVisible();
     await expect(
-      page
-        .getByRole("region", { name: "Published roster progress" })
-        .getByRole("listitem"),
+      page.getByRole("region", { name: "Player ratings" }).getByRole("figure"),
     ).toHaveCount(0);
     const retracted = await (await context.request.get(overlay)).text();
     for (const player of fixture.players)

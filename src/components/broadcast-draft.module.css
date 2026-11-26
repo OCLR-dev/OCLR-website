@@ -75,7 +75,7 @@
 }
 .selection,
 .turn,
-.rosters,
+.ratings,
 .history {
   min-width: 0;
   background: #111625f5;
@@ -116,7 +116,7 @@
   overflow: hidden;
 }
 .turn h2 {
-  font-size: clamp(24px, 2.1vw, 40px);
+  font-size: clamp(20px, 1.8vw, 34px);
   margin: 8px 0 18px;
   overflow-wrap: anywhere;
 }
@@ -138,72 +138,29 @@
   font-size: 14px;
   margin: 0;
 }
-.rosters,
+.ratings,
 .history {
   padding: clamp(20px, 1.5vw, 28px);
   overflow: auto;
   scrollbar-color: #9252b3 #151a29;
 }
-.rosters h2,
+.ratings h2,
 .history h2 {
   font-size: 22px;
   margin: 0 0 16px;
 }
 
-.rosterGrid {
+.ratings {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 18px;
+  grid-template-rows: auto minmax(0, 1fr);
 }
-.rosterGrid article {
-  transition:
-    border-color 350ms ease,
-    background-color 350ms ease;
-  border-top: 2px solid #675175;
-  padding-top: 12px;
-  min-width: 0;
+.ratings h2 {
+  margin-bottom: 8px;
 }
-.rosterGrid article[data-active="true"] {
-  background: #b274d509;
-  border-color: #df97fc;
-}
-.rosterGrid h3 {
-  font-size: 20px;
-  margin: 0 0 8px;
-  overflow-wrap: anywhere;
-}
-.rosterGrid .caption {
-  font-size: 14px;
-}
-.count {
-  color: #e2b1f9;
-  font-size: 13px;
-  margin: 12px 0;
-}
-.rosterGrid ul,
 .history ol {
   list-style: none;
   margin: 0;
   padding: 0;
-}
-.rosterGrid li {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-top: 1px solid #303348;
-  padding: 7px 0;
-  font-size: clamp(14px, 1vw, 18px);
-  line-height: 1.25;
-  overflow-wrap: anywhere;
-}
-.rosterGrid li span {
-  min-width: 0;
-}
-.rosterGrid small {
-  color: #bdc2d8;
-  font-size: 12px;
-  margin-left: auto;
-  white-space: nowrap;
 }
 .history li {
   align-items: center;
@@ -242,7 +199,7 @@
   color: #bdc2d8;
   overflow-wrap: anywhere;
 }
-/* Identity is the focal point. Stats are always ordinary osu!standard values. */
+/* Keep the latest player and ratings readable at broadcast distances. */
 .featured {
   display: flex;
   align-items: center;
@@ -286,8 +243,8 @@
 .statistics {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px 32px;
-  margin: 0 0 14px;
+  gap: 0.45rem clamp(0.75rem, 1.5vw, 2rem);
+  margin: 0 0 0.65rem;
 }
 .statistics div {
   min-width: 0;
@@ -307,76 +264,9 @@
   line-height: 1.1;
   margin: 0;
 }
-.statistics dd small {
-  font-size: 14px;
-  color: #bdc2d8;
-  font-weight: 400;
-}
 .history .smallPortrait {
   width: 34px;
   height: 34px;
-}
-
-.rosterHeading {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: start;
-}
-.pages {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  white-space: nowrap;
-}
-.pages button {
-  background: transparent;
-  color: #e2b1f9;
-  border: 1px solid #675175;
-  border-radius: 4px;
-  padding: 2px 6px;
-  cursor: pointer;
-}
-.pages button:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-.pages button:focus-visible {
-  outline: 2px solid #e2b1f9;
-  outline-offset: 2px;
-}
-.rosterGrid ul[data-dense="true"] {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 10px;
-}
-.rosterGrid ul[data-dense="true"] .smallPortrait {
-  width: 22px;
-  height: 22px;
-}
-.rosterGrid ul[data-dense="true"] li {
-  font-size: 13px;
-  gap: 6px;
-}
-.rosterGrid ul[data-dense="true"] li span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.rosterGrid ul[data-dense="true"] small {
-  display: none;
-}
-
-.selection > p {
-  margin: 0 0 16px;
-  line-height: 1.3;
-}
-
-.profileNotice {
-  margin-left: 8px;
-  font-weight: 400;
-  color: #bdc2d8;
 }
 
 @media (min-width: 1001px) and (min-height: 651px) and (max-height: 800px) {
@@ -401,26 +291,12 @@
   .statistics {
     margin-bottom: 12px;
   }
-  .rosters,
+  .ratings,
   .history {
     padding: 16px 20px;
   }
-  .rosterGrid li {
-    padding: 4px 0;
-  }
-  .rosterGrid h3 {
-    margin-bottom: 4px;
-  }
-  .count {
-    margin: 6px 0;
-  }
   .history li {
     padding: 5px 0;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .rosterGrid article {
-    transition: none;
   }
 }
 @media (max-width: 1000px), (max-height: 650px) {
@@ -453,13 +329,10 @@
   .turn {
     min-height: 230px;
   }
-  .rosters,
+  .ratings,
   .history {
     max-height: none;
     overflow: visible;
-  }
-  .rosterGrid {
-    grid-template-columns: minmax(0, 1fr);
   }
   .featured {
     flex-wrap: wrap;
