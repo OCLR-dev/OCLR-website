@@ -387,7 +387,7 @@ export function FixtureManager({
   const [navigating, startNavigation] = useTransition();
   const router = useRouter(),
     query = useSearchParams();
-  const requested = query.get("view");
+  const requested = query?.get("view");
   const view =
     requested === "groups" || requested === "bracket" ? requested : "schedule";
   const [roundId, setRound] = useState("");
@@ -563,7 +563,7 @@ export function FixtureManager({
             { value: "bracket", label: "Bracket" },
           ]}
           onChange={(value) => {
-            const next = new URLSearchParams(query.toString());
+            const next = new URLSearchParams(query?.toString());
             next.set("view", value);
             startNavigation(() =>
               router.replace(`?${next}`, { scroll: false }),

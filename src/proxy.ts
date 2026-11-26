@@ -8,7 +8,16 @@ import {
 import { appUrl } from "@/lib/http";
 import { isDevelopmentNetworkRequest } from "@/lib/site-origin";
 import { localeCookie, readLocale } from "@/i18n/config";
+
 export function proxy(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+  // The public Showcase URL is rewritten to the native API after Proxy runs.
+  if (path.startsWith("/api/internal/streaming/")) {
+    return new NextResponse(null, {
+      status: 404,
+      headers: { "Cache-Control": "no-store" },
+    });
+  }
   // Only versioned APIs accept token transport; their handlers validate the
   // token family and scopes. Legacy endpoints keep session/anonymous transport.
   if (
@@ -43,7 +52,6 @@ export function proxy(request: NextRequest) {
           { error: { code: "REMOTE_FORBIDDEN" } },
           { status: 403, headers: { "Cache-Control": "no-store" } },
         );
-      const path = request.nextUrl.pathname;
       if (
         (!["GET", "HEAD"].includes(request.method) &&
           !(
@@ -116,7 +124,6 @@ export function proxy(request: NextRequest) {
   // Overwrite inbound values; layouts never trust caller-supplied route context.
   headers.set("x-oclr-pathname", request.nextUrl.pathname);
   headers.set("x-oclr-search", request.nextUrl.search);
-  const path = request.nextUrl.pathname;
   const response =
     remote &&
     !path.startsWith("/api/") &&

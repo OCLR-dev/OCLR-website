@@ -20,7 +20,7 @@ export function ArchiveMatchList({
   const tr = useAppTranslations();
   const query = useSearchParams();
   const [status, setStatus] = useState(
-    recordedOnly || query.get("status") === "recorded" ? "recorded" : "all",
+    recordedOnly || query?.get("status") === "recorded" ? "recorded" : "all",
   );
   const [stage, setStage] = useState("");
   const visible = matches.filter(

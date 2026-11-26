@@ -242,10 +242,6 @@ const readOnlyAliases = new Map([
     "src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/replays/route.ts",
     "handle",
   ],
-  [
-    "src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/replays/[replayId]/route.ts",
-    "handle",
-  ],
 ]);
 
 function exportedNames(file: string) {

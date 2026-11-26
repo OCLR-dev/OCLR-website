@@ -36,7 +36,7 @@ export function StaffNavigation({
 }) {
   const tr = useAppTranslations();
 
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const refereeWorkspace =
     /^\/admin\/tournaments\/[^/]+\/matches\/[^/]+\/referee\/?$/.test(pathname);
   const router = useRouter();

@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
+import { once } from "node:events";
 import { mkdtemp, realpath, rm } from "node:fs/promises";
+import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { readContractVersion } from "../../src/lib/read-api-version";
@@ -48,6 +50,7 @@ import {
 import { createDeveloperToken } from "../../src/lib/developer-api";
 import { nextStreamingRead } from "../../src/lib/streaming-read";
 import { mappoolCommand } from "../../src/lib/mappools";
+import { streamingShowcaseReplayFile } from "../../src/lib/streaming-showcase-read";
 import {
   deleteMappoolReplay,
   setPreferredMappoolReplay,
@@ -59,7 +62,7 @@ import { GET as showcaseList } from "../../src/app/api/v1/streaming/tournaments/
 import { GET as showcaseDetail } from "../../src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/route";
 import { GET as showcaseCover } from "../../src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/covers/[entryId]/route";
 import { GET as showcaseReplays } from "../../src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/replays/route";
-import { GET as showcaseReplayFile } from "../../src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/replays/[replayId]/route";
+import showcaseReplayDownload from "../../src/pages/api/internal/streaming/tournaments/[edition]/showcase/pools/[poolId]/replays/[replayId]";
 import { GET as stream } from "../../src/app/api/v1/streaming/tournaments/[edition]/next/route";
 import { GET as me } from "../../src/app/api/v1/me/route";
 import { POST as issueAccess } from "../../src/app/api/streaming/tokens/route";
@@ -551,16 +554,16 @@ describe.skipIf(!url)("streaming read channel #540", () => {
     replayId: string,
     version: number,
     edition = slug,
-    method = "GET",
   ) =>
-    showcaseReplayFile(
+    streamingShowcaseReplayFile(
       showcaseRequest(
         `/${poolId}/replays/${replayId}?version=${version}`,
         token,
         edition,
-        method,
       ),
-      { params: Promise.resolve({ edition, poolId, replayId }) },
+      edition,
+      poolId,
+      replayId,
     );
   const showcaseAdmin = { osuId: 540002, username: "Other streamer" };
   async function configureShowcaseAdmin() {
@@ -1036,23 +1039,46 @@ describe.skipIf(!url)("streaming read channel #540", () => {
         expect((await downloadReplay(pool.id, replayId, version)).status).toBe(
           404,
         );
-      const file = await downloadReplay(pool.id, firstReplay.id, version);
-      expect(file.status).toBe(200);
-      expect(file.headers.get("Content-Type")).toBe("application/octet-stream");
-      expect(file.headers.get("Content-Disposition")).toContain(
-        encodeURIComponent(filename),
-      );
-      expect(file.headers.get("Content-Length")).toBe(String(bytes.length));
-      expect(Buffer.from(await file.arrayBuffer())).toEqual(bytes);
-      const head = await downloadReplay(
-        pool.id,
-        firstReplay.id,
-        version,
-        slug,
-        "HEAD",
-      );
-      expect(head.status).toBe(200);
-      expect(await head.text()).toBe("");
+      const server = createServer((request, response) => {
+        void showcaseReplayDownload(
+          Object.assign(request, {
+            query: { edition: slug, poolId: pool.id, replayId: firstReplay.id },
+          }),
+          response,
+        ).catch((error) => response.destroy(error));
+      });
+      server.listen(0, "127.0.0.1");
+      await once(server, "listening");
+      try {
+        const address = server.address();
+        if (!address || typeof address === "string")
+          throw new Error("Missing replay test port");
+        const url = `http://127.0.0.1:${address.port}?version=${version}`;
+        const headers = { Authorization: `Bearer ${token}`, Origin: origin };
+        for (const method of ["GET", "HEAD"]) {
+          const file = await fetch(url, { method, headers });
+          expect(file.status).toBe(200);
+          expect(file.headers.get("Cache-Control")).toBe(
+            "private, no-store, no-transform",
+          );
+          expect(file.headers.get("Content-Type")).toBe(
+            "application/octet-stream",
+          );
+          expect(file.headers.get("Content-Disposition")).toContain(
+            encodeURIComponent(filename),
+          );
+          expect(file.headers.get("Access-Control-Allow-Origin")).toBe(origin);
+          expect(file.headers.get("Content-Length")).toBe(String(bytes.length));
+          expect(file.headers.get("Transfer-Encoding")).toBeNull();
+          expect(Buffer.from(await file.arrayBuffer())).toEqual(
+            method === "GET" ? bytes : Buffer.alloc(0),
+          );
+        }
+      } finally {
+        await new Promise<void>((resolve, reject) =>
+          server.close((error) => (error ? reject(error) : resolve())),
+        );
+      }
 
       await lock(other.id, 0);
       const [lockedOther] = await db()

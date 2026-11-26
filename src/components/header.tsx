@@ -238,7 +238,7 @@ export function Header({
     { href: "/about", label: tr("Organizers") },
   ];
   const [open, setOpen] = useState(false);
-  const path = usePathname();
+  const path = usePathname() ?? "/";
   const header = useRef<HTMLElement>(null);
   const scrollHidden = useMobileHeaderScroll(header, open, path);
   const menuTrigger = useRef<HTMLButtonElement>(null);

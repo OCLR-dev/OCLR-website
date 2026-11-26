@@ -35,7 +35,7 @@ function Navigation({
 }) {
   const tr = useAppTranslations();
 
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -165,7 +165,7 @@ export function TournamentShell({
 }) {
   const tr = useAppTranslations();
 
-  const path = usePathname();
+  const path = usePathname() ?? "";
   const search = useSearchParams();
   const base = `/tournaments/${slug}`;
   const captainSection = captainWorkspaceSection(path, base);
@@ -181,7 +181,7 @@ export function TournamentShell({
     mobileToggle.current?.focus({ preventScroll: true });
   }
   const privateView =
-    (path === `${base}/draft` && search.get("presenter") === "1") ||
+    (path === `${base}/draft` && search?.get("presenter") === "1") ||
     captainSection !== null ||
     playerSection !== null ||
     path.includes("/draft/overlay");

@@ -107,12 +107,15 @@ function hasReadHandler(file: string) {
     return false;
   });
 }
+const showcaseReplayDownloadRoute =
+  "src/pages/api/internal/streaming/tournaments/[edition]/showcase/pools/[poolId]/replays/[replayId].ts";
 const files = [
   ...walk("src/app").filter(
     (p) =>
       /\/(?:page|layout)\.tsx$/.test(p) ||
       (/\/route\.ts$/.test(p) && hasReadHandler(p)),
   ),
+  showcaseReplayDownloadRoute,
   ...walk("src/components").filter(
     (p) =>
       /\.tsx?$/.test(p) &&
@@ -240,11 +243,8 @@ const rows = files.map((file) => {
         "Replay membership, revocation and exact beatmap checksum",
     };
   }
-  const replayRoute = file.match(
-    /\/showcase\/pools\/\[poolId\]\/replays\/(?:([^/]+)\/)?route\.ts$/,
-  );
-  if (replayRoute) {
-    const download = Boolean(replayRoute[1]);
+  const download = file === showcaseReplayDownloadRoute;
+  if (download || file.endsWith("/showcase/pools/[poolId]/replays/route.ts")) {
     return {
       file,
       kind: "read-route",
@@ -260,7 +260,9 @@ const rows = files.map((file) => {
         "Edition-bound Streaming Bearer, non-participant and version-specific replay grant; remote frontend rejects these URLs with 403",
       adapter: "Streaming API for the Overlay server",
       media: "Private replay attachments",
-      requiredVerification: "Versioned replay and attachment authorization",
+      requiredVerification: download
+        ? "Versioned replay and attachment authorization, original bytes and fixed HTTP length"
+        : "Versioned replay and attachment authorization",
     };
   }
   const text = fs.readFileSync(file, "utf8");
@@ -463,7 +465,7 @@ const reads = rows
     (r) =>
       r.kind === "read-route" &&
       r.authority !== "denied" &&
-      !r.file.includes("/api/v1/"),
+      r.authority !== "backend-only",
   )
   .map((r) => r.file.replace(/^src\/app/, "").replace(/\/route\.ts$/, ""));
 const pathsOutput = await format(JSON.stringify({ pages, reads }), {

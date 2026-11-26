@@ -39,8 +39,8 @@ export function AppearanceProvider({
   initialPreference?: Appearance;
   children: ReactNode;
 }) {
-  const path = usePathname(),
-    query = useSearchParams();
+  const path = usePathname() ?? "",
+    query = useSearchParams() ?? new URLSearchParams();
   const inherited = inheritedAppearance(path, query, scopes, siteDefault);
   const [choice, setChoice] = useState<{
     value: Appearance | undefined;
