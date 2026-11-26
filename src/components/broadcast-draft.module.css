@@ -1,4 +1,5 @@
 .broadcast {
+  --panel-background: #111625f5;
   height: 100svh;
   min-height: 0;
   display: grid;
@@ -12,8 +13,38 @@
 .broadcast[data-background="transparent"] {
   background: transparent;
 }
+.broadcast[data-background="opaque"] {
+  --panel-background: #111625dc;
+  isolation: isolate;
+  position: relative;
+  overflow: clip;
+}
+.broadcast[data-background="opaque"]::before {
+  content: "";
+  position: absolute;
+  inset: -4%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(155deg, #090c17a6, #140c2552 52%, #090c179c),
+    url("/branding/home-hero/nebula-v2-1600.webp") center / cover no-repeat;
+  transform: scale(1.04);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .broadcast[data-background="opaque"]::before {
+    animation: galaxy-drift 52s ease-in-out infinite alternate;
+  }
+}
+@keyframes galaxy-drift {
+  from {
+    transform: translate3d(-1.5%, 1%, 0) scale(1.04);
+  }
+  to {
+    transform: translate3d(2%, -1.5%, 0) scale(1.12);
+  }
+}
 .header {
-  background: #111625f5;
+  background: var(--panel-background);
   border-radius: 10px;
   display: grid;
   grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
@@ -83,7 +114,7 @@
 .ratings,
 .history {
   min-width: 0;
-  background: #111625f5;
+  background: var(--panel-background);
   border: 1px solid #3a304d;
   border-radius: 10px;
   padding: clamp(18px, 1.7vw, 32px);
