@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { and, eq, inArray, isNotNull } from "drizzle-orm";
+import { and, inArray, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
 import { chatArtworkCaptions as captions } from "@/db/schema";
 import { archiveArtworkLookup } from "./archive-artwork";
@@ -14,11 +14,16 @@ export function visionConfiguration() {
   const config = chatConfiguration();
   const model = process.env.OCLR_CHAT_VISION_MODEL?.trim();
   if (!model || !config) return null;
-  const key = createHash("sha256")
-    .update(JSON.stringify([1, config.baseURL, model]))
-    .digest("hex");
-  return { config, model, key };
+  const keyFor = (revision: number) =>
+    createHash("sha256")
+      .update(JSON.stringify([revision, config.baseURL, model]))
+      .digest("hex");
+  return { config, model, key: keyFor(2), previousKey: keyFor(1) };
 }
+
+const imageTerms =
+  /(?:背景\s*[圖图]|背景[畫画]面|封面[圖图]?|bg\s*[圖图]|\b(?:background\s+(?:images?|art)|artwork)\b)/i;
+const poolTerms = /(?:[譜谱]面|[圖图]池|\b(?:(?:beat)?maps?|mappools?)\b)/i;
 
 export function artworkQuery(
   question: string,
@@ -31,25 +36,29 @@ export function artworkQuery(
       " ",
     );
   if (
-    !/(?:背景(?:[圖图]|畫面|画面)?|封面|\bbg\b|bg[圖图]|backgrounds?|covers?|artwork)/i.test(
-      query,
-    ) ||
-    (!mappoolContext &&
-      !/(?:[譜谱]面|[圖图]池|\b(?:beat)?maps?\b|mappools?|bg[圖图]|[哪那][張张首][圖图])/i.test(
-        query,
-      ))
+    !imageTerms.test(query) &&
+    !(
+      (mappoolContext || poolTerms.test(query)) &&
+      /(?:背景|\b(?:bg|backgrounds?|covers?)\b)/i.test(query)
+    )
   )
     return null;
   return query
+    .trim()
     .replace(
-      /(?:[譜谱]面|[圖图]池|背景[圖图]?|封面|bg[圖图]?|mappools?|(?:beat)?maps?|backgrounds?|covers?|artwork|哪些|哪[些個个張张首]|[圖图]片|請問|请问|的|是|包含|[？?／/])/gi,
+      /^(?:我[說说指]的?(?:就)?是|我(?:是指|指的是)|I (?:mean|meant)\b)[\s,，]*/i,
+      "",
+    )
+    .replace(
+      /(?:[譜谱]面|[圖图]池|背景(?:\s*[圖图]|[畫画]面)?|封面[圖图]?|bg\s*[圖图]|\b(?:mappools?|(?:beat)?maps?|bg|backgrounds?(?:\s+(?:images?|art))?|covers?|artwork)\b|有?哪些|哪[些個个張张首]|[圖图]片|請問|请问|的|是|包含|[？?／/。！!])/gi,
       " ",
     )
     .replace(
       /\b(?:which|what|have|has|with|show|shows|a|an|the|in|on|their|are|is)\b/gi,
       " ",
     )
-    .trim();
+    .trim()
+    .replace(/^有\s*/, "");
 }
 
 type ArtworkMap = { image: string; title: string; url: string };
@@ -161,7 +170,7 @@ export async function artworkSources(edition: Edition) {
     .from(captions)
     .where(
       and(
-        eq(captions.model, vision.key),
+        inArray(captions.model, [vision.key, vision.previousKey]),
         inArray(captions.image, [...new Set(maps.map((m) => m.image))]),
         isNotNull(captions.caption),
       ),
