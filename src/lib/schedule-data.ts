@@ -133,7 +133,6 @@ export async function readScheduleContext(
       homeCaptainId !== awayCaptainId &&
       state.configuration?.published &&
       !state.hasArchive &&
-      !state.lockedAt &&
       state.configuration.status !== "completed" &&
       f.publishedAt &&
       f.status === "scheduled" &&

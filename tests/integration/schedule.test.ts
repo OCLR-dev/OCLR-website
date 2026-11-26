@@ -302,6 +302,10 @@ describe.skipIf(!url)("private schedule negotiation #591", () => {
         confirmedScheduledAt: new Date(official),
         confirmedTimeZone: "Asia/Taipei",
       });
+    await db()
+      .update(editionState)
+      .set({ lockedAt: new Date() })
+      .where(eq(editionState.slug, slug));
     const r = await pending();
     expect(
       (await db().select().from(fixtures))[0].scheduledAt?.toISOString(),
@@ -332,7 +336,10 @@ describe.skipIf(!url)("private schedule negotiation #591", () => {
       FOR EACH ROW EXECUTE FUNCTION public.synthetic_schedule_audit_failure()`);
     try {
       expect((await post(cmd)).status).toBe(500);
-      const saved = await scheduleReadRoute(new Request(requestUrl), routeContext);
+      const saved = await scheduleReadRoute(
+        new Request(requestUrl),
+        routeContext,
+      );
       expect(saved.status).toBe(200);
       expect(saved.headers.get("cache-control")).toBe("private, no-store");
       expect(await saved.json()).toMatchObject({
@@ -605,7 +612,26 @@ describe.skipIf(!url)("private schedule negotiation #591", () => {
       (await db().select().from(fixtures))[0].scheduledAt?.toISOString(),
     ).toBe(official);
   });
-  it.each(["time", "cancel", "unpublish", "lock", "captain"])(
+  it("preserves both captains' agreement when the draft locks", async () => {
+    const r = await pending();
+    await db()
+      .update(editionState)
+      .set({ lockedAt: new Date() })
+      .where(eq(editionState.slug, slug));
+    expect((await db().select().from(scheduleRequests))[0]).toMatchObject({
+      status: "pending",
+      version: 2,
+    });
+    await scheduleCommand(
+      admin,
+      slug,
+      command("approve", { requestId: r.id, expectedVersion: 2 }),
+    );
+    expect(
+      (await db().select().from(fixtures))[0].scheduledAt?.toISOString(),
+    ).toBe(proposed);
+  });
+  it.each(["time", "cancel", "unpublish", "complete", "captain"])(
     "permanently invalidates a proposal after %s changes through existing data paths",
     async (change) => {
       const r = await pending();
@@ -629,10 +655,12 @@ describe.skipIf(!url)("private schedule negotiation #591", () => {
           .update(fixtures)
           .set({ publishedAt: null })
           .where(eq(fixtures.id, id));
-      if (change === "lock")
+      if (change === "complete")
         await db()
           .update(editionState)
-          .set({ lockedAt: new Date() })
+          .set({
+            configuration: sql`jsonb_set(configuration, '{status}', '"completed"')`,
+          })
           .where(eq(editionState.slug, slug));
       if (change === "captain")
         await db()
