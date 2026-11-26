@@ -1,4 +1,5 @@
 import { getAppTranslations } from "@/i18n/server";
+import { registrationStateLabel } from "@/i18n/registration-state";
 import { authorizedPage } from "@/lib/auth/page";
 import { canRead, staffAccess } from "@/lib/auth/staff";
 import { requireStaff } from "@/lib/auth/staff-request";
@@ -69,7 +70,7 @@ async function Issue271Page({
                 {data
                   ? tr("Configure tournament")
                   : tr("Open {value0}", {
-                      value0: primary.label.toLowerCase(),
+                      value0: tr(primary.label),
                     })}
               </Link>
             )}
@@ -99,9 +100,7 @@ async function Issue271Page({
               <span
                 className={`badge registration-state state-${row.registrationState}`}
               >
-                {row.registration
-                  ? row.registrationState
-                  : tr("Not configured")}
+                {registrationStateLabel(row.registrationState, tr)}
               </span>
               {data && (
                 <Link
