@@ -151,11 +151,10 @@ test.describe("published OBS browser-source rehearsal", () => {
     await page.reload();
     expect(await selection.evaluate((el) => el.getAnimations().length)).toBe(0);
     await context.setOffline(true);
-    await expect(page.getByRole("status")).toContainText("Reconnecting");
+    await page.waitForFunction(() => !navigator.onLine);
     await expect(selection).toContainText(fixture.players[0].username);
     await pick(staff, fixture.players[1].osuId);
     await context.setOffline(false);
-    await expect(page.getByRole("status")).toContainText("Connected");
     await expect(selection).toContainText(fixture.players[1].username);
     await expect(
       selection.getByRole("heading", {
@@ -176,7 +175,7 @@ test.describe("published OBS browser-source rehearsal", () => {
     ); // Explicit repeating order, A → B → A → B.
 
     await command("pause");
-    await expect(page.locator("[data-state]")).toHaveText("Paused");
+    await expect(current).toContainText("ON HOLD");
     await command("undo");
     await page.waitForResponse(
       (res) => new URL(res.url()).pathname === endpoint,
@@ -206,9 +205,9 @@ test.describe("published OBS browser-source rehearsal", () => {
     ).toBeVisible();
     expect(await selection.evaluate((el) => el.getAnimations().length)).toBe(0);
     await pick(staff, fixture.players[3].osuId);
-    await expect(page.locator("[data-state]")).toHaveText("Draft completed");
+    await expect(current).toHaveAttribute("data-state", "completed");
     await command("finalize");
-    await expect(page.locator("[data-state]")).toHaveText("Rosters finalized");
+    await expect(current).toHaveAttribute("data-state", "finalized");
     await expect(current).toContainText("Teams assembled.");
     await expect(
       page

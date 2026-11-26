@@ -56,7 +56,7 @@ A hidden or unresolved parent result yields a TBA slot, never the future fixture
 
 ## Broadcast overlay
 
-The read-only `/tournaments/[edition]/draft/overlay` browser source is designed for 1920×1080; `?background=transparent` enables compositing. It shows only published picks, the selecting captain/team, current turn and roster progress. Both pick methods use the same feed. Reconnect/reload does not mutate or replay the draft. See [OBS setup and rehearsal](deployment.md#obs-browser-source) for source settings and verification limits.
+The read-only `/tournaments/[edition]/draft/overlay` browser source is designed for 1920×1080; `?background=transparent` enables compositing. It shows published picks, receiving teams, the next pick and player ratings. OBS can layer the existing Bilibili live chat source into the header. Both pick methods use the same feed. Reconnect/reload does not mutate or replay the draft. See [OBS setup and rehearsal](deployment.md#obs-browser-source) for source settings and verification limits.
 
 ## Competition fixtures and result foundation
 

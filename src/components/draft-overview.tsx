@@ -1,6 +1,7 @@
 import { useAppTranslations } from "@/i18n/shared";
 import type { DraftBoard } from "@/lib/draft-types";
 import { Avatar } from "./avatar";
+import { DraftRosterName } from "./draft-roster-name";
 import { DraftTierBadge } from "./draft-tier-badge";
 
 function PickList({
@@ -27,7 +28,7 @@ function PickList({
             {String(pick.turnIndex + 1).padStart(2, "0")}
           </span>
           <Avatar osuId={pick.player.osuId} username={pick.player.username} />
-          <div>
+          <div className="captain-pick-identity">
             <strong>{pick.player.username}</strong>
             <span className="muted small">{pick.team.name}</span>
           </div>
@@ -91,12 +92,10 @@ export function DraftOverview({
                           osuId={player.osuId}
                           username={player.username}
                         />
-                        <a
-                          className="context-link"
-                          href={`https://osu.ppy.sh/users/${player.osuId}`}
-                        >
-                          {player.username}
-                        </a>
+                        <DraftRosterName
+                          osuId={player.osuId}
+                          username={player.username}
+                        />
                         {tier !== undefined && <DraftTierBadge tier={tier} />}
                       </li>
                     );

@@ -14,11 +14,15 @@
 }
 .header {
   background: #111625f5;
-  padding: 20px 24px;
   border-radius: 10px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+}
+.branding {
   display: flex;
   align-items: center;
   gap: 3vw;
+  padding: 20px 24px;
   min-width: 0;
 }
 .brand {
@@ -40,31 +44,32 @@
   margin-top: 12px;
   font-weight: 400;
 }
-.heading {
-  min-width: 0;
-}
-.heading h1 {
+.branding h1 {
   font-size: clamp(26px, 3vw, 52px);
   line-height: 1.1;
   margin: 0;
   overflow-wrap: anywhere;
 }
-.status {
-  margin-left: auto;
-  text-align: right;
-  flex-shrink: 0;
+.streamChat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 10px clamp(12px, 1.25vw, 24px);
+  border-inline-start: 1px solid #332c44;
 }
-.status strong {
-  font-size: 18px;
-  color: #f0cb83;
+.streamChat h2 {
+  margin: 0;
+  color: #e9b8fc;
+  font-size: clamp(0.875rem, 1.05vw, 1.2rem);
+  line-height: 1.25;
 }
-.status strong[data-state="live"] {
-  color: #92e9ce;
-}
-.status p {
-  font-size: 14px;
-  color: #bdc2d8;
-  margin: 6px 0 0;
+.streamChatSlot {
+  flex: 0 1 clamp(180px, 20.73vw, 398px);
+  height: clamp(50px, 5.84vw, 112px);
+  border-radius: 6px;
+  background: #090c1766;
 }
 .stage,
 .details {
@@ -309,7 +314,7 @@
     padding: 20px;
     grid-template-rows: auto minmax(210px, 0.8fr) minmax(0, 1fr);
   }
-  .header {
+  .branding {
     padding: 12px 20px;
   }
   .brand {
@@ -341,13 +346,19 @@
     padding: 24px;
   }
   .header {
-    flex-wrap: wrap;
-    gap: 24px;
+    grid-template-columns: minmax(0, 1fr);
     margin-bottom: 28px;
   }
-  .status {
-    margin-left: 0;
-    text-align: left;
+  .branding {
+    padding: 16px;
+  }
+  .streamChat {
+    padding-inline: 16px;
+    border-inline-start: 0;
+    border-block-start: 1px solid #332c44;
+  }
+  .streamChatSlot {
+    flex-basis: min(70%, 398px);
   }
   .stage,
   .details {
