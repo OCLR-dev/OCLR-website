@@ -10,7 +10,7 @@ test("allows opening at kickoff and rejects a later deadline", async ({
   page,
 }) => {
   await page.goto("/pickem-admin");
-  await page.getByText("Final · M1", { exact: true }).click();
+  await page.getByText("M1", { exact: true }).click();
   const time = page.getByLabel("Pick deadline: time (HH:mm)");
   const open = page.getByRole("button", { name: "Open predictions" });
   await expect(open).toBeEnabled();
@@ -33,7 +33,7 @@ test("requires a strictly earlier instant to tighten an open window", async ({
   page,
 }) => {
   await page.goto("/pickem-admin?active");
-  await page.getByText("Final · M1", { exact: true }).click();
+  await page.getByText("M1", { exact: true }).click();
   const time = page.getByLabel("Pick deadline: time (HH:mm)");
   const tighten = page.getByRole("button", { name: "Set earlier deadline" });
   await expect(tighten).toBeDisabled();
