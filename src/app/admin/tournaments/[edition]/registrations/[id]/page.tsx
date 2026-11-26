@@ -55,6 +55,7 @@ async function Issue271Page({
             {r.userId}
           </PageHeading>
           <div className="application-profile-summary">
+            <span className="muted small">{"osu!standard"}</span>
             <dl>
               <div>
                 <dt>{tr("Global rank")}</dt>
