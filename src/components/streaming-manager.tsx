@@ -149,16 +149,6 @@ function CommentaryAssignment({
           </div>
         </ReadOnlyFields>
       </details>
-      {invalid && (
-        <p role="alert" className="notice small">
-          {tr("Choose an active Commentator authorized for this edition.")}
-        </p>
-      )}
-      {error && (
-        <p role="alert" className="notice error-text">
-          {tr(error)}
-        </p>
-      )}
       <StreamingMutation
         key={`${ids.join(",")}:${fixture.streamRevision}:${fixture.version}`}
         label={tr("Assign Commentator")}
@@ -182,6 +172,16 @@ function CommentaryAssignment({
         }}
         onError={setError}
       />
+      {invalid && (
+        <p role="alert" className="notice small">
+          {tr("Choose an active Commentator authorized for this edition.")}
+        </p>
+      )}
+      {error && (
+        <p role="alert" className="notice error-text">
+          {tr(error)}
+        </p>
+      )}
     </>
   );
 }
@@ -293,7 +293,10 @@ function BroadcastBookings({
       {available &&
         (data.canManage ||
           (canSelect && (commentary ? !own : !f.assignment))) && (
-          <div className={styles.controls}>
+          <div
+            className={styles.controls}
+            data-commentary={commentary || undefined}
+          >
             {data.canManage && commentary && (
               <CommentaryAssignment slug={slug} fixture={f} data={data} />
             )}
@@ -448,10 +451,11 @@ function StreamingTask({
           <p className="small muted">{f.roundName}</p>
           <h2>
             <Link
-              className="text-link"
+              className={styles.matchLink}
               href={`/admin/tournaments/${slug}/matches/${f.id}`}
             >
-              {f.label}
+              <span>{f.label}</span>
+              <span aria-hidden="true" className={styles.matchArrow} />
             </Link>
           </h2>
         </div>
