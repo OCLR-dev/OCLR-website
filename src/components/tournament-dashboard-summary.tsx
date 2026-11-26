@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { competitionStageLabel } from "@/lib/competition-stage";
 import type { AppTranslator } from "@/i18n/translate";
-import type { captainSetup } from "@/lib/captain-reads";
+import type { staffTeams } from "@/lib/team-reads";
 import type { MappoolWorkspace } from "@/lib/mappool-reads";
 import type { FixtureWorkspace } from "@/lib/fixture-reads";
 import type { StreamingWorkspace } from "@/lib/streaming-workspace";
@@ -46,7 +46,7 @@ function poolsByStage(workspace: MappoolWorkspace) {
 
 export function TournamentDashboardSummary({
   base,
-  captains,
+  teams,
   pools,
   fixtures,
   streams,
@@ -54,7 +54,7 @@ export function TournamentDashboardSummary({
   now,
 }: {
   base: string;
-  captains: Awaited<ReturnType<typeof captainSetup>>["captains"] | null;
+  teams: Awaited<ReturnType<typeof staffTeams>>["teams"] | null;
   pools: MappoolWorkspace | null;
   fixtures: FixtureWorkspace | null;
   streams: StreamingWorkspace | null;
@@ -101,7 +101,7 @@ export function TournamentDashboardSummary({
   const mapCounts = new Map<string, number>();
   for (const entry of pools?.entries ?? [])
     mapCounts.set(entry.poolId, (mapCounts.get(entry.poolId) ?? 0) + 1);
-  if (!captains && !pools && !fixtures && !streams) return null;
+  if (!teams && !pools && !fixtures && !streams) return null;
   return (
     <div className={styles.summary}>
       {(fixtures || streams) && (
@@ -139,26 +139,22 @@ export function TournamentDashboardSummary({
           )}
         </section>
       )}
-      {captains && (
+      {teams && (
         <section className={styles.card}>
           <h2>
-            <Link href={`${base}/captains`}>{tr("Captains")}</Link>
-            <span className="badge">{captains.length}</span>
+            <Link href={`${base}/teams`}>{tr("Teams")}</Link>
+            <span className="badge">{teams.length}</span>
           </h2>
-          {captains.length ? (
-            <ol className={styles.list}>
-              {captains.map((c, index) => (
-                <li key={c.userId}>
-                  <span className={styles.number}>{index + 1}</span>
-                  <strong>{c.username}</strong>
-                  {c.teamName && c.teamName !== c.username && (
-                    <small>{c.teamName}</small>
-                  )}
+          {teams.length ? (
+            <ul className={styles.list}>
+              {teams.map((team) => (
+                <li key={team.id}>
+                  <strong>{team.name}</strong>
                 </li>
               ))}
-            </ol>
+            </ul>
           ) : (
-            <p className="muted">{tr("No captains appointed.")}</p>
+            <p className="muted">{tr("No teams yet")}</p>
           )}
         </section>
       )}
