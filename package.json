@@ -57,6 +57,7 @@
     "db:refresh-sip-ratings": "tsx scripts/refresh-sip-ratings.ts",
     "db:refresh-player-leaderboard": "tsx scripts/refresh-player-leaderboard.ts",
     "db:refresh-beatmap-difficulties": "tsx scripts/refresh-beatmap-difficulties.ts",
+    "beatmap:similarity": "node --import tsx scripts/beatmap-similarity.ts",
     "chat:index": "node --import tsx scripts/refresh-chat-index.ts",
     "db:refresh-otr-ratings": "node --import tsx scripts/refresh-otr-ratings.ts",
     "db:refresh-etx-ratings": "tsx scripts/refresh-etx-ratings.ts",
