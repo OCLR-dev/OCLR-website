@@ -135,7 +135,7 @@ test.describe("isolated multi-captain rehearsal", () => {
     await closedRegistration.goto(`/tournaments/${slug}/register`);
     await expect(
       closedRegistration.getByRole("heading", {
-        name: "Registration is not open",
+        name: "Registration closed",
         exact: true,
       }),
     ).toBeVisible();

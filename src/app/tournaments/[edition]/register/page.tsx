@@ -56,9 +56,11 @@ async function Issue271Page({
       ) : availability !== "open" ? (
         <EmptyState
           title={
-            availability === "unavailable"
-              ? tr("Registration temporarily unavailable")
-              : tr("Registration is not open")
+            availability === "closed"
+              ? tr("Registration closed")
+              : availability === "unavailable"
+                ? tr("Registration temporarily unavailable")
+                : tr("Registration is not open")
           }
         >
           {tr("Check the tournament overview for registration dates.")}
