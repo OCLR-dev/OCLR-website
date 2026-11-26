@@ -108,6 +108,9 @@ export function chatAnswer({
             : evidence.playerProfile
               ? "Use the supplied OCLR public player profile for the resolved player's identity, published participation, team results and saved ratings. For general questions about a named player, use relevant participation, placements and team results from all published seasons in the profile. Name the seasons and separate team outcomes from individual ratings or performance. When the user explicitly names a season, lead with that season's data. Mention missing selected-edition evidence only when it matters to the question. Treat ETX and SIP as saved profile observations. ETX mod values are stars, and SIP accuracy and combo are model shares from 0 to 1. Date saved metrics when relevant. Use publishedMapHistory for OCLR map results and actual mod usage. Keep historical match performance separate from present-day provider ratings. Briefly redirect unrelated requests to this tournament."
               : "Answer questions about OCLR using only the supplied public evidence and the specified season scope. Briefly redirect unrelated requests to this tournament.",
+          evidence.selfRequest === "profile"
+            ? "The supplied public profile belongs to the authenticated person asking this question. Interpret first-person references as that player. Base facts on their public profile and resolve the result within any requested season."
+            : "",
           evidence.seasonScope
             ? "Follow seasonScope. Answer across its published editions and attribute each fact to its season. If editions are unavailable, say no public records are available for those requested editions. Treat ranked results as excerpts and do not claim exhaustive coverage or merge unrelated seasons."
             : "",

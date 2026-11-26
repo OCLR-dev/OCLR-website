@@ -11,6 +11,34 @@ import { addressableUsername, databaseUsernameOwner } from "./player-username";
 const asksModHistory =
   /\b(?:mod history|mod usage|mappool performance|match history|(?:nm|hd|hr|dt|fm|tb)\d*)\b|模[組组]|實戰|实战|上[場场][紀纪][錄录]|[圖图]池表[現现]/i;
 
+export function selfPlayerRequest(question: string) {
+  const query = question
+    .normalize("NFKC")
+    .trim()
+    .replace(/[?!.。]+$/, "")
+    .replace(/^(?:[請请][問问]|(?:可以)?[幫帮]我查(?:一下)?)\s*/, "")
+    .trim();
+  if (
+    /^(?:我(?:是[誰谁]|叫(?:什[麼么]|啥)(?:名字)?|的\s*osu!?\s*(?:帳號|账号|ID)(?:是什[麼么])?)|who am i|what is my osu!? (?:id|account))$/i.test(
+      query,
+    )
+  )
+    return "identity";
+
+  if (
+    /^(?:本[屆届]\s*)?我的\s*(?:(?:OCLR\s*)?(?:公[開开])?(?:[選选]手|[個个]人)?[資资]料|(?:本[屆届])?[隊队]伍|排名|pp|SIP(?:\s+.+)?|ETX(?:\s+.+)?|[戰战][績绩]|(?:\b(?:NM|HD|HR|DT|FM|TB)\s*)?[實实][戰战](?:[紀纪記记][錄录]|表[現现])?|[參参][賽赛][紀纪記记][錄录])(?:是什[麼么]|是多少|如何|呢)?$/i.test(
+      query,
+    ) ||
+    /^我(?:在本[屆届])?(?:是哪(?:一)?[支隊队](?:[隊队]伍|伍)?|是(?:本[屆届])?[隊队][長长][嗎吗]|[參参]加[過过]哪些[賽赛]季)$/.test(
+      query,
+    ) ||
+    /^(?:(?:what (?:is|are)|show me)\s+)?my (?:public )?(?:oclr )?(?:player profile|profile|rank|pp|team|results|(?:match|mod) history|SIP|ETX)$/i.test(
+      query,
+    )
+  )
+    return "profile";
+}
+
 function playerTarget(question: string) {
   const query = question
     .trim()
@@ -57,6 +85,7 @@ export async function chatPlayerProfile(
   edition: Pick<Edition, "slug" | "name">,
   question: string,
   previous: string,
+  selfId?: number,
 ): Promise<ChatSource | null> {
   const followUp =
     /^(?:是的?|[對对](?:的)?|yes|correct|(?:那)?(?:他|她)(?:的)?(?:排名|[戰战][績绩]|[隊队]伍|pp)(?:呢)?|(?:what about |and )?(?:their|his|her) (?:team|rank|pp|record))\s*[?？!！。.]?$/i;
@@ -68,6 +97,7 @@ export async function chatPlayerProfile(
     /^(?:那)?(?:他|她)(?:的)?/u.test(question.trim()) &&
     asksModHistory.test(question);
   const target =
+    (selfId === undefined ? null : String(selfId)) ??
     (ratingFollowUp || modFollowUp ? playerTarget(previous) : null) ??
     playerTarget(question) ??
     (followUp.test(question.trim()) ? playerTarget(previous) : null);

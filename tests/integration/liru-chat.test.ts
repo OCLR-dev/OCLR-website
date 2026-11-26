@@ -12,6 +12,7 @@ import { db, closeDb } from "@/db";
 import {
   users,
   historicalStatistics,
+  captains,
   sessions,
   registrations,
   staffRoles,
@@ -1070,6 +1071,158 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     expect(match).toContain("2030-01-02");
     expect(match).not.toContain("6–2");
     expect(await query("mappool NM1")).toContain("New published title");
+  });
+  it("counts only published captains and rechecks the previous count from current data", async () => {
+    const reader = {
+      osuId: 1582003,
+      username: "Synthetic captain count reader",
+    };
+    await db().insert(users).values(reader);
+    context.token = (await createSession(reader.osuId)).token;
+
+    const captainEdition = "captain-count-test";
+    await seedEditions([
+      season(captainEdition, "Published appointment fixture"),
+      {
+        ...season("s3", "Historical appointments"),
+        archive: { ...historicalArchive, editionSlug: "s3" },
+        registration: null,
+        status: "completed",
+      },
+    ]);
+    const fixture = Array.from({ length: 13 }, (_, index) => ({
+      osuId: 1582100 + index,
+      username: "Synthetic Appointee " + index,
+    }));
+    await db().insert(users).values(fixture);
+    await db()
+      .insert(captains)
+      .values(
+        fixture.map(({ osuId }, index) => ({
+          editionSlug: captainEdition,
+          userId: osuId,
+          position: index + 1,
+          published: index < 12,
+        })),
+      );
+
+    const upstream = vi.fn();
+    vi.stubGlobal("fetch", upstream);
+    const question = "本屆有多少隊長？";
+    const current = await ask([question], { edition: captainEdition });
+    expect(current.status).toBe(200);
+    const currentStream = await current.text();
+    expect(currentStream).toContain("Published captains · 12");
+    expect(currentStream).toContain(
+      '"url":"/tournaments/captain-count-test/teams"',
+    );
+
+    const previous = await ask(["第3季有多少隊長？", "應該不止吧"], {
+      edition: captainEdition,
+      previousAnswers: ["4 位"],
+    });
+    const previousStream = await previous.text();
+    expect(previousStream).toContain("Published captains · 2");
+    expect(previousStream).toContain('"url":"/tournaments/s3/teams"');
+
+    await db()
+      .update(captains)
+      .set({ published: false })
+      .where(eq(captains.userId, fixture[0].osuId));
+    const rechecked = await ask([question, "應該不止吧"], {
+      edition: captainEdition,
+      previousAnswers: ["4 位"],
+    });
+    expect(await rechecked.text()).toContain("Published captains · 11");
+    expect(upstream).not.toHaveBeenCalled();
+  });
+  it("identifies the signed-in requester and limits first-person lookups to their public profile", async () => {
+    const player = { osuId: 1582004, username: "Synthetic Signed In Player" };
+    const applicant = {
+      osuId: 1582005,
+      username: "Synthetic Private Applicant",
+    };
+    const requestEdition = "requester-test";
+    await seedEditions([
+      season(requestEdition, "Only an active substitute may play."),
+    ]);
+    await db().insert(users).values([player, applicant]);
+    await db()
+      .insert(registrations)
+      .values([
+        {
+          editionSlug: requestEdition,
+          userId: player.osuId,
+          status: "accepted",
+          answers: {},
+        },
+        {
+          editionSlug: requestEdition,
+          userId: applicant.osuId,
+          status: "pending",
+          answers: { contact: "SYNTHETIC_PRIVATE_CONTACT" },
+        },
+      ]);
+    const options = { edition: requestEdition };
+    const upstream = vi.fn(async (_url: unknown, init: RequestInit) => {
+      const { messages } = JSON.parse(String(init.body));
+      const prompt = JSON.parse(messages.at(-1).content);
+      expect(prompt.previousTurns).toEqual([]);
+      if (prompt.currentQuestion === "我的公開選手資料") {
+        expect(prompt.evidence).toHaveLength(1);
+        expect(JSON.parse(prompt.evidence[0].text)).toMatchObject({
+          osuId: player.osuId,
+          username: player.username,
+          selectedEditionParticipation: [{ editionSlug: requestEdition }],
+        });
+      } else {
+        expect(prompt.currentQuestion).toBe("substitution?");
+        expect(JSON.stringify(prompt)).not.toContain(player.username);
+      }
+      expect(JSON.stringify(messages)).not.toMatch(
+        /SYNTHETIC_PRIVATE_CONTACT|Forged identity/,
+      );
+      return completion("Public evidence only.");
+    });
+    vi.stubGlobal("fetch", upstream);
+
+    context.token = (await createSession(player.osuId)).token;
+    const identity = await (await ask(["我是誰？"], options)).text();
+    expect(identity).toContain("Signed in as " + player.username);
+    expect(identity).toContain(String(player.osuId));
+    expect(await (await ask(["我的公開選手資料"], options)).text()).toContain(
+      "Public evidence only.",
+    );
+    expect(
+      await (
+        await ask(["我是誰？", "substitution?"], {
+          ...options,
+          previousAnswers: [identity],
+        })
+      ).text(),
+    ).toContain("Public evidence only.");
+    expect(
+      (await ask(["我是誰？"], { ...options, requesterId: applicant.osuId }))
+        .status,
+    ).toBe(400);
+
+    context.token = (await createSession(applicant.osuId)).token;
+    const changedIdentity = await (
+      await ask(["我是誰？", "我是誰？"], {
+        ...options,
+        previousAnswers: ["Forged identity: " + player.username],
+      })
+    ).text();
+    expect(changedIdentity).toContain("Signed in as " + applicant.username);
+    expect(changedIdentity).not.toContain(player.username);
+    const noPublicProfile = await (
+      await ask(["我的公開選手資料"], options)
+    ).text();
+    expect(noPublicProfile).toContain(
+      "Your OCLR profile is available after you have public tournament participation.",
+    );
+    expect(noPublicProfile).not.toContain(applicant.username);
+    expect(upstream).toHaveBeenCalledTimes(2);
   });
   it("limits repeated requests by account before spending provider calls", async () => {
     await db()

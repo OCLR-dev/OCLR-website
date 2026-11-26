@@ -10,7 +10,7 @@ import {
   draftRecommendationRequest,
   draftCandidateSources,
 } from "./chat-draft-candidates";
-import { chatPlayerProfile } from "./chat-player-profile";
+import { chatPlayerProfile, selfPlayerRequest } from "./chat-player-profile";
 import { artworkQuery, artworkSources } from "./chat-artwork";
 import { seasonCount, seasonCountIntent } from "./chat-season-counts";
 import {
@@ -52,6 +52,7 @@ type ChatEvidence = {
   greeting?: true;
   draftRecommendation?: true;
   playerProfile?: true;
+  selfRequest?: NonNullable<ReturnType<typeof selfPlayerRequest>>;
   playerDirectory?: true;
   mappoolDirectory?: true;
   competitionPage?: true;
@@ -68,6 +69,7 @@ export async function chatEvidence(
   signal?: AbortSignal,
   onEmbeddingFallback?: (error: unknown) => void,
   previousAnswer = "",
+  requesterId?: number,
 ): Promise<ChatEvidence> {
   const selected = await getPublicEdition(slug);
   if (!selected) throw new HttpError(404, "Tournament not found.");
@@ -102,6 +104,11 @@ export async function chatEvidence(
       ],
     };
   }
+  const selfRequest =
+    requesterId === undefined ? undefined : selfPlayerRequest(question);
+  if (selfRequest === "identity")
+    return { edition: selected.name, selfRequest, total: null, sources: [] };
+
   const draft = draftRecommendationRequest(question, previous);
   const direct = chatAnalysisIntent(question, "");
   const technical =
@@ -132,12 +139,25 @@ export async function chatEvidence(
   const previousSearch =
     refersBack && previousAnswer ? previous + "\n" + previousAnswer : previous;
 
-  const scope = await chatSeasonScope(
-    selected,
-    question,
-    previous,
-    refersBack || !!draft?.previous,
-  );
+  const recheck =
+    previous &&
+    /^(?:(?:[應应][該该])?不[止只](?:吧|[嗎吗])?|(?:再|重新)[查算][一1]次|(?:are you sure|is that all|check again))[。？！?!.]*$/i.test(
+      question.normalize("NFKC").trim(),
+    );
+  const priorScope = recheck
+    ? await chatSeasonScope(selected, previous, "", false)
+    : null;
+  const priorQuestion = priorScope?.question || previous;
+  const recheckCaptains =
+    recheck && seasonCountIntent(priorQuestion) === "captains";
+  const scope = recheckCaptains
+    ? priorScope
+    : await chatSeasonScope(
+        selected,
+        question,
+        previous,
+        refersBack || !!draft?.previous,
+      );
   if (draft) {
     const target =
       !scope || scope.summary.allPublished
@@ -155,10 +175,25 @@ export async function chatEvidence(
         : [],
     };
   }
+  if (selfRequest === "profile" && requesterId !== undefined) {
+    const target = scope?.editions.length === 1 ? scope.editions[0] : selected;
+    const profile =
+      scope && !scope.editions.length
+        ? null
+        : await chatPlayerProfile(target, question, previous, requesterId);
+    return {
+      edition: target.name,
+      selfRequest,
+      playerProfile: true,
+      seasonScope: scope?.summary,
+      total: null,
+      sources: profile ? [profile] : [],
+    };
+  }
   if (!scope)
     return seasonEvidence(
       selected,
-      question,
+      recheckCaptains ? priorQuestion : question,
       previous,
       previousSearch,
       now,
