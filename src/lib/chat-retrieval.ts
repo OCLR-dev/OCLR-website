@@ -50,6 +50,7 @@ const concepts = [
   ["禁圖", "禁图", "ban"],
   ["選圖", "选图", "pick"],
   ["圖池", "图池", "mappool", "pool", "map pool"],
+  ["mod history", "mod usage", "模組", "模组", "實戰", "实战"],
   ["準決賽", "半决赛", "半決賽", "semifinal"],
   ["決賽", "决赛", "final"],
   ["四分之一决赛", "八強", "八强", "quarterfinal"],

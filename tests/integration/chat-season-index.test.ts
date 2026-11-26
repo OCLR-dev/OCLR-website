@@ -8,6 +8,7 @@ import {
   editionState,
   etxRatingCache,
   fixtures,
+  historicalStatistics,
   importedPlayerRatings,
   otrRatingCache,
   registrations,
@@ -21,6 +22,7 @@ import {
   users,
 } from "@/db/schema";
 import * as archiveArtwork from "@/lib/archive-artwork";
+import { statisticsArchiveKey } from "@/lib/archive-statistics-key";
 import { visionConfiguration } from "@/lib/chat-artwork";
 import { refreshChatIndex } from "@/lib/chat-index-worker";
 import { chatEvidence } from "@/lib/chat-sources";
@@ -29,6 +31,10 @@ import { searchSeasonIndex } from "@/lib/chat-vectors";
 import { seedEditions } from "../fixtures/editions";
 import { seedPublicDirectory } from "../fixtures/players";
 import { edition } from "../fixtures/edition";
+import {
+  statisticsArchive,
+  statisticsSource,
+} from "../fixtures/archive-statistics";
 import { historicalArchive } from "../fixtures/historical-archive";
 import { sipRating } from "../fixtures/sip-response";
 import { assertTestDatabase } from "../database";
@@ -455,6 +461,141 @@ it.skipIf(!url)(
     const followUp = await chatEvidence(slug, "那 HD 呢？", recommendation);
     expect(followUp.sources).toEqual(hidden.sources);
     expect(calls).toHaveLength(embeddingCalls);
+
+    const history = structuredClone(statisticsArchive);
+    history.editionSlug = "s7";
+    history.matches[0].score = [3, 0];
+    history.picks[0].osuId = eligible.osuId;
+    history.pools[0].maps.forEach((map, i) => {
+      map.slot = "HD" + (i + 1);
+    });
+    history.players.find((player) => player.osuId === 91003)!.osuId =
+      eligible.osuId;
+    history.players.find((player) => player.osuId === 91001)!.osuId =
+      home.unpublishedCaptainId;
+    const previousEdition = {
+      ...edition,
+      slug: history.editionSlug,
+      name: "Synthetic public HD season",
+      status: "completed" as const,
+      registration: null,
+      archive: history,
+    };
+    await seedEditions([previousEdition]);
+    const source = statisticsSource();
+    for (const game of source.games) {
+      for (const score of game.scores) {
+        score.total = (score.total ?? 0) * 1000;
+        if (score.osuId === 91003) {
+          score.osuId = eligible.osuId;
+          score.mods = ["HD", "NF"];
+        } else if (score.osuId === 91001) {
+          score.osuId = home.unpublishedCaptainId;
+        }
+      }
+    }
+    const publishedMods = {
+      archiveKey: statisticsArchiveKey(history),
+      source,
+      poolId: history.pools[0].id,
+      included: [1, 2, 4],
+    };
+    await db().insert(historicalStatistics).values({
+      editionSlug: history.editionSlug,
+      fixtureId: history.matches[0].id,
+      mpId: source.match.id,
+      version: 2,
+      draft: publishedMods,
+      published: publishedMods,
+      publishedAt: saved,
+    });
+
+    const byHistory = await chatEvidence(
+      slug,
+      "可以根據歷屆實戰推薦一下 HD 隊員嗎？",
+      "",
+    );
+    expect(byHistory.draftRecommendation).toBe(true);
+    expect(JSON.parse(byHistory.sources[0].text)).toMatchObject({
+      category: "HD",
+      minimumRatedMaps: 3,
+      selectablePlayers: 1,
+      rankedCandidateIds: [eligible.osuId],
+    });
+    expect(JSON.parse(byHistory.sources[1].text)).toMatchObject({
+      username: eligible.username,
+      maps: 3,
+      ratedMaps: 3,
+      actualModUses: 3,
+      sampleSufficient: true,
+      seasons: [{ editionSlug: history.editionSlug, ratedMaps: 3 }],
+    });
+    expect(byHistory.sources[1].url).toBe("/players/" + eligible.osuId);
+
+    const profile = await chatEvidence(
+      slug,
+      eligible.username + "的 HD 實戰如何？",
+      "",
+    );
+    expect(profile.playerProfile).toBe(true);
+    expect(
+      JSON.parse(profile.sources[0].text).publishedMapHistory,
+    ).toContainEqual(
+      expect.objectContaining({
+        editionSlug: history.editionSlug,
+        actualModUsage: [{ mod: "HD", count: 3 }],
+        poolPerformance: [
+          {
+            category: "HD",
+            maps: 3,
+            ratedMaps: 3,
+            averageEffectiveRating: expect.any(Number),
+          },
+        ],
+      }),
+    );
+
+    expect((await refreshChatIndex()).failed).toBe(0);
+    const indexedMods = await db()
+      .select({ content: vectors.content })
+      .from(vectors)
+      .where(
+        and(
+          eq(vectors.editionSlug, history.editionSlug),
+          eq(vectors.collection, "playerMods"),
+        ),
+      );
+    expect(
+      indexedMods.map(({ content }) => JSON.parse(content)),
+    ).toContainEqual(
+      expect.objectContaining({
+        osuId: eligible.osuId,
+        actualModUsage: [{ mod: "HD", count: 3 }],
+        slotAppearances: [
+          { slot: "HD1", plays: 2 },
+          { slot: "HD2", plays: 1 },
+        ],
+      }),
+    );
+
+    await db()
+      .update(historicalStatistics)
+      .set({ published: null, publishedAt: null })
+      .where(eq(historicalStatistics.editionSlug, history.editionSlug));
+    expect((await chatEvidence(slug, hdQuestion, "")).sources).toEqual(
+      hidden.sources,
+    );
+    expect(
+      (
+        await searchSeasonIndex(
+          previousEdition,
+          "MOD history HD Historical Player",
+          "",
+        )
+      ).some((source) => source.text.includes("actualModUsage")),
+    ).toBe(false);
+
+    await seedEditions([{ ...previousEdition, published: false }]);
 
     await db()
       .update(registrations)

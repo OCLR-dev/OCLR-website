@@ -1,4 +1,6 @@
 import { readOnlyData } from "@/db";
+import { draftModHistorySources } from "./chat-player-mod-history";
+import { slotCategory } from "./mappool-model";
 import { sipModCode } from "./chat-rating-sources";
 import {
   chatDirectoryPlayers,
@@ -25,7 +27,7 @@ function asksDraftRecommendation(question: string) {
 }
 
 const shortRecommendationFollowUp =
-  /^(?:那|再|換|换|what about\s+|and\s+)?\s*(?:(?:high|low|高|低)\s*ar|high\s*bpm|aim|tapping|technical|precision|nm|hd|hr|dt|fm|hidden|[還还]有(?:誰|谁|其他人[選选]))\s*(?:呢|[嗎吗])?\s*[?。!]*$/i;
+  /^(?:那|再|換|换|what about\s+|and\s+)?\s*(?:(?:high|low|高|低)\s*ar|high\s*bpm|aim|tapping|technical|precision|nm|hd|hr|dt|fm|tb|hidden|[還还]有(?:誰|谁|其他人[選选]))\s*(?:呢|[嗎吗])?\s*[?。!]*$/i;
 
 export function draftRecommendationRequest(question: string, previous: string) {
   if (asksDraftRecommendation(question)) return { previous: "" };
@@ -51,12 +53,14 @@ function requestedSipMetric(question: string) {
       key: skill.toLowerCase().replace(/[ -]/g, ""),
     };
   const mod = text.match(
-    /\b(?:nm|hd|hr|dt|fm|no[ -]*mod|hidden|hard[ -]*rock|double[ -]*time|free[ -]*mod)\b/i,
+    /\b(?:nm|hd|hr|dt|fm|tb|tie[ -]*breaker|no[ -]*mod|hidden|hard[ -]*rock|double[ -]*time|free[ -]*mod)\b/i,
   )?.[0];
   if (!mod) return null;
   return {
     category: "modifications" as const,
-    key: sipModCode(mod.replace(/-/g, "")) ?? mod.toUpperCase(),
+    key: /tie[ -]*breaker/i.test(mod)
+      ? "TB"
+      : (sipModCode(mod.replace(/-/g, "")) ?? mod.toUpperCase()),
   };
 }
 
@@ -101,7 +105,13 @@ export async function draftCandidateSources(
         ];
       });
       rated.sort((a, b) => b.value - a.value);
+      const category =
+        metric.category === "modifications" ? slotCategory(metric.key) : null;
+      const history = category
+        ? await draftModHistorySources(edition.slug, candidates, category)
+        : [];
       return [
+        ...history,
         {
           url,
           title: "Public draft pool · SIP",

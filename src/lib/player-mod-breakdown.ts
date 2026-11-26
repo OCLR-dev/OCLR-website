@@ -3,7 +3,10 @@ import {
   slotCategory,
   type MappoolCategory,
 } from "./mappool-model";
-import type { PlayerMapPerformance } from "./player-map-performance";
+import type {
+  PlayerMapPerformance,
+  PlayerMapRow,
+} from "./player-map-performance";
 
 /** No Fail and Classic are score settings rather than tournament mod choices. */
 const excludedMods = new Set(["NF", "CL"]);
@@ -61,7 +64,14 @@ const mean = (values: number[]) =>
 export function playerModBreakdown(
   record: PlayerMapPerformance,
 ): PlayerModBreakdown {
-  const rows = record.editions.flatMap((edition) => edition.maps);
+  return playerModBreakdownForMaps(
+    record.editions.flatMap((edition) => edition.maps),
+  );
+}
+
+export function playerModBreakdownForMaps(
+  rows: readonly PlayerMapRow[],
+): PlayerModBreakdown {
   const modCounts = new Map<string, number>();
   const slotPlays = new Map<string, SlotUsage>();
   const poolMaps = new Map<MappoolCategory, number>();
@@ -118,7 +128,8 @@ export function playerModBreakdown(
     topSlots: slots.slice(0, 5),
     pools: pools.sort(
       (a, b) =>
-        b.maps - a.maps || categoryOrder(a.category) - categoryOrder(b.category),
+        b.maps - a.maps ||
+        categoryOrder(a.category) - categoryOrder(b.category),
     ),
     topRatings: pools
       .filter((pool) => pool.averageEffectiveRating !== null)

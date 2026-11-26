@@ -1,10 +1,15 @@
 import { readOnlyData } from "@/db";
+import { modHistoryFields } from "./chat-player-mod-history";
+import { playerMapPerformance } from "./player-map-performance";
 import type { ChatSource } from "./chat-retrieval";
 import type { Edition } from "./editions";
 import { HttpError } from "./http-error";
 import { playerCompetitionRecord } from "./player-competition";
 import { publishedPlayerProfile } from "./player-profiles";
 import { addressableUsername, databaseUsernameOwner } from "./player-username";
+
+const asksModHistory =
+  /\b(?:mod history|mod usage|mappool performance|match history|(?:nm|hd|hr|dt|fm|tb)\d*)\b|模[組组]|實戰|实战|上[場场][紀纪][錄录]|[圖图]池表[現现]/i;
 
 function playerTarget(question: string) {
   const query = question
@@ -15,7 +20,11 @@ function playerTarget(question: string) {
   const ratingLink = query.match(
     /(?:^|\s)https:\/\/oclr\.org\/players\/([1-9]\d*)(?:\/)?(?:\?edition=[a-z0-9-]+)?(?=[\s，。]|$)/i,
   );
-  if (ratingLink && /\b(?:ETX|SIP)\b/i.test(query)) return ratingLink[1];
+  if (
+    ratingLink &&
+    (/\b(?:ETX|SIP)\b/i.test(query) || asksModHistory.test(query))
+  )
+    return ratingLink[1];
   const link = query.match(
     /^(?:https:\/\/oclr\.org)?\/players\/([^/?#]+)\/?(?:\?edition=[a-z0-9-]+)?$/i,
   )?.[1];
@@ -26,6 +35,9 @@ function playerTarget(question: string) {
       return null;
     }
   }
+  const historyName = query.match(/^(?:請問|请问)?\s*(.+?)\s*的\s*(.+)$/);
+  if (historyName && asksModHistory.test(historyName[2]))
+    return historyName[1].trim().replace(/^[「『“"@]+|[」』”"]+$/g, "");
   const name =
     query.match(
       /^(?:請問|请问)?\s*(.+?)\s*(?:是[誰谁]|(?:是|有)?(?:什[麼么]|怎[樣样]|怎[麼么][樣样])(?:的)?(?:水平|水準|水准|[實实]力)(?:的?(?:玩家|[選选]手))?|的\s*(?:真[實实]水平|水平|[實实]力|[個个]人[資资]料|[資资]料|[隊队]伍|排名|[賽赛]果|[戰战][績绩]|[參参][賽赛][紀纪記记][錄录]|pp)|打[過过]哪些[賽赛]季)$/i,
@@ -52,8 +64,11 @@ export async function chatPlayerProfile(
     /^(?:(?:那)?[他她]的?\s*|(?:what about |and )?(?:their|his|her)\s+)(?:ETX|SIP)\b/i.test(
       question.trim(),
     );
+  const modFollowUp =
+    /^(?:那)?(?:他|她)(?:的)?/u.test(question.trim()) &&
+    asksModHistory.test(question);
   const target =
-    (ratingFollowUp ? playerTarget(previous) : null) ??
+    (ratingFollowUp || modFollowUp ? playerTarget(previous) : null) ??
     playerTarget(question) ??
     (followUp.test(question.trim()) ? playerTarget(previous) : null);
   if (!target || !addressableUsername(target)) return null;
@@ -82,6 +97,9 @@ export async function chatPlayerProfile(
     if (!data.participation.length) return null;
 
     const competition = await playerCompetitionRecord(data.participation);
+    const mapHistory = asksModHistory.test(question)
+      ? await playerMapPerformance(data.participation)
+      : undefined;
     const profile = data.snapshot?.profile;
     const ratings = data.ratings;
     const participation = data.participation.map((row) => ({
@@ -124,6 +142,12 @@ export async function chatPlayerProfile(
             draws: record.matches.filter((match) => match.outcome === "draw")
               .length,
           })),
+        publishedMapHistory: mapHistory?.editions.map((season) => ({
+          edition: season.editionName,
+          editionSlug: season.editionSlug,
+          ...modHistoryFields(season.maps),
+          unavailable: season.unavailable,
+        })),
         savedOsuProfile: profile && {
           fetchedAt: profile.fetchedAt,
           country: profile.countryName ?? profile.countryCode,

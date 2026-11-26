@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { fixtures, tournamentRounds, tournamentStages } from "@/db/schema";
 import { approvedRatingGames } from "./approved-rating-games";
 import { publicArchiveStatistics } from "./archive-statistics-reads";
+import { getPublicEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { HttpError } from "./http-error";
 import type { PublishedPlayer } from "./players";
@@ -76,18 +77,13 @@ async function editionPerformance(
       rosterTeams,
     );
     if (aggregated !== undefined) return { ...base, ...aggregated };
-    const plays = (await publicArchiveStatistics(slug)).plays;
-    return {
-      ...base,
-      ...mapPerformance(plays, osuId, rosterTeams),
-    };
-  } catch (error) {
-    // Archived seasons without a published statistics projection fall back to
-    // approved live results instead of hiding the season entirely.
-    if (!(error instanceof HttpError) || error.status !== 404)
-      return { ...base, unavailable: true };
+    const plays = await publicSeasonMapPlays(slug);
+    return plays
+      ? { ...base, ...mapPerformance(plays, osuId, rosterTeams) }
+      : { ...base, unavailable: true };
+  } catch {
+    return { ...base, unavailable: true };
   }
-  return liveEditionPerformance(slug, base, osuId, rosterTeams);
 }
 
 /** Approved live results (fixture → games → per-player scores) as map plays. */
@@ -145,26 +141,17 @@ async function fixtureStages(slug: string) {
   return new Map(rows.map((row) => [row.id, row.kind]));
 }
 
-async function liveEditionPerformance(
+/** Shared public score inputs for the profile and batched chat history. */
+export async function publicSeasonMapPlays(
   slug: string,
-  base: PlayerMapEdition,
-  osuId: number,
-  rosterTeams: string[],
-): Promise<PlayerMapEdition> {
-  // The remote read contract exposes per-player map scores only inside a single
-  // public fixture; there is no edition-wide resource yet, so a remote frontend
-  // stays archive-only instead of fanning out one request per fixture.
-  if (remoteMode()) return { ...base, unavailable: true };
+): Promise<MapPlay[] | null> {
   try {
-    const [games, stages] = await Promise.all([
-      approvedRatingGames(slug, db()),
-      fixtureStages(slug),
-    ]);
-    return {
-      ...base,
-      ...mapPerformance(liveMapPlays(games, stages), osuId, rosterTeams),
-    };
-  } catch {
-    return { ...base, unavailable: true };
+    return (await publicArchiveStatistics(slug)).plays;
+  } catch (error) {
+    if (!(error instanceof HttpError) || error.status !== 404) throw error;
   }
+  // Remote read resources have no edition-wide live map breakdown.
+  if (remoteMode() || !(await getPublicEdition(slug))) return null;
+  const games = await approvedRatingGames(slug, db());
+  return games.length ? liveMapPlays(games, await fixtureStages(slug)) : [];
 }
