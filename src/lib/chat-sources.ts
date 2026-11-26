@@ -132,12 +132,25 @@ export async function chatEvidence(
   const previousSearch =
     refersBack && previousAnswer ? previous + "\n" + previousAnswer : previous;
 
-  const scope = await chatSeasonScope(
-    selected,
-    question,
-    previous,
-    refersBack || !!draft?.previous,
-  );
+  const recheck =
+    previous &&
+    /^(?:(?:[應应][該该])?不[止只](?:吧|[嗎吗])?|(?:再|重新)[查算][一1]次|(?:are you sure|is that all|check again))[。？！?!.]*$/i.test(
+      question.normalize("NFKC").trim(),
+    );
+  const priorScope = recheck
+    ? await chatSeasonScope(selected, previous, "", false)
+    : null;
+  const priorQuestion = priorScope?.question || previous;
+  const recheckCaptains =
+    recheck && seasonCountIntent(priorQuestion) === "captains";
+  const scope = recheckCaptains
+    ? priorScope
+    : await chatSeasonScope(
+        selected,
+        question,
+        previous,
+        refersBack || !!draft?.previous,
+      );
   if (draft) {
     const target =
       !scope || scope.summary.allPublished
@@ -158,7 +171,7 @@ export async function chatEvidence(
   if (!scope)
     return seasonEvidence(
       selected,
-      question,
+      recheckCaptains ? priorQuestion : question,
       previous,
       previousSearch,
       now,

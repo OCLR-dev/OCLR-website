@@ -1,4 +1,5 @@
 import type { AppTranslator } from "@/i18n/translate";
+import { publicCaptains } from "./captain-reads";
 import { isUpcomingMatch, matches } from "./chat-competition-sources";
 import { asksRegistrationCount, registrationCount } from "./chat-registration";
 import type { Edition } from "./editions";
@@ -8,6 +9,12 @@ import { publicDraft } from "./draft-reads";
 import { publishedTeams } from "./team-reads";
 
 const categories = {
+  captains: {
+    title: "Published captains",
+    path: "teams",
+    subject:
+      /^(?:(?:已公[布開开]的?)?[隊队][長长]|(?:published )?(?:team )?captains?)$/,
+  },
   teams: {
     title: "Teams",
     path: "teams",
@@ -141,7 +148,12 @@ export async function seasonCount(
     );
   }
   let count: number;
-  if (kind === "teams") {
+  if (kind === "captains") {
+    const appointments = edition.archive
+      ? edition.archive.players.filter((player) => player.role === "captain")
+      : await publicCaptains(edition.slug);
+    count = new Set(appointments.map(({ osuId }) => osuId)).size;
+  } else if (kind === "teams") {
     count = (edition.archive?.teams ?? (await publishedTeams(edition.slug)))
       .length;
   } else if (kind === "draftPicks") {
@@ -229,6 +241,12 @@ export function formatSeasonCount(
 ) {
   const values = { count: total.count };
   switch (total.kind) {
+    case "captains":
+      return (
+        tr("Published captains") +
+        " · " +
+        new Intl.NumberFormat(tr.locale).format(total.count)
+      );
     case "historicalPlayers":
       return tr(
         "The historical roster lists {count, number} players. The total number of applications is unavailable.",

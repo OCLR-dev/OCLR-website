@@ -4,6 +4,7 @@ import { requireBrowserSession } from "@/lib/auth/user";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import { chatConfiguration } from "@/lib/chat-config";
 import { readChatPrompt } from "@/lib/chat-prompt-settings";
+import { formatSeasonCount } from "@/lib/chat-season-counts";
 import { chatRequestBlockReason } from "@/lib/chat-request-filter";
 import { chatAnswer, chatScopeReply, chatTextReply } from "@/lib/chat-answer";
 import { createChatTrace, safeChatError } from "@/lib/chat-trace";
@@ -95,6 +96,23 @@ export async function POST(request: Request) {
         "technical-analysis",
         reply.text,
         reply.sources,
+      );
+    }
+    if (evidence.total?.kind === "captains") {
+      const tr = await getAppTranslations(locale);
+      request.signal.throwIfAborted();
+      trace("evidence_ready", undefined, {
+        edition,
+        sourceCount: 1,
+        retrievalMs: Math.round(performance.now() - retrievalStarted),
+        route: "local_count",
+        evidenceKind: "verified_count",
+      });
+      return chatTextReply(
+        diagnostics,
+        "captain-count",
+        formatSeasonCount(evidence.total, tr),
+        [{ title: tr("Published captains"), url: evidence.total.source.url }],
       );
     }
     const evidenceKind = evidence.greeting

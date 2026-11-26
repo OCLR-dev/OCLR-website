@@ -12,6 +12,7 @@ import { db, closeDb } from "@/db";
 import {
   users,
   historicalStatistics,
+  captains,
   sessions,
   registrations,
   staffRoles,
@@ -1070,6 +1071,70 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     expect(match).toContain("2030-01-02");
     expect(match).not.toContain("6–2");
     expect(await query("mappool NM1")).toContain("New published title");
+  });
+  it("counts only published captains and rechecks the previous count from current data", async () => {
+    const reader = {
+      osuId: 1582003,
+      username: "Synthetic captain count reader",
+    };
+    await db().insert(users).values(reader);
+    context.token = (await createSession(reader.osuId)).token;
+
+    const captainEdition = "captain-count-test";
+    await seedEditions([
+      season(captainEdition, "Published appointment fixture"),
+      {
+        ...season("s3", "Historical appointments"),
+        archive: { ...historicalArchive, editionSlug: "s3" },
+        registration: null,
+        status: "completed",
+      },
+    ]);
+    const fixture = Array.from({ length: 13 }, (_, index) => ({
+      osuId: 1582100 + index,
+      username: "Synthetic Appointee " + index,
+    }));
+    await db().insert(users).values(fixture);
+    await db()
+      .insert(captains)
+      .values(
+        fixture.map(({ osuId }, index) => ({
+          editionSlug: captainEdition,
+          userId: osuId,
+          position: index + 1,
+          published: index < 12,
+        })),
+      );
+
+    const upstream = vi.fn();
+    vi.stubGlobal("fetch", upstream);
+    const question = "本屆有多少隊長？";
+    const current = await ask([question], { edition: captainEdition });
+    expect(current.status).toBe(200);
+    const currentStream = await current.text();
+    expect(currentStream).toContain("Published captains · 12");
+    expect(currentStream).toContain(
+      '"url":"/tournaments/captain-count-test/teams"',
+    );
+
+    const previous = await ask(["第3季有多少隊長？", "應該不止吧"], {
+      edition: captainEdition,
+      previousAnswers: ["4 位"],
+    });
+    const previousStream = await previous.text();
+    expect(previousStream).toContain("Published captains · 2");
+    expect(previousStream).toContain('"url":"/tournaments/s3/teams"');
+
+    await db()
+      .update(captains)
+      .set({ published: false })
+      .where(eq(captains.userId, fixture[0].osuId));
+    const rechecked = await ask([question, "應該不止吧"], {
+      edition: captainEdition,
+      previousAnswers: ["4 位"],
+    });
+    expect(await rechecked.text()).toContain("Published captains · 11");
+    expect(upstream).not.toHaveBeenCalled();
   });
   it("limits repeated requests by account before spending provider calls", async () => {
     await db()
