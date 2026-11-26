@@ -6,9 +6,6 @@ import { historicalPage } from "@/components/historical-archive";
 import { InformationDocument } from "@/components/tournament-information";
 import { getAppTranslations } from "@/i18n/server";
 import { notFound } from "next/navigation";
-import { chatConfiguration } from "@/lib/chat-config";
-import { currentUser } from "@/lib/auth/user";
-import { LiruChatLauncher } from "@/components/liru-chat-launcher";
 import { getPublicEdition } from "@/lib/content";
 import { publicEditionSummary } from "@/lib/editions";
 import {
@@ -205,16 +202,5 @@ async function OverviewContent({
 }
 
 export default function Overview(props: Parameters<typeof OverviewContent>[0]) {
-  return remotePage(async () => {
-    const content = await OverviewContent(props);
-    if (!chatConfiguration()) return content;
-    const { edition } = await props.params;
-    const user = await currentUser();
-    return (
-      <>
-        <LiruChatLauncher key={edition} edition={edition} viewer={user} />
-        {content}
-      </>
-    );
-  });
+  return remotePage(() => OverviewContent(props));
 }

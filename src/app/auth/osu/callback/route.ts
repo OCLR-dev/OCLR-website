@@ -8,10 +8,21 @@ import { createSession, revokeSession } from "@/lib/auth/sessions";
 import { cookieOptions, sessionCookie, stateCookie } from "@/lib/auth/config";
 import { appUrl } from "@/lib/http";
 import { pickemReturnPath } from "@/lib/pickem-model";
-import { chatEdition } from "@/lib/chat-edition";
+import { chatEdition, chatReturnPath } from "@/lib/chat-edition";
 import { observeLoginNames } from "@/lib/player-identity";
 import { streamingOAuthReturn } from "@/lib/streaming-connect-model";
 import { streamingOrigins } from "@/lib/streaming-api";
+function chatOAuthReturn(cookie: string | undefined, stateHash: string) {
+  if (!cookie) return null;
+  try {
+    const context = JSON.parse(Buffer.from(cookie, "base64url").toString());
+    return context.stateHash === stateHash
+      ? chatReturnPath(context.returnTo)
+      : null;
+  } catch {
+    return null;
+  }
+}
 export async function GET(request: NextRequest) {
   const origin = appUrl();
   let response: NextResponse;
@@ -56,7 +67,12 @@ export async function GET(request: NextRequest) {
           )
         : null;
       const edition = chatEdition(consumed.chatReturnEdition);
-      const chatReturn = edition ? `/tournaments/${edition}#ask-liru` : null;
+      const chatReturn = edition
+        ? (chatOAuthReturn(
+            request.cookies.get(stateCookie() + "_chat")?.value,
+            consumed.stateHash,
+          ) ?? "/tournaments/" + edition) + "#ask-liru"
+        : null;
       response = NextResponse.redirect(
         `${origin}${consumed.desktopRequestId ? `/desktop/authorize?request_id=${consumed.desktopRequestId}` : (streamingReturn ?? pickemReturnPath(consumed.pickemReturnTo) ?? chatReturn ?? "/dashboard")}`,
         303,
@@ -71,6 +87,10 @@ export async function GET(request: NextRequest) {
   }
   response.cookies.set(stateCookie(), "", { ...cookieOptions(), maxAge: 0 });
   response.cookies.set(`${stateCookie()}_streaming`, "", {
+    ...cookieOptions(),
+    maxAge: 0,
+  });
+  response.cookies.set(stateCookie() + "_chat", "", {
     ...cookieOptions(),
     maxAge: 0,
   });

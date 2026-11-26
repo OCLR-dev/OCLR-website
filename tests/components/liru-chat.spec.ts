@@ -241,9 +241,24 @@ test("visitors can open the fixed launcher after scrolling and sign in for the c
   await launcher.click();
   await expect(page.getByRole("dialog").getByRole("link")).toHaveAttribute(
     "href",
-    "/auth/osu?chat_edition=cup-a",
+    "/auth/osu?chat_edition=cup-a&chat_return=%2Fwiki%2Fliru",
   );
   await expect(page.getByRole("textbox")).toHaveCount(0);
   await page.getByRole("button", { name: "Close" }).click();
   await expect(launcher).toBeFocused();
+  await page.getByRole("button", { name: "Switch season" }).click();
+  await expect(launcher).toHaveCount(1);
+  await launcher.click();
+  await expect(
+    page.getByRole("heading", { name: "Ask Liru · Archived Cup" }),
+  ).toBeVisible();
+  await expect(page.getByRole("dialog").getByRole("link")).toHaveAttribute(
+    "href",
+    "/auth/osu?chat_edition=cup-b&chat_return=%2Ftournaments%2Fcup-b%2Fmappools%2Ffinal",
+  );
+  await page.getByRole("button", { name: "Close" }).click();
+  await page.getByRole("button", { name: "Open overlay" }).click();
+  await expect(launcher).toHaveCount(0);
+  await page.getByRole("button", { name: "Open full chat" }).click();
+  await expect(launcher).toHaveCount(0);
 });

@@ -97,6 +97,53 @@ describe.skipIf(!testUrl)(
       ).toContain("error=failed");
       expect(provider).toHaveBeenCalledTimes(2);
     });
+
+    it("reopens site chat on the original page after OAuth", async () => {
+      const base = "https://oclr.example.test";
+      const beginChat = (returnTo: string) =>
+        start(
+          new Request(
+            base +
+              "/auth/osu?" +
+              new URLSearchParams({
+                chat_edition: "cup-a",
+                chat_return: returnTo,
+              }),
+          ),
+        );
+      const unsafe = await beginChat("//foreign.example/wiki/liru");
+      expect(unsafe.cookies.get("__Host-oclr_oauth_chat")).toBeUndefined();
+      const login = await beginChat("/wiki/liru?appearance=default");
+      const state = new URL(login.headers.get("location")!).searchParams.get(
+        "state",
+      )!;
+      const chatCookie = login.cookies.get("__Host-oclr_oauth_chat");
+      expect(chatCookie?.httpOnly).toBe(true);
+      expect(chatCookie?.secure).toBe(true);
+
+      vi.stubGlobal(
+        "fetch",
+        vi
+          .fn()
+          .mockResolvedValueOnce(
+            Response.json({
+              access_token: "synthetic-access",
+              token_type: "Bearer",
+            }),
+          )
+          .mockResolvedValueOnce(
+            Response.json({ id: 10001, username: "Synthetic Player" }),
+          ),
+      );
+      const cb = request(state);
+      cb.cookies.set(chatCookie!.name, chatCookie!.value);
+      const result = await callback(cb);
+      expect(result.headers.get("location")).toBe(
+        base + "/wiki/liru?appearance=default#ask-liru",
+      );
+      expect(result.cookies.get("__Host-oclr_session")).toBeDefined();
+      expect(result.cookies.get(chatCookie!.name)?.maxAge).toBe(0);
+    });
     it("rejects mismatched, expired and unknown state before contacting the provider", async () => {
       const provider = vi.fn();
       vi.stubGlobal("fetch", provider);
