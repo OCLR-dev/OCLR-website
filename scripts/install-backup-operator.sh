@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# Explicit one-time Rocky host provisioning, invoked from a reviewed installer checkout.
+# Install or upgrade the separate Rocky backup operator from a reviewed checkout.
 set +x
 set -Eeuo pipefail
 umask 077
 fail() { printf '%s\n' "$1" >&2; exit 1; }
-usage='Usage: sudo bash scripts/install-backup-operator.sh --ref FULL_REVIEWED_SHA --dry-run|--apply'
+usage='Usage: sudo bash scripts/install-backup-operator.sh --ref FULL_REVIEWED_SHA --dry-run|--apply|--upgrade'
 [[ $# == 3 && $1 == --ref && $2 =~ ^[a-f0-9]{40}$ ]] || fail "$usage"
 sha=$2
+upgrade=false
 case "$3" in
   --dry-run)
     printf '%s\n' 'Create a separate oclr-backup account, private data/key/config paths and root-owned operator release.' \
@@ -16,6 +17,7 @@ case "$3" in
       'After private configuration, an operator explicitly enables the backup service and configures the website socket.'
     exit 0 ;;
   --apply) ;;
+  --upgrade) upgrade=true ;;
   *) fail "$usage" ;;
 esac
 [[ $EUID == 0 ]] || fail 'Run provisioning with sudo from a separately reviewed installer checkout.'
@@ -26,8 +28,14 @@ command -v setfacl >/dev/null || fail 'Missing required tool: setfacl (Rocky: su
 [[ -f /etc/os-release ]] || fail 'Rocky Linux 10 is required.'
 . /etc/os-release
 [[ ${ID-} == rocky && ${VERSION_ID-} == 10* ]] || fail 'This installer supports Rocky Linux 10 only.'
-[[ ! -e /etc/systemd/system/oclr-backup.service && ! -L /etc/systemd/system/oclr-backup.service ]] || fail 'A unit already exists; preserve it and use a reviewed upgrade procedure.'
-[[ ! -e /etc/sudoers.d/oclr-backup && ! -L /etc/sudoers.d/oclr-backup ]] || fail 'A sudoers file already exists; preserve it and inspect it.'
+unit=/etc/systemd/system/oclr-backup.service
+operator_root=/opt/oclr-backup
+current=$operator_root/current
+release=$operator_root/releases/$sha
+if ! "$upgrade"; then
+  [[ ! -e "$unit" && ! -L "$unit" ]] || fail 'A unit already exists. Use --upgrade for an existing installation.'
+  [[ ! -e /etc/sudoers.d/oclr-backup && ! -L /etc/sudoers.d/oclr-backup ]] || fail 'A sudoers file already exists; preserve it and inspect it.'
+fi
 getent passwd oclr >/dev/null || fail 'Install the existing website account first.'
 getent group oclr >/dev/null || fail 'The website group is missing.'
 installer=${SUDO_USER:-root}
@@ -38,55 +46,108 @@ git_read merge-base --is-ancestor "$sha" origin/main || fail 'The reviewed SHA i
 for required_file in operator/worker.ts operator/operator.env.example operator/media-fingerprint.mjs operator/systemd/oclr-backup.service scripts/backup-release-access.sh; do git_read cat-file -e "$sha:$required_file" || fail 'The selected release lacks the operator installation contract.'; done
 /bin/bash "$source_dir/scripts/check-node-version.sh" /usr/bin/node || fail 'Use Node.js >=22.13 (Node.js 24 is preferred); /usr/bin/node must satisfy this requirement.'
 # PGDG client packages are often outside systemd's default PATH.
-client_dir=${OCLR_PG_BIN-}
-if [[ -z "$client_dir" ]]; then
-  candidates=()
-  for directory in /usr/bin /usr/pgsql-*/bin; do
-    [[ ! -x "$directory/pg_dump" || ! -x "$directory/pg_restore" || ! -x "$directory/psql" ]] || candidates+=("$directory")
+operator_path=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
+if ! "$upgrade"; then
+  client_dir=${OCLR_PG_BIN-}
+  if [[ -z "$client_dir" ]]; then
+    candidates=()
+    for directory in /usr/bin /usr/pgsql-*/bin; do
+      [[ ! -x "$directory/pg_dump" || ! -x "$directory/pg_restore" || ! -x "$directory/psql" ]] || candidates+=("$directory")
+    done
+    [[ ${#candidates[@]} == 1 ]] || fail 'Set OCLR_PG_BIN to the reviewed matching PostgreSQL client bin directory; no unique choice was found.'
+    client_dir=${candidates[0]}
+  fi
+  [[ "$client_dir" =~ ^/usr/(bin|pgsql-[0-9]+/bin)$ && -x "$client_dir/pg_dump" && -x "$client_dir/pg_restore" && -x "$client_dir/psql" ]] || fail 'Use an installed standard PostgreSQL client directory.'
+  for tool_path in "$client_dir" "$client_dir/psql" "$client_dir/pg_dump" "$client_dir/pg_restore"; do
+    [[ $(stat -Lc %u "$tool_path") == 0 ]] || fail 'PostgreSQL tools must be root-owned.'
+    tool_mode=$(stat -Lc %a "$tool_path")
+    (( (8#$tool_mode & 8#022) == 0 )) || fail 'PostgreSQL tools cannot be writable by a service account or other users.'
   done
-  [[ ${#candidates[@]} == 1 ]] || fail 'Set OCLR_PG_BIN to the reviewed matching PostgreSQL client bin directory; no unique choice was found.'
-  client_dir=${candidates[0]}
+  operator_path="$client_dir:$operator_path"
 fi
-[[ "$client_dir" =~ ^/usr/(bin|pgsql-[0-9]+/bin)$ && -x "$client_dir/pg_dump" && -x "$client_dir/pg_restore" && -x "$client_dir/psql" ]] || fail 'Use an installed standard PostgreSQL client directory.'
-for tool_path in "$client_dir" "$client_dir/psql" "$client_dir/pg_dump" "$client_dir/pg_restore"; do
-  [[ $(stat -Lc %u "$tool_path") == 0 ]] || fail 'PostgreSQL tools must be root-owned.'
-  tool_mode=$(stat -Lc %a "$tool_path")
-  (( (8#$tool_mode & 8#022) == 0 )) || fail 'PostgreSQL tools cannot be writable by a service account or other users.'
-done
-operator_path="$client_dir:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"
 [[ -d /opt/oclr && ! -L /opt/oclr ]] || fail 'The standard /opt/oclr installation is required.'
 # Open the existing inode; never replace an updater lock that could be held.
 [[ ! -L /opt/oclr/.update.lock ]] || fail 'The update lock cannot be a symlink.'
-[[ -e /opt/oclr/.update.lock ]] || runuser -u oclr -- touch -- /opt/oclr/.update.lock
+if "$upgrade"; then
+  [[ -f /opt/oclr/.update.lock ]] || fail 'The existing website update lock is missing.'
+else
+  [[ -e /opt/oclr/.update.lock ]] || runuser -u oclr -- touch -- /opt/oclr/.update.lock
+fi
 exec 9>>/opt/oclr/.update.lock
 [[ -f /proc/self/fd/9 && $(stat -Lc %u /proc/self/fd/9) == $(id -u oclr) ]] || fail 'The lock must be a regular file owned by the website account.'
 flock -n 9 || fail 'An update or backup is active; retry after it completes.'
-chown oclr:oclr /proc/self/fd/9
-chmod 0660 /proc/self/fd/9
-if systemctl is-active --quiet oclr-backup.service; then fail 'The operator is already running. Do not replace it during a job; use its reviewed upgrade procedure.'; fi
-getent passwd oclr-backup >/dev/null || useradd --system --home-dir /var/lib/oclr-backup --shell /sbin/nologin --gid oclr oclr-backup
+if ! "$upgrade"; then
+  chown oclr:oclr /proc/self/fd/9
+  chmod 0660 /proc/self/fd/9
+  if systemctl is-active --quiet oclr-backup.service; then fail 'The operator is already running. Use --upgrade for an existing installation.'; fi
+  getent passwd oclr-backup >/dev/null || useradd --system --home-dir /var/lib/oclr-backup --shell /sbin/nologin --gid oclr oclr-backup
+fi
 [[ $(id -u oclr-backup) != 0 && $(id -u oclr-backup) != $(id -u oclr) ]] || fail 'A separate unprivileged backup account is required.'
 [[ $(id -g oclr-backup) == $(getent group oclr | cut -d: -f3) ]] || fail 'The backup account must use the website socket group.'
 for path in /opt/oclr-backup /var/lib/oclr-backup /etc/oclr-backup; do [[ ! -L "$path" ]] || fail 'Provisioning paths cannot be symlinks.'; done
-install -d -o root -g root -m 0755 /opt/oclr-backup /opt/oclr-backup/releases
-install -d -o oclr-backup -g oclr -m 0700 /var/lib/oclr-backup
-install -d -o root -g root -m 0755 /etc/oclr-backup
-[[ ! -e /opt/oclr-backup/current && ! -L /opt/oclr-backup/current ]] || fail 'Preserve an existing operator release pointer.'
-release=/opt/oclr-backup/releases/$sha
-[[ ! -e "$release" ]] || fail 'This operator release already exists; preserve it and inspect configuration.'
-install -d -o root -g root -m 0755 "$release"
-# Control files and helpers always stay root-owned; npm never owns this tree.
-git_read archive "$sha" | tar --no-same-owner -xf - -C "$release"
-find "$release" -xdev -type d -exec chmod 0755 {} +
-find "$release" -xdev -type f -perm /111 -exec chmod 0755 {} +
-find "$release" -xdev -type f ! -perm /111 -exec chmod 0644 {} +
+legacy_dropin=''
+if "$upgrade"; then
+  [[ -f "$unit" && ! -L "$unit" && -O "$unit" && -L "$current" &&
+     -d "$operator_root/releases" && ! -L "$operator_root/releases" &&
+     -f /etc/oclr-backup/operator.env && -f /etc/oclr-backup/package.key ]] ||
+    fail 'Expected an existing operator installed with the OCLR installer.'
+  previous=$(readlink -f -- "$current")
+  [[ "$previous" =~ ^/opt/oclr-backup/releases/([a-f0-9]{40})$ && -d "$previous" ]] ||
+    fail 'The current operator release path is invalid.'
+  previous_sha=${BASH_REMATCH[1]}
+  for directory in "$operator_root" "$operator_root/releases" "$previous" "${unit%/*}"; do
+    [[ -O "$directory" ]] || fail 'Expected root-owned operator and systemd directories.'
+    directory_mode=$(stat -Lc %a "$directory")
+    (( (8#$directory_mode & 8#022) == 0 )) || fail 'Operator and systemd directories must be writable only by root.'
+  done
+  [[ $(systemctl show -p FragmentPath --value oclr-backup.service) == "$unit" ]] ||
+    fail 'The operator is using a different systemd unit file.'
+  working=$(systemctl show -p WorkingDirectory --value oclr-backup.service)
+  [[ $(readlink -f -- "$working") == "$previous" &&
+     $(grep -c '^WorkingDirectory=' "$unit") == 1 ]] ||
+    fail 'Review the custom operator working directory before upgrading.'
+  [[ $(systemctl show -p User --value oclr-backup.service) == oclr-backup &&
+     $(systemctl show -p Group --value oclr-backup.service) == oclr &&
+     $(systemctl show -p ExecStart --value oclr-backup.service) == *"argv[]=/usr/bin/node --import tsx operator/server.ts ;"* ]] ||
+    fail 'Review the custom operator service account or startup command before upgrading.'
+  prior_override=$unit.d/40-backup-worker.conf
+  if [[ -e "$prior_override" || -L "$prior_override" ]]; then
+    [[ -f "$prior_override" && ! -L "$prior_override" && -O "$prior_override" ]] ||
+      fail 'Review the existing worker override before upgrading.'
+    binding=$(sed -n 's/^BindReadOnlyPaths=//p' "$prior_override")
+    prior_worker=${binding%%:*}
+    [[ "$prior_worker" =~ ^/etc/oclr-backup/worker-[a-f0-9]{40}\.ts$ ]] &&
+      printf '[Service]\nBindReadOnlyPaths=%s:%s/operator/worker.ts\n' "$prior_worker" "$previous" | cmp -s - "$prior_override" ||
+      fail 'Review the custom worker override before upgrading.'
+    legacy_dropin=$prior_override
+  fi
+  if [[ "$previous" == "$release" && -z "$legacy_dropin" ]]; then
+    printf 'Backup operator is already on %s.\n' "$sha"
+    exit 0
+  fi
+  git_read merge-base --is-ancestor "$previous_sha" "$sha" || fail 'Choose a reviewed release newer than the installed operator.'
+else
+  install -d -o root -g root -m 0755 "$operator_root" "$operator_root/releases"
+  install -d -o oclr-backup -g oclr -m 0700 /var/lib/oclr-backup
+  install -d -o root -g root -m 0755 /etc/oclr-backup
+  [[ ! -e "$current" && ! -L "$current" ]] || fail 'Preserve an existing operator release pointer.'
+fi
+[[ ! -e "$release" && ! -L "$release" ]] || fail 'This operator release already exists; preserve it and inspect configuration.'
 stage=''
+release_stage=''
 sudoers=''
 cleanup() {
   [[ -z "$stage" ]] || rm -rf -- "$stage"
+  [[ -z "$release_stage" ]] || rm -rf -- "$release_stage"
   [[ -z "$sudoers" ]] || rm -f -- "$sudoers"
 }
 trap cleanup EXIT
+release_stage=$(mktemp -d "$operator_root/releases/.staging-XXXXXXXX")
+# Control files and helpers always stay root-owned; npm never owns this tree.
+git_read archive "$sha" | tar --no-same-owner -xf - -C "$release_stage"
+find "$release_stage" -xdev -type d -exec chmod 0755 {} +
+find "$release_stage" -xdev -type f -perm /111 -exec chmod 0755 {} +
+find "$release_stage" -xdev -type f ! -perm /111 -exec chmod 0644 {} +
 stage=$(mktemp -d /opt/oclr-backup/.dependencies-XXXXXXXX)
 chown oclr-backup:oclr "$stage"
 dependency_paths=(package.json package-lock.json)
@@ -98,14 +159,27 @@ git_read archive "$sha" -- "${dependency_paths[@]}" | tar --no-same-owner -xf - 
 chown -hR oclr-backup:oclr "$stage"
 # Install data only in a separate staging tree. No package lifecycle code runs.
 runuser -u oclr-backup -- env -i HOME=/var/lib/oclr-backup USER=oclr-backup LOGNAME=oclr-backup PATH="$operator_path" NODE_ENV=development npm --prefix "$stage" ci --include=dev --ignore-scripts 9>&-
-[[ -d "$stage/node_modules" && ! -L "$stage/node_modules" && ! -e "$release/node_modules" && ! -L "$release/node_modules" ]] || fail 'Expected a real staged dependency tree and an unused destination.'
-cp -a -- "$stage/node_modules" "$release/node_modules"
-chown -hR root:root "$release/node_modules"
-find "$release/node_modules" -xdev -type d -exec chmod 0755 {} +
-find "$release/node_modules" -xdev -type f -perm /111 -exec chmod 0755 {} +
-find "$release/node_modules" -xdev -type f ! -perm /111 -exec chmod 0644 {} +
+[[ -d "$stage/node_modules" && ! -L "$stage/node_modules" && ! -e "$release_stage/node_modules" && ! -L "$release_stage/node_modules" ]] || fail 'Expected a real staged dependency tree and an unused destination.'
+cp -a -- "$stage/node_modules" "$release_stage/node_modules"
+chown -hR root:root "$release_stage/node_modules"
+find "$release_stage/node_modules" -xdev -type d -exec chmod 0755 {} +
+find "$release_stage/node_modules" -xdev -type f -perm /111 -exec chmod 0755 {} +
+find "$release_stage/node_modules" -xdev -type f ! -perm /111 -exec chmod 0644 {} +
 rm -rf -- "$stage"
 stage=''
+mv -T -- "$release_stage" "$release"
+release_stage=''
+if "$upgrade"; then
+  source "$source_dir/scripts/backup-operator-switch.sh"
+  if switch_backup_operator_release "$release" "$current" "$unit" "$legacy_dropin"; then
+    printf 'Backup operator upgraded to %s.\n' "$sha"
+    exit 0
+  else
+    switch_status=$?
+    if [[ $switch_status == 1 ]]; then rm -rf -- "$release"; fi
+    exit "$switch_status"
+  fi
+fi
 ln -s -- "$release" /opt/oclr-backup/current
 runuser -u oclr -- /bin/bash "$release/scripts/backup-release-access.sh" /opt/oclr "$(readlink -f -- /opt/oclr/current)" 9>&-
 [[ -f "$release/operator/systemd/oclr-backup.service" && -f "$release/operator/operator.env.example" ]] || fail 'The selected release lacks the operator installation contract.'
