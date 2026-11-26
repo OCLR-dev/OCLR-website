@@ -1,0 +1,98 @@
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--site-border);
+  border-radius: var(--radius-panel);
+  background: var(--site-raised);
+}
+.identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 0.75rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.banner .entry {
+  color: var(--site-accent);
+  font-size: var(--text-support);
+}
+.identity strong {
+  font-size: var(--text-small);
+}
+.banner form {
+  margin: 0;
+}
+.page,
+.picker,
+.fields {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+.page > :global(.page-heading),
+.picker > p {
+  margin: 0;
+}
+.form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.75rem;
+}
+.fields label {
+  display: grid;
+  gap: 0.375rem;
+  min-width: 0;
+  font-size: var(--text-small);
+  font-weight: 650;
+}
+.fields select,
+.fields input {
+  min-width: 0;
+  width: 100%;
+  font-weight: 400;
+}
+.links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: 0.5rem;
+}
+.shortcut {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--site-border);
+  border-radius: 0.625rem;
+  background: var(--site-surface);
+  color: var(--site-foreground);
+  font-size: var(--text-small);
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+.shortcut span {
+  color: var(--site-accent);
+  font-size: var(--text-heading);
+  line-height: 1;
+}
+.shortcut:hover,
+.shortcut:focus-visible {
+  border-color: var(--site-accent);
+  color: var(--site-accent);
+}
+@media (max-width: 560px) {
+  .form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .form > button {
+    justify-self: start;
+  }
+}

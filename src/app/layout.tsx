@@ -1,5 +1,6 @@
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { GitHubMark } from "@/components/github-mark";
+import rolePreviewStyles from "@/components/role-preview.module.css";
 import "./shell.generated.css";
 import { appearanceStylesheet } from "@/lib/appearance-styles";
 import { remoteMode } from "@/lib/data-source";
@@ -172,6 +173,7 @@ async function RootLayoutContent({
       Boolean(chatConfiguration()),
     ));
   }
+  const previewUser = preferences.has(localRolePreviewCookie) ? user : null;
   const inherited = inheritedAppearance(
     route.get("x-oclr-pathname") ?? "/",
     new URLSearchParams(route.get("x-oclr-search") ?? ""),
@@ -237,23 +239,28 @@ async function RootLayoutContent({
               />
               {rolePreviewAvailable && (
                 <div className="container">
-                  <div className="notice flex flex-wrap items-center gap-x-4 gap-y-2">
-                    <a className="text-link" href={localRolePreviewPath}>
-                      {tr("Development role preview")}
-                    </a>
-                    {user && preferences.has(localRolePreviewCookie) && (
-                      <>
-                        <span>
+                  <div className={rolePreviewStyles.banner}>
+                    <div className={rolePreviewStyles.identity}>
+                      <a
+                        className={`context-link ${rolePreviewStyles.entry}`}
+                        href={localRolePreviewPath}
+                      >
+                        {tr("Development role preview")}
+                      </a>
+                      {previewUser && (
+                        <strong>
                           {tr("Viewing as {username}", {
-                            username: user.username,
+                            username: previewUser.username,
                           })}
-                        </span>
-                        <form action="/auth/logout" method="post">
-                          <button className="secondary" type="submit">
-                            {tr("Exit role preview")}
-                          </button>
-                        </form>
-                      </>
+                        </strong>
+                      )}
+                    </div>
+                    {previewUser && (
+                      <form action="/auth/logout" method="post">
+                        <button className="secondary" type="submit">
+                          {tr("Exit role preview")}
+                        </button>
+                      </form>
                     )}
                   </div>
                 </div>
