@@ -21,15 +21,15 @@ Changing Mod keeps each map's inputs and save progress. Changing pools asks
 before discarding pending changes. Hidden pools and historical archives are unavailable.
 Each map has an optional manually entered score, an optional **Feel** selection
 (Poor / Okay / Good), and a compact, vertically resizable comment field (up to
-2,000 characters). Players fill in their own record cell directly, with score,
-Feel and save above the comment and delete control. There is no separate editor
-row. The actor's column appears first beside the fixed map column, including
-when saved roster order differs. Pool and Mod selectors use compact
-underlined tabs, and reload/save/delete use labelled utility controls.
+2,000 characters). Players edit their own record cell directly. Score and Feel
+share the first row, with a full-width comment below. Clearing any field saves
+its empty value. The actor's column appears first beside the fixed map column,
+including when saved roster order differs. Pool and Mod selectors use compact
+underlined tabs, with a labelled reload control.
 Changes save after 750 ms of inactivity. Each map sends one save at a time, and
 players can keep typing while it is in progress. The cell shows when a save is
-pending, confirmed or needs a retry. Manual save sends pending changes right
-away. Retrying first confirms the previous attempt with the same request key
+pending, confirmed or needs a retry. The retry button appears when a save fails.
+Retrying first confirms the previous attempt with the same request key
 so newer edits can save under the confirmed version. Inputs are retained on
 failure. Reload the sheet to resolve a conflict with a changed map or record.
 
@@ -45,8 +45,7 @@ complete text is retained. The current context's highest saved score is
 emphasized (ties share the emphasis). Missing scores and outdated map contexts
 never enter that comparison. Only the owner's cell is editable; read-only
 workspaces retain the saved-value display. Outdated own records remain available
-in a Previous map context disclosure beside the fresh form. Deletion clears the
-inputs while retaining the same cell for recreation. The table scrolls
+in a Previous map context disclosure beside the fresh form. The table scrolls
 horizontally with fixed map identity and player headers.
 
 Map titles link directly to their official difficulty page. Compact direct and
@@ -76,8 +75,8 @@ Sharing follows the current active roster and accepted registration/captain
 appointment, including after roster or eligibility changes. Practice records
 never appear in public mappool responses or competition results.
 
-Only the owner may delete a practice record, after confirmation. It disappears
-from every teammate's next read. Migration `0071_practice_record_deletion.sql`
+The practice API still accepts deletion from the owner. A deleted record
+disappears from every teammate's next read. Migration `0071_practice_record_deletion.sql`
 retains a deletion marker and monotonically increasing owner/entry version;
 recreating a record cannot reset its version and allow stale pages to overwrite
 it. Deletion and its private before/after audit commit together. The old ACC

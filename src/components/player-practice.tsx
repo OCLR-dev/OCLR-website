@@ -150,15 +150,13 @@ function PracticeEntry({
   const [validation, setValidation] = useState("");
   const [badScoreInput, setBadScoreInput] = useState(false);
   const [pendingSave, setPendingSave] = useState<PracticeValue | null>(null);
-  const [deleting, setDeleting] = useState(false);
   const [composing, setComposing] = useState(false);
   const { save, busy, message, failed } = useWorkspaceSave(practiceWrite, slug);
   const dirty =
     value.score !== saved.score ||
     value.feel !== saved.feel ||
     value.comment.trim() !== saved.comment.trim();
-  const unsaved =
-    dirty || pendingSave !== null || busy || deleting || badScoreInput;
+  const unsaved = dirty || pendingSave !== null || busy || badScoreInput;
   const problem = badScoreInput
     ? tr("Enter a valid practice score, feel and comment.")
     : validation;
@@ -173,7 +171,6 @@ function PracticeEntry({
     setValue((current) => ({ ...current, ...changes }));
   }
   const label = slotLabel(entry.category, entry.position);
-  const disabled = data.readOnly || deleting;
   const visibleRecords = [
     ...entry.records.filter((record) => record.userId !== data.actorId),
     ...(exists
@@ -194,7 +191,7 @@ function PracticeEntry({
   );
   async function savePractice() {
     if (
-      disabled ||
+      data.readOnly ||
       composing ||
       badScoreInput ||
       busy ||
@@ -224,45 +221,19 @@ function PracticeEntry({
   }
   const autosave = useEffectEvent(savePractice);
   useEffect(() => {
-    if (!dirty || busy || failed || disabled || composing || badScoreInput)
+    if (!dirty || busy || failed || data.readOnly || composing || badScoreInput)
       return;
     const timer = window.setTimeout(() => void autosave(), autosaveDelay);
     return () => window.clearTimeout(timer);
-  }, [value, dirty, busy, failed, disabled, composing, badScoreInput]);
+  }, [value, dirty, busy, failed, data.readOnly, composing, badScoreInput]);
 
-  const deleteRecord = async () => {
-    if (
-      busy ||
-      pendingSave ||
-      !window.confirm(tr("Delete your practice record?"))
-    )
-      return;
-    setValidation("");
-    setDeleting(true);
-    const next = await save(
-      { ...target, action: "delete_practice" },
-      tr("Practice record deleted."),
-    );
-    if (next !== undefined) {
-      setVersion(next);
-      setExists(false);
-      setStale(false);
-      setValue(empty);
-      setSaved(empty);
-      setBadScoreInput(false);
-      setDeleting(false);
-    }
-  };
   const editor = (
     <form
       className={styles.practiceForm}
       aria-label={`${tr("My practice")}: ${label}`}
       onCompositionStart={() => setComposing(true)}
       onCompositionEnd={() => setComposing(false)}
-      onSubmit={(event) => {
-        event.preventDefault();
-        void savePractice();
-      }}
+      onSubmit={(event) => event.preventDefault()}
     >
       {stale && (
         <p className="notice small">
@@ -287,7 +258,6 @@ function PracticeEntry({
             step={1}
             placeholder={tr("Practice score")}
             value={value.score ?? ""}
-            disabled={disabled}
             aria-invalid={badScoreInput || undefined}
             onChange={(event) => {
               const input = event.currentTarget;
@@ -302,7 +272,6 @@ function PracticeEntry({
           <span className="sr-only">{tr("Feel")}</span>
           <select
             value={value.feel ?? ""}
-            disabled={disabled}
             onChange={(event) =>
               updateValue({
                 feel: (event.target.value || null) as PracticeFeel | null,
@@ -324,41 +293,9 @@ function PracticeEntry({
             rows={1}
             placeholder={tr("Practice comment")}
             value={value.comment}
-            disabled={disabled}
             onChange={(event) => updateValue({ comment: event.target.value })}
           />
         </label>
-        {!data.readOnly && (
-          <button
-            className={styles.iconButton}
-            type="submit"
-            disabled={
-              disabled ||
-              busy ||
-              composing ||
-              badScoreInput ||
-              (!dirty && !pendingSave)
-            }
-            aria-label={
-              failed && pendingSave ? tr("Retry") : tr("Save practice")
-            }
-            title={failed && pendingSave ? tr("Retry") : tr("Save practice")}
-          >
-            <SheetIcon kind="save" />
-          </button>
-        )}
-        {exists && (
-          <button
-            type="button"
-            className={`secondary ${styles.deleteButton}`}
-            aria-label={tr("Delete practice record")}
-            title={tr("Delete practice record")}
-            disabled={busy || pendingSave !== null}
-            onClick={deleteRecord}
-          >
-            <SheetIcon kind="delete" />
-          </button>
-        )}
       </div>
       {dirty && !feedback && (
         <span className={styles.draftMark} role="status">
@@ -372,6 +309,16 @@ function PracticeEntry({
         >
           {feedback}
         </p>
+      )}
+      {failed && pendingSave && (
+        <button
+          className={`secondary ${styles.practiceRetry}`}
+          type="button"
+          disabled={composing || badScoreInput}
+          onClick={() => void savePractice()}
+        >
+          {tr("Retry")}
+        </button>
       )}
       {stale && own && (
         <details className={styles.previousRecord}>
