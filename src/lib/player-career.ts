@@ -1,7 +1,9 @@
 import { archiveTeamPlacement } from "./archive-placement";
 import type { publicArchiveStatistics } from "./archive-statistics-reads";
 import { HttpError } from "./http-error";
+import { getPublicEditions } from "./content";
 import type { Edition } from "./editions";
+import { seasonNumber } from "./player-timeline";
 import { archiveWinner, recordedArchiveMatch } from "./historical-archive";
 import {
   careerTotals,
@@ -29,9 +31,7 @@ function addMember(
   }
 }
 
-/** Career inputs for an archived edition: its roster, series and placements. */
-function archiveInput(edition: Edition): CareerEditionInput {
-  const archive = edition.archive!;
+function archiveRoster(archive: NonNullable<Edition["archive"]>) {
   const roster = new Map<number, string[]>();
   for (const player of archive.players) {
     if (player.role === "captain" || player.role === "player")
@@ -41,6 +41,36 @@ function archiveInput(edition: Edition): CareerEditionInput {
     for (const person of replacement.people)
       addMember(roster, person.osuId, replacement.teamId);
   }
+  return roster;
+}
+
+/** A published pick supplies the current appearance, which the career
+ * leaderboard includes once that season publishes its playing rosters. */
+export async function careerAppearanceInEdition(
+  osuId: number,
+  edition: Pick<Edition, "slug" | "season">,
+) {
+  const current = seasonNumber(edition.season) ?? seasonNumber(edition.slug);
+  if (current === null) return undefined;
+  let appearance = 1;
+  for (const prior of await getPublicEditions()) {
+    const number = seasonNumber(prior.season) ?? seasonNumber(prior.slug);
+    if (prior.slug === edition.slug || number === null || number >= current)
+      continue;
+    const played = prior.archive
+      ? archiveRoster(prior.archive).has(osuId)
+      : (await publishedTeams(prior.slug)).some((team) =>
+          team.members?.some((member) => member.osuId === osuId),
+        );
+    if (played) appearance++;
+  }
+  return appearance;
+}
+
+/** Career inputs for an archived edition: its roster, series and placements. */
+function archiveInput(edition: Edition): CareerEditionInput {
+  const archive = edition.archive!;
+  const roster = archiveRoster(archive);
 
   const series: CareerSeries[] = [];
   for (const match of archive.matches) {

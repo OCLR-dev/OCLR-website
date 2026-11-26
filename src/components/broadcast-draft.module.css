@@ -248,6 +248,12 @@
   flex-shrink: 0;
   border-radius: 7px;
 }
+.appearance {
+  color: #e9b8fc;
+  font-size: 0.8rem;
+  font-weight: 650;
+  margin: 0 0 0.55rem;
+}
 .statistics {
   display: flex;
   flex-wrap: wrap;

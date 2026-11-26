@@ -65,6 +65,7 @@ export const broadcastDraftReadContract = draftBoardReadContract.extend({
     pick.extend({
       tier: z.number().int().positive().optional(),
       roundPosition: draftRoundPosition.optional(),
+      careerAppearance: z.number().int().positive().optional(),
       ratings: z
         .strictObject({
           otr: nullableNumber,

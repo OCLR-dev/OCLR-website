@@ -308,6 +308,15 @@ export function BroadcastDraft({
               </h2>
               {latest ? (
                 <>
+                  {latest.careerAppearance && (
+                    <p className={styles.appearance}>
+                      {latest.careerAppearance === 1
+                        ? tr("First OCLR appearance")
+                        : tr("OCLR appearance {count}", {
+                            count: latest.careerAppearance,
+                          })}
+                    </p>
+                  )}
                   <dl
                     className={styles.statistics}
                     data-reveal="stats"

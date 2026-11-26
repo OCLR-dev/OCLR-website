@@ -25654,6 +25654,16 @@
                     "roundPosition": {
                       "$ref": "#/components/schemas/Read61d115ccf6b4"
                     },
+                    "careerAppearance": {
+                      "anyOf": [
+                        { "type": "null", "x-oclr-undefined": true },
+                        {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
                     "ratings": {
                       "anyOf": [
                         { "type": "null", "x-oclr-undefined": true },

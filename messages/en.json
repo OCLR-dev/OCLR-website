@@ -5318,6 +5318,8 @@
     "m270b6ca6b1f7": "Draft Day",
     "m731aebd24c00": "Round {round} · Pick {position} · Overall pick {overall}",
     "m92dac1314ce3": "Overall pick {overall}",
-    "m3caa933814cd": "Overall pick order"
+    "m3caa933814cd": "Overall pick order",
+    "m38a1390bcc7a": "First OCLR appearance",
+    "m4c29fdfb1ea0": "OCLR appearance {count}"
   }
 }

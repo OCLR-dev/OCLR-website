@@ -17,8 +17,13 @@ import {
   otrRatingCache,
   sipRatingCache,
   etxRatingCache,
+  editionState,
+  captains,
+  memberships,
 } from "../../src/db/schema";
 import { prepareDraft } from "../fixtures/draft";
+import { edition } from "../fixtures/edition";
+import { seedEditions } from "../fixtures/editions";
 import { pickPlayer } from "../../src/lib/draft";
 import { captainDraft, staffDraft } from "../../src/lib/draft-reads";
 import { draftBoardTiers } from "../../src/lib/award-tiers";
@@ -44,7 +49,7 @@ describe.skipIf(!url)("public broadcast profile projection", () => {
   beforeEach(async () => {
     vi.mocked(getOsuUserProfile).mockReset();
     await db().execute(
-      sql`TRUNCATE edition_state,users,user_profile_cache CASCADE`,
+      sql`TRUNCATE edition_state,users,user_profile_cache,otr_rating_cache CASCADE`,
     );
     f = await prepareDraft(slug, 110001, 4);
     const s = (await staffDraft(f.staff, slug)).session!;
@@ -192,6 +197,54 @@ describe.skipIf(!url)("public broadcast profile projection", () => {
     });
     expect(JSON.stringify(board)).not.toContain("otr.stagec.net");
     expect(getOsuUserProfile).not.toHaveBeenCalled();
+  });
+  it("reports career appearances as of the draft season using prior published playing rosters", async () => {
+    await db()
+      .update(editionState)
+      .set({
+        configuration: sql`jsonb_set(configuration, '{season}', '"11"')`,
+      })
+      .where(eq(editionState.slug, slug));
+    expect((await publicBroadcastDraft(slug))!.picks[0].careerAppearance).toBe(
+      1,
+    );
+    const prior = { ...edition, slug: "prior-career-test", season: "10" };
+    const future = { ...edition, slug: "future-career-test", season: "12" };
+    const hidden = {
+      ...edition,
+      slug: "hidden-career-test",
+      season: "9",
+      published: false,
+    };
+    await seedEditions([prior, future, hidden], false);
+    for (const entry of [prior, future, hidden]) {
+      await db().insert(captains).values({
+        editionSlug: entry.slug,
+        userId: f.a.osuId,
+        position: 1,
+        published: true,
+      });
+      const [team] = await db()
+        .insert(teams)
+        .values({
+          editionSlug: entry.slug,
+          captainId: f.a.osuId,
+          name: "Synthetic career team",
+          finalizedAt: new Date(),
+          identityPublished: true,
+          rosterPublished: true,
+        })
+        .returning();
+      await db().insert(memberships).values({
+        editionSlug: entry.slug,
+        teamId: team.id,
+        userId: f.players[0].osuId,
+        origin: "draft",
+      });
+    }
+    expect((await publicBroadcastDraft(slug))!.picks[0].careerAppearance).toBe(
+      2,
+    );
   });
   it("uses the released round for each pick and omits Tier when the order is newer than the board", async () => {
     for (const player of f.players.slice(1, 3)) {

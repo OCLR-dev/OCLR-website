@@ -14,30 +14,41 @@ import { importedRatingsEdition } from "./player-rating-import-contract";
 import { publicPlayerStillListed } from "./players";
 import { profileOtrSchema, profileSipTotal } from "./profile-ratings-model";
 import { sipSkillsets } from "./sip-rating-model";
+import { careerAppearanceInEdition } from "./player-career";
+import type { Edition } from "./editions";
 
-async function readFeaturedRatings(
+async function readFeaturedPlayer(
   osuId: number,
-  slug: string,
-  includeCsv: boolean,
-): Promise<BroadcastBoard["picks"][number]["ratings"]> {
+  edition: Edition,
+): Promise<
+  Pick<BroadcastBoard["picks"][number], "ratings" | "careerAppearance">
+> {
   return readOnlyData(async () => {
-    if (!(await publicPlayerStillListed(osuId, slug))) return undefined;
-    const ratings = await readListedPlayerRatings([osuId], includeCsv);
+    if (!(await publicPlayerStillListed(osuId, edition.slug))) return {};
+    const ratings = await readListedPlayerRatings(
+      [osuId],
+      edition.slug === importedRatingsEdition && !edition.archive,
+    );
     const cachedOtr = await readCachedOtrRatings([osuId]);
     const saved = ratings.get(osuId)!;
     const otr = profileOtrSchema.safeParse(cachedOtr.get(osuId));
     const skills = saved.sip.api?.snapshot?.skillsets;
     return {
-      otr: otr.success ? otr.data.value : null,
-      sip: profileSipTotal({ ...saved, otr: null }),
-      etx: saved.etx?.value ?? null,
-      etxMods: saved.etx?.mods ?? null,
-      sipSkills: Object.fromEntries(
-        sipSkillsets.flatMap((skill) => {
-          const value = skills?.[skill]?.sr;
-          return value !== undefined && value >= 0 ? [[skill, value]] : [];
-        }),
+      careerAppearance: await careerAppearanceInEdition(osuId, edition).catch(
+        () => undefined,
       ),
+      ratings: {
+        otr: otr.success ? otr.data.value : null,
+        sip: profileSipTotal({ ...saved, otr: null }),
+        etx: saved.etx?.value ?? null,
+        etxMods: saved.etx?.mods ?? null,
+        sipSkills: Object.fromEntries(
+          sipSkillsets.flatMap((skill) => {
+            const value = skills?.[skill]?.sr;
+            return value !== undefined && value >= 0 ? [[skill, value]] : [];
+          }),
+        ),
+      },
     };
   });
 }
@@ -62,14 +73,10 @@ async function databasePublicBroadcastDraft(
       : undefined;
   const latest = snapshot.picks.at(-1);
   const featured = latest?.player.osuId;
-  const ratings =
+  const featuredPlayer =
     featured === undefined
-      ? undefined
-      : await readFeaturedRatings(
-          featured,
-          slug,
-          slug === importedRatingsEdition && !edition.archive,
-        ).catch(() => undefined);
+      ? {}
+      : await readFeaturedPlayer(featured, edition).catch(() => ({}));
   const board: BroadcastBoard = {
     ...snapshot,
     ...(activeRound ? { activeRound } : {}),
@@ -80,7 +87,7 @@ async function databasePublicBroadcastDraft(
         ...pick,
         ...(tier ? { tier } : {}),
         ...(roundPosition ? { roundPosition } : {}),
-        ...(pick.id === latest?.id && ratings ? { ratings } : {}),
+        ...(pick.id === latest?.id ? featuredPlayer : {}),
       };
     }),
   };
