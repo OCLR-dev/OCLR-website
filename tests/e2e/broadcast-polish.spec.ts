@@ -245,7 +245,12 @@ test.describe("OBS identity and one-time transitions", () => {
       "New public player 990001",
     );
     expect(await animated()).toEqual(
-      expect.arrayContaining(["oclr-pick", "oclr-turn", "oclr-history"]),
+      expect.arrayContaining([
+        "oclr-pick",
+        "oclr-pick-ratings",
+        "oclr-turn",
+        "oclr-history",
+      ]),
     );
     await page.waitForTimeout(1000);
     const count = (await animated()).length;

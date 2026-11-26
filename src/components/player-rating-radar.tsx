@@ -358,7 +358,7 @@ export function BroadcastRatingRadars({
     },
   ];
   return (
-    <div className={styles.broadcastCharts}>
+    <div className={styles.broadcastCharts} data-pick-ratings>
       {charts.map(({ label, title, axes }) => (
         <figure className={styles.broadcastChart} key={label}>
           {axes.some(({ value }) => value !== null) ? (

@@ -194,20 +194,24 @@
 .selection[data-first-pick-waiting] .identity {
   min-width: 0;
 }
-.waitingLiru {
+.liruRotation {
   position: relative;
   align-self: stretch;
   min-height: 0;
 }
-.waitingLiru img {
+.liruRotation[data-liru-position="header"] {
+  flex: 0 0 clamp(2.75rem, 6vw, 6.5rem);
+  margin-inline-start: auto;
+}
+.liruRotation img {
   object-fit: contain;
   opacity: 0;
 }
-.waitingLiru img:first-child {
+.liruRotation img:first-child {
   opacity: 1;
 }
 @media (prefers-reduced-motion: no-preference) {
-  .waitingLiru img {
+  .liruRotation img {
     animation: liru-pose 60s linear infinite both;
   }
 }

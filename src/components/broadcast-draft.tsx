@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useAppTranslations } from "@/i18n/shared";
 
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useLayoutEffect, useRef } from "react";
 import type {
   BroadcastBoard,
   DraftBoard,
@@ -27,6 +27,32 @@ const liruPoses = [
   "09-high-five",
   "10-bow",
 ];
+
+function LiruRotation({ position }: { position: "header" | "selection" }) {
+  return (
+    <div
+      className={styles.liruRotation}
+      data-liru-position={position}
+      aria-hidden="true"
+    >
+      {liruPoses.map((pose, index) => (
+        <Image
+          key={pose}
+          src={`/mascot/liru/draft/${pose}.png`}
+          alt=""
+          fill
+          sizes={
+            position === "header"
+              ? "(max-width: 733px) 44px, 6vw"
+              : "(max-width: 600px) 45vw, 30vw"
+          }
+          unoptimized
+          style={{ animationDelay: `${index * 6 - 0.4}s` }}
+        />
+      ))}
+    </div>
+  );
+}
 
 // Retractions always clear the display. A delayed older snapshot must not rewind it.
 export function acceptBroadcastSnapshot(
@@ -68,6 +94,12 @@ export function newPublishedPicks(
   return next.picks.slice(previous.picks.length);
 }
 
+function cancelBroadcastTransitions(overlay: HTMLDivElement | null) {
+  for (const animation of overlay?.getAnimations({ subtree: true }) ?? []) {
+    if (animation.id.startsWith("oclr-")) animation.cancel();
+  }
+}
+
 function Portrait({
   player,
   featured = false,
@@ -76,10 +108,7 @@ function Portrait({
   featured?: boolean;
 }) {
   return (
-    <div
-      className={featured ? styles.portrait : styles.smallPortrait}
-      data-reveal={featured ? "avatar" : undefined}
-    >
+    <div className={featured ? styles.portrait : styles.smallPortrait}>
       <Avatar
         key={`${player.osuId}:${player.profile?.avatarUrl ?? "default"}`}
         osuId={player.osuId}
@@ -132,13 +161,27 @@ export function BroadcastDraft({
   const positions = useRef(new Map<string, number>());
   const suspended = useRef(false);
   useEffect(() => {
+    const overlay = root.current;
+    const preference = matchMedia("(prefers-reduced-motion: reduce)");
     const hide = () => {
-      if (document.hidden) suspended.current = true;
+      if (document.hidden) {
+        suspended.current = true;
+        cancelBroadcastTransitions(overlay);
+      }
+    };
+    const reduce = () => {
+      if (preference.matches) cancelBroadcastTransitions(overlay);
     };
     document.addEventListener("visibilitychange", hide);
-    return () => document.removeEventListener("visibilitychange", hide);
+    preference.addEventListener("change", reduce);
+    return () => {
+      document.removeEventListener("visibilitychange", hide);
+      preference.removeEventListener("change", reduce);
+      cancelBroadcastTransitions(overlay);
+    };
   }, []);
-  useEffect(() => {
+  useLayoutEffect(() => {
+    const overlay = root.current;
     const old = previous.current;
     const continuous =
       connected &&
@@ -151,31 +194,33 @@ export function BroadcastDraft({
     const additions = continuous
       ? newPublishedPicks(old, board).filter((p) => !seen.current.has(p.id))
       : [];
-    const animations: Animation[] = [];
+    const newRevision = sameSession && board.version > old.version;
+    if (!continuous || !sameSession || newRevision)
+      cancelBroadcastTransitions(overlay);
     const motion =
       continuous &&
-      sameSession &&
-      board.version > old.version &&
+      newRevision &&
       !matchMedia("(prefers-reduced-motion: reduce)").matches &&
       !document.hidden;
-    function enter(el: Element | null | undefined, id: string, delay = 0) {
-      if (el)
-        animations.push(
-          el.animate(
-            [
-              { opacity: 0.25, transform: "translateY(12px) scale(.985)" },
-              { opacity: 1, transform: "translateY(0) scale(1)" },
-            ],
-            { id, duration: 480, delay, easing: "cubic-bezier(.2,.8,.2,1)" },
-          ),
-        );
+    function enter(el: Element | null | undefined, id: string, duration = 480) {
+      el?.animate(
+        [
+          { opacity: 0.08, transform: "translateY(8px)" },
+          { opacity: 1, transform: "translateY(0)" },
+        ],
+        { id, duration, easing: "cubic-bezier(.2,.65,.3,1)" },
+      );
     }
     if (motion) {
       if (additions.length) {
-        root.current
-          ?.querySelectorAll("[data-reveal]")
-          .forEach((el, i) => enter(el, "oclr-pick", i * 65));
-        root.current
+        enter(overlay?.querySelector("[data-pick-heading]"), "oclr-pick", 720);
+        enter(overlay?.querySelector("[data-pick-player]"), "oclr-pick", 720);
+        enter(
+          overlay?.querySelector("[data-pick-ratings]"),
+          "oclr-pick-ratings",
+          720,
+        );
+        overlay
           ?.querySelectorAll<HTMLElement>("[data-history-pick]")
           .forEach((el) => {
             if (additions.some((p) => p.id === el.dataset.historyPick))
@@ -183,20 +228,18 @@ export function BroadcastDraft({
             else {
               const before = positions.current.get(el.dataset.historyPick!);
               if (before !== undefined) {
-                const delta = before - el.getBoundingClientRect().top;
+                const delta = before - el.offsetTop;
                 if (delta)
-                  animations.push(
-                    el.animate(
-                      [
-                        { transform: `translateY(${delta}px)` },
-                        { transform: "translateY(0)" },
-                      ],
-                      {
-                        id: "oclr-history-move",
-                        duration: 400,
-                        easing: "ease-out",
-                      },
-                    ),
+                  el.animate(
+                    [
+                      { transform: `translateY(${delta}px)` },
+                      { transform: "translateY(0)" },
+                    ],
+                    {
+                      id: "oclr-history-move",
+                      duration: 400,
+                      easing: "ease-out",
+                    },
                   );
               }
             }
@@ -212,26 +255,28 @@ export function BroadcastDraft({
           old.turnIndex !== board.turnIndex ||
           old.state !== board.state
         )
-          enter(root.current?.querySelector("[data-turn-card]"), "oclr-turn");
+          enter(overlay?.querySelector("[data-turn-card]"), "oclr-turn");
       }
     }
     positions.current = new Map(
       Array.from(
-        root.current?.querySelectorAll<HTMLElement>("[data-history-pick]") ??
-          [],
-      ).map((el) => [el.dataset.historyPick!, el.getBoundingClientRect().top]),
+        overlay?.querySelectorAll<HTMLElement>("[data-history-pick]") ?? [],
+      ).map((el) => [el.dataset.historyPick!, el.offsetTop]),
     );
     board?.picks.forEach((p) => seen.current.add(p.id));
     previous.current = board;
     wasConnected.current = connected;
     wasReceived.current = received;
     if (connected && board !== old) suspended.current = false;
-    return () => animations.forEach((a) => a.cancel());
   }, [board, connected, received]);
   const latest = board?.picks.at(-1);
   const seasonEleven = slug === "s11" || slug === "dev-s11";
   const waitingForFirstPick = !latest && board?.state === "live";
   const showFirstPickHeadline = seasonEleven && waitingForFirstPick;
+  const showHeaderLiru =
+    seasonEleven &&
+    latest !== undefined &&
+    (board?.state === "live" || board?.state === "paused");
   const ratings = latest?.ratings;
   const ratingNumber = new Intl.NumberFormat(tr.locale, {
     maximumFractionDigits: 2,
@@ -269,6 +314,7 @@ export function BroadcastDraft({
             )}
           </div>
           <h1>{tr("Draft Day")}</h1>
+          {showHeaderLiru && <LiruRotation position="header" />}
         </div>
         <section
           className={styles.streamChat}
@@ -287,7 +333,7 @@ export function BroadcastDraft({
           aria-label={tr("Latest published selection")}
         >
           {!showFirstPickHeadline && (
-            <div className={styles.selectionHeading}>
+            <div className={styles.selectionHeading} data-pick-heading>
               <p className={styles.stageLabel}>
                 {latest
                   ? latest.roundPosition
@@ -313,13 +359,13 @@ export function BroadcastDraft({
           )}
           <div
             className={styles.featured}
+            data-pick-player
             aria-live="polite"
             aria-atomic="true"
           >
             {latest && <Portrait player={latest.player} featured />}
             <div className={styles.identity}>
               <h2
-                data-reveal="name"
                 className={showFirstPickHeadline ? styles.firstPick : undefined}
               >
                 {latest?.player.username ??
@@ -340,7 +386,6 @@ export function BroadcastDraft({
                   )}
                   <dl
                     className={styles.statistics}
-                    data-reveal="stats"
                     data-profile-status={
                       latest.player.profile?.status ?? "loading"
                     }
@@ -391,28 +436,12 @@ export function BroadcastDraft({
                       </dd>
                     </div>
                   </dl>
-                  <p data-reveal="team" className={styles.destination}>
-                    {latest.team.name}
-                  </p>
+                  <p className={styles.destination}>{latest.team.name}</p>
                 </>
               ) : null}
             </div>
           </div>
-          {showFirstPickHeadline && (
-            <div className={styles.waitingLiru} aria-hidden="true">
-              {liruPoses.map((pose, index) => (
-                <Image
-                  key={pose}
-                  src={`/mascot/liru/draft/${pose}.png`}
-                  alt=""
-                  fill
-                  sizes="(max-width: 600px) 45vw, 30vw"
-                  unoptimized
-                  style={{ animationDelay: `${index * 6 - 0.4}s` }}
-                />
-              ))}
-            </div>
-          )}
+          {showFirstPickHeadline && <LiruRotation position="selection" />}
         </section>
         <section
           className={styles.turn}
