@@ -144,15 +144,25 @@ export default async function DevelopmentRoles({
               {tr("Developer")}
             </Action>
           )}
-          {current.teamMember && (
-            <Action href={`${editionPath}/team`} secondary>
-              {tr("My team")}
-            </Action>
-          )}
           {current.captain && (
-            <Action href={`${editionPath}/draft/captain`} secondary>
-              {tr("Captain draft room")}
-            </Action>
+            <>
+              <Action href={`${editionPath}/team`} secondary>
+                {tr("My team")}
+              </Action>
+              <Action href={`${editionPath}/draft/captain`} secondary>
+                {tr("Captain draft room")}
+              </Action>
+            </>
+          )}
+          {(current.registration === "accepted" || current.captain) && (
+            <>
+              <Action href={`${editionPath}/player/practice`} secondary>
+                {tr("My practice")}
+              </Action>
+              <Action href={`${editionPath}/player/availability`} secondary>
+                {tr("My availability")}
+              </Action>
+            </>
           )}
         </div>
       )}
