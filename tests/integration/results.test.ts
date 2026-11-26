@@ -41,6 +41,7 @@ import {
   publicCompetition,
   publicFixture,
 } from "../../src/lib/public-competition";
+import { chatTechnicalAnalysis } from "@/lib/chat-technical-analysis";
 import { approvedRatingGames } from "../../src/lib/approved-rating-games";
 import { ratingIdentities, staffRoundRatings } from "../../src/lib/rating-data";
 import { publicMatchRating, publicRoundRatings } from "../../src/lib/ratings";
@@ -710,6 +711,73 @@ describe.skipIf(!url)(
           })),
         );
       }
+      for (const entry of await db()
+        .select()
+        .from(mappoolEntries)
+        .where(sql`${mappoolEntries.poolId} in (${poolId}, ${secondPoolId})`)) {
+        const fetchedAt = "2026-10-01T00:00:00Z";
+        const checksum = "a".repeat(32);
+        await db()
+          .update(mappoolEntries)
+          .set({
+            metadata: {
+              ...entry.metadata,
+              checksum,
+              mode: "osu",
+              difficultySnapshot: {
+                beatmapId: entry.beatmapId,
+                ruleset: "osu",
+                fetchedAt,
+                checksum,
+                base: {
+                  stars: 4,
+                  bpm: 180,
+                  duration: 90,
+                  ar: 9,
+                  od: 8,
+                  cs: 4,
+                  hp: 5,
+                },
+                variants:
+                  entry.category === "HD"
+                    ? {
+                        HD: {
+                          configuration: "HD",
+                          ruleset: "osu",
+                          mods: ["HD"],
+                          stars: 4,
+                          maxCombo: null,
+                          values: {},
+                          fetchedAt,
+                        },
+                      }
+                    : {},
+              },
+            },
+          })
+          .where(eq(mappoolEntries.id, entry.id));
+      }
+      const selected = (await readTournament("test-cup", db(), true))!.edition;
+      const analyze = () =>
+        chatTechnicalAnalysis(
+          { kind: "player", uid },
+          selected,
+          "/tournaments/test-cup",
+          "",
+        );
+      expect(await analyze()).toMatchObject({
+        status: "player",
+        report: {
+          publishedPlays: 6,
+          usable: { games: 6 },
+          seasons: [
+            {
+              edition: "test-cup",
+              statisticsUrl: "https://oclr.org/tournaments/test-cup/schedule",
+            },
+          ],
+        },
+      });
       // Editing current pool rows must not relabel the published revision.
       await db()
         .update(mappoolEntries)
@@ -720,6 +788,10 @@ describe.skipIf(!url)(
           (game) => game.poolSlot,
         ),
       ).toEqual([undefined, undefined, undefined]);
+      expect(await analyze()).toMatchObject({
+        status: "player",
+        report: { publishedPlays: 6, usable: { games: 3 } },
+      });
       const performance = await playerMapPerformance(await publicPlayer(uid));
       expect(performance.mapsPlayed).toBe(6);
       const maps = performance.editions[0].maps;

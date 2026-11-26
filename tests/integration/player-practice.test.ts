@@ -6,6 +6,7 @@ import type { Slot } from "../../src/lib/beatmap-similarity-model";
 import {
   collectPlayerEvidence,
   practiceSnapshotSchema,
+  releaseSchema,
   type PracticeSnapshot,
 } from "../../src/lib/player-practice-data";
 import { playerPractice } from "../../src/lib/player-practice";
@@ -124,7 +125,14 @@ it("keeps MOD, scoring rules, game identity and raw scores in the comparison bou
 it("excludes withdrawn or unmatched fixture evidence and treats missing MOD as unknown", () => {
   const snapshot = fixture();
   snapshot.releases[0].fixtures[0].covered = false;
-  snapshot.releases[1].poolFixtures[0].maps = [];
+  const legacy = snapshot.releases[1];
+  snapshot.releases[1].poolFixtures = releaseSchema.parse({
+    ...legacy,
+    poolFixtures: [
+      { ...legacy.poolFixtures[0], maps: null },
+      ...legacy.poolFixtures.slice(1),
+    ],
+  }).poolFixtures;
   const target = snapshot.releases[1].plays.find(
     (row) => row.osuId === profileId && row.fixtureId === "match-b",
   )!;
@@ -175,7 +183,21 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
         feature: "bpm",
         classification: "practice-opportunity",
       });
-      const reply = formatTechnicalReply({ status: "player", report }, english);
+      const reply = formatTechnicalReply(
+        {
+          status: "player",
+          report,
+          coverage: {
+            seasons: snapshot.pools.sources.map(({ edition }) => ({
+              slug: edition,
+              name: edition,
+              slots: 14,
+            })),
+            unavailable: [],
+          },
+        },
+        english,
+      );
       expect(reply.text).toContain("16 of 16 published plays");
       expect(reply.text).toContain("Starter beatmap · BID 113 with NM");
       expect(reply.text).toContain("meets the");

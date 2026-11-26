@@ -5280,6 +5280,17 @@
     "m3b7bf1f40a68": "Starter beatmap",
     "m3f5a314bf4a7": "Similar difficulty",
     "m96a99ec6e6af": "Recommended practice beatmaps",
-    "m14420c390bc6": "I found no published practice beatmap matching the supported mod, feature and star rating ranges."
+    "m14420c390bc6": "I found no published practice beatmap matching the supported mod, feature and star rating ranges.",
+    "m0f6fc4e03360": "Seasons in this analysis are {seasons}.",
+    "me1793f5dd6d2": "No published data is available for {seasons}.",
+    "mfe4d1f7febba": "{edition} · Published per-beatmap results are unavailable.",
+    "m468632bf7180": "{edition} · {games, number} of {published, number} published plays are comparable, on {maps, number} beatmaps.",
+    "mb5c8aa4f2c84": "{edition} · No published mappool slots.",
+    "macec5edae264": "{edition} · {maps, number} comparable beatmap difficulties.",
+    "meb1d6cd78b8a": "Published data for this analysis is currently unavailable.",
+    "md856f82e883c": "I could not verify enough published beatmap data for BID {bid} with {mod} in this scope.",
+    "me94a4ec41686": "I found BID {bid} with {mod}, but no other comparable published beatmaps in this scope.",
+    "meb79628accf3": "BID {bid} · {mod}. Showing {shown, number} of {candidates, number} comparable published beatmaps.",
+    "mbe4a8898d973": "{games, number} of {published, number} published plays are comparable, covering {maps, number} beatmaps across {fixtures, number} matches."
   }
 }

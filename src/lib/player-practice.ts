@@ -14,7 +14,8 @@ import {
   releaseSource,
   scoreEvidence,
   type Evidence,
-  type PracticeSnapshot,
+  practiceEditions,
+  type PracticeCorpus,
 } from "./player-practice-data";
 
 const demandFeatures = [
@@ -271,11 +272,20 @@ async function recommendations(
 }
 
 function validateTemporal(
-  snapshot: PracticeSnapshot,
+  snapshot: PracticeCorpus,
   evidence: Evidence[],
   osuId: number,
 ) {
-  const [train, holdout] = snapshot.releases;
+  const train = snapshot.releases.find(
+    (release) => release.slug === practiceEditions[0],
+  );
+  const holdout = snapshot.releases.find(
+    (release) => release.slug === practiceEditions[1],
+  );
+  if (!train || !holdout || snapshot.releases.length !== 2)
+    throw new Error(
+      "Temporal validation requires the S9 and S10 practice snapshot.",
+    );
   if (
     train.plays.some((row) => !isBeforeCutoff(row.at)) ||
     holdout.plays.some((row) => isBeforeCutoff(row.at))
@@ -320,7 +330,7 @@ function validateTemporal(
 
 export async function playerPractice(
   db: SimilarityDatabase,
-  snapshot: PracticeSnapshot,
+  snapshot: PracticeCorpus,
   osuId: number,
   validate: boolean,
 ) {
@@ -343,6 +353,13 @@ export async function playerPractice(
       .digest("hex"),
     pools: snapshotInfo(snapshot.pools),
     sources: snapshot.releases.map((release) => releaseSource(release, osuId)),
+    seasons: snapshot.releases.map((release) => ({
+      ...releaseSource(release, osuId),
+      publishedPlays: release.plays.filter((row) => row.osuId === osuId).length,
+      usable: countEvidence(
+        evidence.filter((row) => row.edition === release.slug),
+      ),
+    })),
     publishedPlays,
     usable: countEvidence(evidence),
     exclusions,

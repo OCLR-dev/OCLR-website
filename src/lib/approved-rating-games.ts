@@ -21,6 +21,7 @@ export type RatingReader = Pick<ReturnType<typeof db>, "select">;
 export async function approvedRatingGames(
   slug: string,
   reader: RatingReader,
+  options?: { includeReviewedPool?: boolean },
 ): Promise<RatingGame[]> {
   const ezScoreMultiplier =
     (await readTournament(slug, reader))?.edition.ezScoreMultiplier ?? 1;
@@ -196,6 +197,9 @@ export async function approvedRatingGames(
         ...common,
         gameId: reviewed.gameId,
         slot: entry ? slotLabel(entry.category, entry.position) : null,
+        ...(options?.includeReviewedPool
+          ? { reviewedPoolId: proposal.data.poolSnapshot?.poolId ?? null }
+          : {}),
         playedAt: parsed.success
           ? (parsed.data.startTime ?? parsed.data.endTime)
           : null,

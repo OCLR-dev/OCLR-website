@@ -1,6 +1,9 @@
 import type { AppTranslator } from "@/i18n/translate";
 import { publicOrigin, type Feature } from "./beatmap-similarity-model";
-import type { AnalysisResult } from "./chat-technical-analysis";
+import type {
+  AnalysisResult,
+  TechnicalCoverage,
+} from "./chat-technical-analysis";
 
 type Citation = { title: string; url: string };
 
@@ -47,15 +50,85 @@ export function formatTechnicalReply(
     return n.format(value) + (feature === "duration" ? " s" : "");
   }
 
-  function pools() {
-    return ["S9", "S10"]
-      .map((edition) =>
-        cite(
-          tr("Published {edition} mappools", { edition }),
-          "/tournaments/" + edition.toLowerCase() + "/mappools",
-        ),
-      )
-      .join("");
+  type Player = Extract<AnalysisResult, { status: "player" }>["report"];
+  const list = new Intl.ListFormat(tr.locale, { style: "short" });
+  function label(season: TechnicalCoverage["seasons"][number]) {
+    return /^s\d+$/i.test(season.slug)
+      ? season.slug.toUpperCase()
+      : plain(season.name);
+  }
+  function coverageLines(coverage: TechnicalCoverage, player?: Player) {
+    const lines: string[] = [];
+    if (coverage.seasons.length) {
+      lines.push(
+        tr("Seasons in this analysis are {seasons}.", {
+          seasons: list.format(coverage.seasons.map(label)),
+        }),
+      );
+    }
+    if (coverage.unavailable.length) {
+      lines.push(
+        tr("No published data is available for {seasons}.", {
+          seasons: list.format(
+            coverage.unavailable.map((slug) =>
+              /^s\d+$/i.test(slug) ? slug.toUpperCase() : plain(slug),
+            ),
+          ),
+        }),
+      );
+    }
+    for (const season of coverage.seasons) {
+      const edition = label(season);
+      if (player) {
+        const sample = player.seasons.find(
+          (entry) => entry.edition === season.slug,
+        );
+        if (!sample) {
+          lines.push(
+            "- " +
+              tr("{edition} · Published per-beatmap results are unavailable.", {
+                edition,
+              }),
+          );
+        } else {
+          lines.push(
+            "- " +
+              tr(
+                "{edition} · {games, number} of {published, number} published plays are comparable, on {maps, number} beatmaps.",
+                {
+                  edition,
+                  games: sample.usable.games,
+                  published: sample.publishedPlays,
+                  maps: sample.usable.beatmaps,
+                },
+              ) +
+              " " +
+              cite(
+                tr("Published {edition} results", { edition }),
+                sample.statisticsUrl,
+              ),
+          );
+        }
+      } else if (!season.slots) {
+        lines.push(
+          "- " + tr("{edition} · No published mappool slots.", { edition }),
+        );
+      } else {
+        lines.push(
+          "- " +
+            tr("{edition} · {maps, number} comparable beatmap difficulties.", {
+              edition,
+              maps: season.comparableMaps ?? 0,
+            }) +
+            " " +
+            cite(
+              tr("Published {edition} mappools", { edition }),
+              "/tournaments/" + season.slug + "/mappools",
+            ),
+        );
+      }
+    }
+    return lines;
   }
 
   if (result.status === "needs-input")
@@ -73,45 +146,46 @@ export function formatTechnicalReply(
   if (result.status === "unavailable")
     return {
       sources,
-      text: tr(
-        "This analysis needs published S9 and S10 data, which is currently unavailable. Please try again when both seasons are available.",
-      ),
+      text: [
+        tr("Published data for this analysis is currently unavailable."),
+        ...(result.coverage ? coverageLines(result.coverage) : []),
+      ].join("\n"),
     };
   if (result.status === "map-missing")
     return {
       sources,
-      text:
+      text: [
         tr(
-          "I could not verify enough published S9 and S10 beatmap data for BID {bid} with {mod}. Try a BID and mod combination from those mappools.",
+          "I could not verify enough published beatmap data for BID {bid} with {mod} in this scope.",
           {
             bid: String(result.bid),
             mod: result.mod,
           },
-        ) +
-        " " +
-        pools(),
+        ),
+        ...coverageLines(result.coverage),
+      ].join("\n"),
     };
 
   const names = featureNames(tr);
   if (result.status === "maps") {
     const { report } = result;
     const { bid, mod } = report.input;
-    const scope = pools();
+    const scope = coverageLines(result.coverage);
     if (!report.vector.length)
       return {
         sources,
-        text:
+        text: [
           tr(
-            "BID {bid} with {mod} has a verified beatmap, but there are no other comparable published beatmaps in S9 and S10.",
+            "I found BID {bid} with {mod}, but no other comparable published beatmaps in this scope.",
             { bid: String(bid), mod },
-          ) +
-          " " +
-          scope,
+          ),
+          ...scope,
+        ].join("\n"),
       };
     const seed = report.input.sources[0];
     const lines = [
       tr(
-        "BID {bid} · {mod}. Showing {shown, number} of {candidates, number} comparable beatmaps from the published S9 and S10 mappools.",
+        "BID {bid} · {mod}. Showing {shown, number} of {candidates, number} comparable published beatmaps.",
         {
           bid: String(bid),
           mod,
@@ -120,13 +194,13 @@ export function formatTechnicalReply(
         },
       ) +
         " " +
-        scope +
         cite(seed.edition.toUpperCase() + " · " + seed.pool, seed.url),
       report.profile === "skills"
         ? tr(
             "The vector includes aim and speed difficulty alongside the basic beatmap attributes.",
           )
         : "",
+      ...scope,
       "",
       ...report.vector.map((map) => {
         const differences = map.differences
@@ -162,16 +236,6 @@ export function formatTechnicalReply(
   }
 
   const { report } = result;
-  const scope = report.sources
-    .map((source) =>
-      cite(
-        tr("Published {edition} results", {
-          edition: source.edition.toUpperCase(),
-        }),
-        source.statisticsUrl,
-      ),
-    )
-    .join("");
   const profile = report.sources.findLast((source) => source.username);
   const identity = profile
     ? plain(profile.username!) + " (UID " + report.osuId + ")"
@@ -182,16 +246,15 @@ export function formatTechnicalReply(
       "** " +
       (profile ? cite(tr("Public player profile"), profile.profileUrl) : ""),
     tr(
-      "S9 and S10 sample. {games, number} of {published, number} published plays are comparable, covering {maps, number} beatmaps across {fixtures, number} matches.",
+      "{games, number} of {published, number} published plays are comparable, covering {maps, number} beatmaps across {fixtures, number} matches.",
       {
         games: report.usable.games,
         published: report.publishedPlays,
         maps: report.usable.beatmaps,
         fixtures: report.usable.fixtures,
       },
-    ) +
-      " " +
-      scope,
+    ),
+    ...coverageLines(result.coverage, report),
     "",
   ];
   if (report.status === "insufficient-samples") {

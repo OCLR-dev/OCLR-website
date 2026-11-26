@@ -181,13 +181,13 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       status: 404,
     });
   });
-  it("answers technical queries from published S9/S10 without sending scores to a provider", async () => {
+  it("scopes technical queries to published seasons and keeps data gaps explicit", async () => {
     const subject = 1582001;
     await db()
       .insert(users)
       .values({ osuId: subject, username: "Synthetic technical reader" });
     context.token = (await createSession(subject)).token;
-    const year = (slug: "s9" | "s10", firstBid: number) => {
+    const year = (slug: "s8" | "s9" | "s10", firstBid: number) => {
       const archive = structuredClone(statisticsArchive);
       archive.editionSlug = slug;
       archive.players.find((player) => player.osuId === 91004)!.role = "player";
@@ -221,9 +221,10 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
         archive,
       };
     };
+    const s8 = year("s8", 9015791);
     const s9 = year("s9", 9015801);
     const s10 = year("s10", 9015811);
-    await seedEditions([season(slug, "Technical test scope"), s9, s10]);
+    await seedEditions([season(slug, "Technical test scope"), s8, s9, s10]);
     for (const saved of [s9, s10]) {
       const source = statisticsSource();
       source.games = source.games.slice(0, 2);
@@ -251,33 +252,72 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     }
     const upstream = vi.fn();
     vi.stubGlobal("fetch", upstream);
-    const map = await ask(["Find similar beatmaps for BID 9015801 and MOD NM"]);
+    const map = await ask(["跨季找 BID 9015801 MOD NM 的相似譜面"]);
     expect(map.status).toBe(200);
     const mapStream = await map.text();
-    expect(mapStream).toContain("Showing 3 of 3 comparable beatmaps");
+    expect(mapStream).toContain("Showing 5 of 5 comparable published beatmaps");
+    expect(mapStream).toContain("Synthetic comparison 9015791");
     expect(mapStream).toContain("Synthetic comparison 9015811");
-    expect(mapStream).toContain('"url":"/tournaments/s10/mappools/final"');
+    expect(mapStream).toContain('"url":"/tournaments/s8/mappools/final"');
+
+    const single = await (
+      await ask(["在第九季找 BID 9015801 MOD NM 的相似譜面"])
+    ).text();
+    expect(single).toContain("Showing 1 of 1 comparable published beatmaps");
+    expect(single).toContain("Seasons in this analysis are S9.");
+    expect(single).not.toContain("/tournaments/s10/mappools");
+
+    const followup = await (
+      await ask([
+        "Find similar beatmaps for BID 9015801 and MOD NM",
+        "改查 S8 和 S9",
+      ])
+    ).text();
+    expect(followup).toContain("Showing 3 of 3 comparable published beatmaps");
+    expect(followup).not.toContain("/tournaments/s10/mappools");
 
     const player = await ask(["UID 91003 的技術強弱與練習推薦"]);
     expect(player.status).toBe(200);
     const playerStream = await player.text();
     expect(playerStream).toContain("4 of 4 published plays are comparable");
+    expect(playerStream).toContain(
+      "S8 · Published per-beatmap results are unavailable.",
+    );
+    expect(playerStream).toContain(
+      "S9 · 2 of 2 published plays are comparable",
+    );
     expect(playerStream).toContain("too few comparable published plays");
     expect(playerStream).toContain('"url":"/tournaments/s9/statistics"');
     expect(playerStream).toContain('"url":"/tournaments/s10/statistics"');
     expect(playerStream).not.toContain("Recommended practice beatmaps");
 
     expect(
+      (await chatEvidence("s8", "本屆 UID 91003 的技術強弱", "")).technical,
+    ).toMatchObject({
+      status: "player",
+      coverage: { seasons: [{ slug: "s8" }] },
+      report: { publishedPlays: 0, status: "insufficient-samples" },
+    });
+    const expandedScope = await chatEvidence(
+      "s9",
+      "all published seasons",
+      "在第九季找 BID 9015801 MOD NM 的相似譜面",
+    );
+    expect(expandedScope.technical).toMatchObject({
+      status: "maps",
+      report: { candidateCount: 5 },
+    });
+
+    const oneSeason = await (
+      await ask(["查 S10 的 UID 91003 技術強弱"])
+    ).text();
+    expect(oneSeason).toContain("Seasons in this analysis are S10.");
+    expect(oneSeason).toContain("2 of 2 published plays are comparable");
+    expect(oneSeason).not.toContain("/tournaments/s9/statistics");
+
+    expect(
       await (await ask(["Find similar beatmaps for BID 9015801"])).text(),
     ).toContain("specific mod combination");
-    expect(
-      await (await ask(["Find similar beatmaps for BID 9015801", "NM"])).text(),
-    ).toContain("Showing 3 of 3");
-    expect(
-      await (
-        await ask(["Find similar beatmaps for BID 99999999 with NM"])
-      ).text(),
-    ).toContain("could not verify enough published");
 
     await db()
       .update(historicalStatistics)
@@ -286,14 +326,20 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     const withdrawnScores = await (
       await ask(["UID 91003 practice recommendations"])
     ).text();
-    expect(withdrawnScores).toContain("currently unavailable");
+    expect(withdrawnScores).toContain(
+      "S10 · Published per-beatmap results are unavailable.",
+    );
+    expect(withdrawnScores).toContain("2 of 2 published plays are comparable");
     expect(withdrawnScores).not.toContain(
       '"url":"/tournaments/s10/statistics"',
     );
 
     await seedEditions([{ ...s10, published: false }]);
-    const withdrawnPool = await (await ask(["BID 9015801 MOD NM"])).text();
+    const withdrawnPool = await (
+      await ask(["BID 9015801 MOD NM in S10"])
+    ).text();
     expect(withdrawnPool).toContain("currently unavailable");
+    expect(withdrawnPool).toContain("No published data is available for S10.");
     expect(withdrawnPool).not.toContain("9015811");
     expect(upstream).not.toHaveBeenCalled();
   });
