@@ -14,17 +14,19 @@ import { draftSessionReadColumns } from "./live-season-columns";
 
 type Reader = Pick<ReturnType<typeof db>, "select">;
 
+export function availableDraftRegistration(slug: string) {
+  return and(
+    eq(registrations.editionSlug, slug),
+    eq(registrations.status, "accepted"),
+    isNull(registrations.draftUnavailableReason),
+  );
+}
+
 export async function acceptedPlayers(tx: Reader, slug: string) {
   return tx
     .select({ userId: registrations.userId })
     .from(registrations)
-    .where(
-      and(
-        eq(registrations.editionSlug, slug),
-        eq(registrations.status, "accepted"),
-        isNull(registrations.draftUnavailableReason),
-      ),
-    );
+    .where(availableDraftRegistration(slug));
 }
 
 export async function readDraftData(tx: Reader, slug: string) {

@@ -1,13 +1,26 @@
 import { db, readOnlyData } from "@/db";
-import { captains, draftSessions, editionState, teams } from "@/db/schema";
-import { and, eq, isNull, sql } from "drizzle-orm";
+import {
+  captains,
+  draftPicks,
+  draftPoolEntries,
+  draftSessions,
+  editionState,
+  memberships,
+  registrations,
+  teams,
+} from "@/db/schema";
+import { and, eq, inArray, isNull, notExists, sql } from "drizzle-orm";
 import type { User } from "./auth/sessions";
 import { assertReadCapability, hasCapability } from "./auth/staff";
 import { captainAppointment } from "./captain-reads";
 import { getEdition, getPublicEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { availableDraftPool, unassignedPlayers } from "./draft-board";
-import { acceptedPlayers, readDraftData } from "./draft-data";
+import {
+  acceptedPlayers,
+  availableDraftRegistration,
+  readDraftData,
+} from "./draft-data";
 import type { CaptainBoard } from "./draft-types";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http-error";
@@ -124,6 +137,127 @@ export async function publicDraft(slug: string): Promise<PublicDraft> {
     return frontendResource<PublicDraft>("publicDraft", { slug });
   }
   return databasePublicDraft(slug);
+}
+
+/** Only recommend people in the released pool who still pass current eligibility. */
+export async function publicDraftCandidatePool(slug: string) {
+  return readOnlyData(async () => {
+    const draft = await databasePublicDraft(slug);
+    if (
+      !draft?.pool ||
+      !draft.activeTeam ||
+      draft.turnIndex >= draft.turnCount ||
+      !["ready", "live", "paused"].includes(draft.state)
+    )
+      return null;
+
+    const reader = db();
+    const [session] = await reader
+      .select({
+        state: draftSessions.state,
+        turnIndex: draftSessions.turnIndex,
+      })
+      .from(draftSessions)
+      .where(
+        and(
+          eq(draftSessions.id, draft.sessionId),
+          eq(draftSessions.editionSlug, slug),
+        ),
+      );
+    if (session?.state !== draft.state || session.turnIndex !== draft.turnIndex)
+      return null;
+
+    // A private change can exclude a previously published candidate. It cannot
+    // supply new names or expose the reason a candidate is no longer eligible.
+    const releasedAssignments = new Set([
+      draft.activeTeam.captain.osuId,
+      ...draft.rosters.flatMap(({ team, players }) => [
+        team.captain.osuId,
+        ...players.map(({ osuId }) => osuId),
+      ]),
+      ...draft.picks.flatMap(({ player, team }) => [
+        player.osuId,
+        team.captain.osuId,
+      ]),
+    ]);
+    const published = draft.pool.filter(
+      ({ osuId }) => !releasedAssignments.has(osuId),
+    );
+    if (!published.length) return { state: draft.state, candidates: [] };
+
+    const candidateId = draftPoolEntries.userId;
+    const rows = await reader
+      .select({ osuId: candidateId })
+      .from(draftPoolEntries)
+      .innerJoin(
+        registrations,
+        and(
+          eq(registrations.userId, candidateId),
+          availableDraftRegistration(slug),
+        ),
+      )
+      .where(
+        and(
+          eq(draftPoolEntries.sessionId, draft.sessionId),
+          inArray(
+            candidateId,
+            published.map(({ osuId }) => osuId),
+          ),
+          notExists(
+            reader
+              .select({ id: captains.userId })
+              .from(captains)
+              .where(
+                and(
+                  eq(captains.editionSlug, slug),
+                  eq(captains.userId, candidateId),
+                ),
+              ),
+          ),
+          notExists(
+            reader
+              .select({ id: teams.id })
+              .from(teams)
+              .where(
+                and(
+                  eq(teams.editionSlug, slug),
+                  eq(teams.captainId, candidateId),
+                  isNull(teams.archivedAt),
+                ),
+              ),
+          ),
+          notExists(
+            reader
+              .select({ id: memberships.id })
+              .from(memberships)
+              .where(
+                and(
+                  eq(memberships.editionSlug, slug),
+                  eq(memberships.userId, candidateId),
+                  isNull(memberships.leftAt),
+                ),
+              ),
+          ),
+          notExists(
+            reader
+              .select({ id: draftPicks.id })
+              .from(draftPicks)
+              .where(
+                and(
+                  eq(draftPicks.sessionId, draft.sessionId),
+                  eq(draftPicks.playerId, candidateId),
+                  isNull(draftPicks.voidedAt),
+                ),
+              ),
+          ),
+        ),
+      );
+    const eligible = new Set(rows.map(({ osuId }) => osuId));
+    return {
+      state: draft.state,
+      candidates: published.filter(({ osuId }) => eligible.has(osuId)),
+    };
+  });
 }
 
 async function databaseCaptainDraft(

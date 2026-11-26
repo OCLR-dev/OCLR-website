@@ -358,6 +358,9 @@ it.skipIf(!url)(
       { osuId: home.captainId, username: "Synthetic captain" },
       { osuId: home.memberId, username: "Synthetic released pick" },
       eligible,
+      { osuId: home.unpublishedCaptainId, username: "Synthetic stale captain" },
+      { osuId: away.memberId, username: "Synthetic current roster member" },
+      { osuId: home.privateId, username: "Synthetic pending candidate" },
     ];
     await db()
       .insert(sipRatingCache)
@@ -368,7 +371,12 @@ it.skipIf(!url)(
           fetchedAt: saved,
           snapshot: {
             rating: sipRating("overall", 4000),
-            modifications: null,
+            modifications: {
+              Hidden: sipRating(
+                "Hidden",
+                osuId === eligible.osuId ? 4500 : 9000 - index,
+              ),
+            },
             skillsets: { "High AR": sipRating("High AR", 8000 - 1000 * index) },
           },
         })),
@@ -389,6 +397,9 @@ it.skipIf(!url)(
     await db()
       .update(draftSessions)
       .set({
+        turnIndex: 1,
+        turnSequence: [home.teamId, home.teamId],
+        pool: candidates.map(({ osuId }) => osuId),
         publicSnapshot: {
           sessionId: session.id,
           version: 2,
@@ -430,6 +441,37 @@ it.skipIf(!url)(
     );
     expect(namedPick.draftRecommendation).toBe(true);
     expect(namedPick.sources[0].text).not.toContain("Synthetic captain");
+
+    const embeddingCalls = calls.length;
+    const hdQuestion = "可以推薦一下HD隊員嗎";
+    const hidden = await chatEvidence(slug, hdQuestion, "");
+    expect(hidden.draftRecommendation).toBe(true);
+    expect(JSON.parse(hidden.sources[0].text)).toMatchObject({
+      requestedMetric: { category: "modifications", key: "HD" },
+      selectablePlayers: 1,
+      candidatesWithRating: 1,
+      candidates: [{ name: eligible.username, metric: "Hidden", value: 4500 }],
+    });
+    const followUp = await chatEvidence(slug, "那 HD 呢？", recommendation);
+    expect(followUp.sources).toEqual(hidden.sources);
+    expect(calls).toHaveLength(embeddingCalls);
+
+    await db()
+      .update(registrations)
+      .set({ draftUnavailableReason: "synthetic unavailable" })
+      .where(
+        and(
+          eq(registrations.editionSlug, slug),
+          eq(registrations.userId, eligible.osuId),
+        ),
+      );
+    const afterRemoval = await chatEvidence(slug, hdQuestion, "");
+    expect(JSON.parse(afterRemoval.sources[0].text)).toMatchObject({
+      selectablePlayers: 0,
+      candidatesWithRating: 0,
+      candidates: [],
+    });
+    expect(afterRemoval.sources[0].text).not.toContain("synthetic unavailable");
 
     await db()
       .update(teams)

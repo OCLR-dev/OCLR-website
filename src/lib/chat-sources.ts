@@ -5,7 +5,7 @@ import {
   playerDirectoryRequest,
 } from "./chat-player-directory";
 import {
-  asksDraftRecommendation,
+  draftRecommendationRequest,
   draftCandidateSources,
 } from "./chat-draft-candidates";
 import { chatPlayerProfile } from "./chat-player-profile";
@@ -104,8 +104,14 @@ export async function chatEvidence(
   const previousSearch =
     refersBack && previousAnswer ? previous + "\n" + previousAnswer : previous;
 
-  const scope = await chatSeasonScope(selected, question, previous, refersBack);
-  if (asksDraftRecommendation(question)) {
+  const draft = draftRecommendationRequest(question, previous);
+  const scope = await chatSeasonScope(
+    selected,
+    question,
+    previous,
+    refersBack || !!draft?.previous,
+  );
+  if (draft) {
     const target = scope
       ? scope.editions.length === 1
         ? scope.editions[0]
@@ -116,7 +122,9 @@ export async function chatEvidence(
       draftRecommendation: true as const,
       seasonScope: scope?.summary,
       total: null,
-      sources: target ? await draftCandidateSources(target, question) : [],
+      sources: target
+        ? await draftCandidateSources(target, question, draft.previous)
+        : [],
     };
   }
   if (!scope)
