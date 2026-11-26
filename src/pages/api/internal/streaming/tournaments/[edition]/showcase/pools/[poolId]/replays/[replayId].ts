@@ -1,10 +1,10 @@
 import type { NextApiRequest } from "next";
 import type { ServerResponse } from "node:http";
-import { REPLAY_MAX_BYTES } from "@/lib/replay-model";
 import { streamingShowcaseReplayFile } from "@/lib/streaming-showcase-read";
 
 export const config = {
-  api: { bodyParser: false, responseLimit: REPLAY_MAX_BYTES },
+  // The replay service enforces the actual byte limit before sending a body.
+  api: { bodyParser: false, responseLimit: false },
 };
 
 // App Router's Web Response bridge strips Content-Length. Send the already
