@@ -7,15 +7,11 @@ import type { MappoolWorkspace } from "@/lib/mappool-reads";
 
 afterEach(() => vi.unstubAllGlobals());
 
-it("shows the complete captain roster and groups every pool in competition round order", () => {
+it("shows every team and groups every pool in competition round order", () => {
   vi.stubGlobal("React", React);
-  const captains = Array.from({ length: 12 }, (_, i) => ({
-    userId: i + 1,
-    username: `Captain ${i + 1}`,
-    position: i + 1,
-    published: false,
-    teamName: null,
-    teamId: null,
+  const teams = Array.from({ length: 12 }, (_, i) => ({
+    id: String(i + 1),
+    name: `Team ${i + 1}`,
   }));
   const rounds: MappoolWorkspace["rounds"] = [
     {
@@ -58,7 +54,7 @@ it("shows the complete captain roster and groups every pool in competition round
   const html = renderToStaticMarkup(
     <TournamentDashboardSummary
       base="/admin/tournaments/test"
-      captains={captains}
+      teams={teams}
       pools={{ rounds, pools, entries: [] }}
       fixtures={null}
       streams={null}
@@ -72,7 +68,7 @@ it("shows the complete captain roster and groups every pool in competition round
       (match) => match[1],
     ),
   ).toEqual([
-    ...captains.map((c) => c.username),
+    ...teams.map((team) => team.name),
     "Pool 1",
     "Pool 2",
     "Pool 3",
@@ -85,5 +81,6 @@ it("shows the complete captain roster and groups every pool in competition round
     "<h3>Group Stage</h3>",
     "<h3>Knockout Stage</h3>",
   ]);
+  expect(html).toContain('href="/admin/tournaments/test/teams"');
   expect(html).not.toContain("<details");
 });

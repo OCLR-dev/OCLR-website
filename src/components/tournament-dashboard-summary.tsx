@@ -54,7 +54,12 @@ export function TournamentDashboardSummary({
   now,
 }: {
   base: string;
-  teams: Awaited<ReturnType<typeof staffTeams>>["teams"] | null;
+  teams:
+    | Pick<
+        Awaited<ReturnType<typeof staffTeams>>["teams"][number],
+        "id" | "name"
+      >[]
+    | null;
   pools: MappoolWorkspace | null;
   fixtures: FixtureWorkspace | null;
   streams: StreamingWorkspace | null;
