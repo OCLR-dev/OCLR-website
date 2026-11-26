@@ -3,11 +3,6 @@ import type { HistoricalArchive } from "./historical-archive";
 
 // Source-specific aliases: group letters identify teams, not separate pools.
 const sourceStages: Record<string, Record<string, string>> = {
-  "1vZ7JN6ePxDqjdVZ1527fvyeoV1m5rbHzSvXObDUuf7I": {
-    "Group A": "gs",
-    "Group B": "gs",
-    淘汰赛: "sf",
-  },
   "16ASDCD95p3TgfjgSHCjXmRN3KJuuAD4KS0fImpcTiiM": {
     "Group A": "gs",
     "Group B": "gs",

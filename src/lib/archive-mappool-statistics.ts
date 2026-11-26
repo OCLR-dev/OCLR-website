@@ -19,21 +19,36 @@ export type EventPoolFixture = {
 
 // Only call with validated public snapshots. Draft pool selections never establish
 // eligibility. An explicit archive pool and published selections must agree.
+// A review that accepts unlisted games establishes a pool only with a listed pick
+// or an explicit archive assignment.
 export function archivePoolFixtures(
   archive: HistoricalArchive,
   published: { fixtureId: string; snapshot: StatisticsSnapshot }[],
 ): EventPoolFixture[] {
+  const poolsById = new Map(archive.pools.map((pool) => [pool.id, pool]));
   return statisticsFixtures(archive).map((fixture) => {
     const snapshots = published
       .filter((s) => s.fixtureId === fixture.id)
       .map((s) => s.snapshot);
     const ids = [...new Set(snapshots.map((s) => s.poolId))];
     if (fixture.poolId && !ids.length) ids.push(fixture.poolId);
-    const pools = ids.map((id) => archive.pools.find((p) => p.id === id));
+    const pools = ids.map((id) => poolsById.get(id));
     const known =
       ids.length > 0 &&
-      pools.every(Boolean) &&
-      (!fixture.poolId || ids.every((id) => id === fixture.poolId));
+      pools.every((pool) => {
+        if (!pool) return false;
+        if (fixture.poolId) return fixture.poolId === pool.id;
+        return snapshots.some(
+          (snapshot) =>
+            snapshot.poolId === pool.id &&
+            (!snapshot.allowUnlistedMaps ||
+              selectedStatisticsGames(snapshot).some(
+                (game) =>
+                  game.beatmapId !== null &&
+                  pool.maps.some((map) => map.beatmapId === game.beatmapId),
+              )),
+        );
+      });
     const maps = known
       ? [
           ...new Map(
@@ -61,8 +76,8 @@ export function archivePoolFixtures(
               const map = maps!.find(
                 (m) =>
                   m.mapId === game.beatmapId &&
-                  archive.pools
-                    .find((p) => p.id === snapshot.poolId)
+                  poolsById
+                    .get(snapshot.poolId)
                     ?.maps.some(
                       (m2) =>
                         m2.slot === m.slot && m2.beatmapId === game.beatmapId,

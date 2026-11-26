@@ -135,6 +135,25 @@ describe("historical pool eligibility and bans (#405, #406)", () => {
       banRate: null,
     });
   });
+  it("keeps accepted unlisted games separate from verified pool eligibility", () => {
+    const a = structuredClone(statisticsArchive);
+    const unlisted = {
+      ...snapshot("final", [99999, 10001]),
+      allowUnlistedMaps: true,
+      included: [1],
+    };
+    const project = (...releases: StatisticsSnapshot[]) =>
+      archivePoolFixtures(
+        a,
+        releases.map((release) => ({ fixtureId: "one", snapshot: release })),
+      )[0];
+    expect(project(unlisted)).toMatchObject({ maps: null, picks: null });
+    expect(project({ ...unlisted, included: [1, 2] }).maps).toHaveLength(2);
+    expect(project(unlisted, snapshot("final", [10002])).maps).toHaveLength(2);
+    a.matches[0].poolId = "final";
+    expect(project(unlisted)).toMatchObject({ picks: [] });
+    expect(project(unlisted).maps).toHaveLength(2);
+  });
   it("shows known counts with partial coverage but withholds incomplete rates", () => {
     const a = structuredClone(statisticsArchive);
     Object.assign(a.matches[0], {

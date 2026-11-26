@@ -188,7 +188,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       .insert(users)
       .values({ osuId: subject, username: "Synthetic technical reader" });
     context.token = (await createSession(subject)).token;
-    const year = (slug: "s8" | "s9" | "s10", firstBid: number) => {
+    const year = (slug: "s7" | "s8" | "s9" | "s10", firstBid: number) => {
       const archive = structuredClone(statisticsArchive);
       archive.editionSlug = slug;
       archive.players.find((player) => player.osuId === 91004)!.role = "player";
@@ -226,16 +226,25 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     const s9 = year("s9", 9015801);
     const s10 = year("s10", 9015811);
     await seedEditions([season(slug, "Technical test scope"), s8, s9, s10]);
-    for (const saved of [s9, s10]) {
+    async function saveScores(
+      saved: ReturnType<typeof year>,
+      unlisted = false,
+    ) {
       const source = statisticsSource();
+      source.match.id = Number(
+        saved.archive.matches[0].mpUrls[0].split("/").at(-1),
+      );
       source.games = source.games.slice(0, 2);
       for (const [index, game] of source.games.entries()) {
-        game.beatmapId = saved.archive.pools[0].maps[index].beatmapId;
+        game.beatmapId = unlisted
+          ? 9015771 + index
+          : saved.archive.pools[0].maps[index].beatmapId;
         for (const score of game.scores) score.total = score.total! * 1000;
       }
       const snapshot = {
         archiveKey: statisticsArchiveKey(saved.archive),
         poolId: saved.archive.pools[0].id,
+        allowUnlistedMaps: unlisted,
         source,
         included: source.games.map((game) => game.id),
       };
@@ -251,6 +260,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
           publishedAt: new Date("2026-11-01T00:00:00Z"),
         });
     }
+    for (const saved of [s9, s10]) await saveScores(saved);
     const upstream = vi.fn();
     vi.stubGlobal("fetch", upstream);
     const map = await ask(["跨季找 BID 9015801 MOD NM 的相似譜面"]);
@@ -342,6 +352,27 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     expect(withdrawnPool).toContain("currently unavailable");
     expect(withdrawnPool).toContain("No published data is available for S10.");
     expect(withdrawnPool).not.toContain("9015811");
+
+    const s7 = year("s7", 9015781);
+    s7.archive.matches[0].mpUrls = [
+      "https://osu.ppy.sh/community/matches/9991582",
+    ];
+    await seedEditions([s7]);
+    await saveScores(s7, true);
+    const gapReader = { osuId: 1582010, username: "Synthetic pool gap reader" };
+    await db().insert(users).values(gapReader);
+    context.token = (await createSession(gapReader.osuId)).token;
+    const unlisted = await (
+      await ask(["查 S7 和 S9 的 UID 91003 技術強弱"])
+    ).text();
+    expect(unlisted).toContain("2 of 4 published plays are comparable");
+    expect(unlisted).toContain("S7 · 0 of 2 published plays are comparable");
+    expect(unlisted).toContain(
+      "2 published plays could not be matched to a verified mappool slot.",
+    );
+    expect(unlisted).toContain('"url":"/tournaments/s7/statistics"');
+    expect(unlisted).toContain('"url":"/tournaments/s7/mappools"');
+    expect(unlisted).toContain("S9 · 2 of 2 published plays are comparable");
     expect(upstream).not.toHaveBeenCalled();
   });
   it("retrieves the published overview dates for natural time questions and refreshes changed dates", async () => {

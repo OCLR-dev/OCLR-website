@@ -334,8 +334,13 @@ export async function playerPractice(
   osuId: number,
   validate: boolean,
 ) {
-  const { evidence, published, publishedPlays, exclusions } =
-    collectPlayerEvidence(snapshot, osuId);
+  const {
+    evidence,
+    published,
+    publishedPlays,
+    exclusions,
+    exclusionsBySeason,
+  } = collectPlayerEvidence(snapshot, osuId);
   const assessments = fitDemands(snapshot.pools).map((demand) =>
     assess(demand, evidence),
   );
@@ -356,6 +361,7 @@ export async function playerPractice(
     seasons: snapshot.releases.map((release) => ({
       ...releaseSource(release, osuId),
       publishedPlays: release.plays.filter((row) => row.osuId === osuId).length,
+      exclusions: exclusionsBySeason.get(release.slug) ?? {},
       usable: countEvidence(
         evidence.filter((row) => row.edition === release.slug),
       ),
