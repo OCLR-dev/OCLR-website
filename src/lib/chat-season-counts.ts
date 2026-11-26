@@ -1,4 +1,5 @@
 import type { AppTranslator } from "@/i18n/translate";
+import { chatSeasonSubject, seasonOnlyFollowup } from "./chat-season-scope";
 import { publicCaptains } from "./captain-reads";
 import { isUpcomingMatch, matches } from "./chat-competition-sources";
 import { asksRegistrationCount, registrationCount } from "./chat-registration";
@@ -133,6 +134,32 @@ export function seasonCountIntent(
   return null;
 }
 
+const countRecheck =
+  /^(?:(?:[應应][該该])?不[止只](?:吧|[嗎吗])?|(?:再|重新)[查算][一1]次|(?:are you sure|is that all|check again))[。？！?!.]*$/i;
+
+export function seasonCountRequest(
+  question: string,
+  previousQuestions: readonly string[],
+) {
+  let subject = question;
+  let scopeQuestion = question;
+  for (
+    let i = previousQuestions.length - 1;
+    seasonOnlyFollowup(subject) || countRecheck.test(subject);
+    i--
+  ) {
+    if (i < 0) return null;
+    subject = previousQuestions[i];
+    if (countRecheck.test(scopeQuestion)) scopeQuestion = subject;
+  }
+  const scopedSubject = chatSeasonSubject(subject)
+    .replace(/[?!.。]+$/, "")
+    .replace(/^(?:[\s、,，和與与及]|(?:and|in|for)\b)+/i, "")
+    .replace(/(?:\s+(?:and|in|for|of)\b|[\s、,，和與与及])+$/i, "");
+  const kind = seasonCountIntent(subject) ?? seasonCountIntent(scopedSubject);
+  return kind ? { kind, scopeQuestion } : null;
+}
+
 export async function seasonCount(
   edition: Edition,
   kind: NonNullable<ReturnType<typeof seasonCountIntent>>,
@@ -235,7 +262,7 @@ export async function seasonCount(
   };
 }
 
-export function formatSeasonCount(
+function formatSeasonCount(
   total: NonNullable<Awaited<ReturnType<typeof seasonCount>>>,
   tr: AppTranslator,
 ) {
@@ -303,4 +330,32 @@ export function formatSeasonCount(
         values,
       );
   }
+}
+
+type SeasonCount = NonNullable<Awaited<ReturnType<typeof seasonCount>>>;
+export type SeasonCountReport = {
+  entries: { edition: string; total: SeasonCount | null }[];
+  unavailable: string[];
+  showEdition: boolean;
+};
+
+export function formatSeasonCountReport(
+  report: SeasonCountReport,
+  tr: AppTranslator,
+) {
+  const lines = report.entries.map(({ edition, total }) => {
+    const answer = total
+      ? formatSeasonCount(total, tr)
+      : tr("Published data for this analysis is currently unavailable.");
+    return report.showEdition ? edition + " · " + answer : answer;
+  });
+  if (report.unavailable.length)
+    lines.push(
+      tr("No published data is available for {seasons}.", {
+        seasons: new Intl.ListFormat(tr.locale, { style: "short" }).format(
+          report.unavailable,
+        ),
+      }),
+    );
+  return lines.join("\n\n");
 }

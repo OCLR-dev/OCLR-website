@@ -179,15 +179,23 @@ it.skipIf(!url)(
     expect(calls).toEqual([["星際旋律是哪首?"]]);
     expect(await chatEvidence(other.slug, "第七屆有幾隊？", "")).toMatchObject({
       edition: archived.name,
-      total: { kind: "teams", count: 2 },
+      counts: { entries: [{ total: { kind: "teams", count: 2 } }] },
     });
     const counts = await chatEvidence(other.slug, "歷屆有幾隊？", "");
     expect(counts).toMatchObject({
-      historicalCounts: { unavailable: [] },
+      counts: {
+        unavailable: [],
+        entries: expect.arrayContaining([
+          expect.objectContaining({
+            edition: archived.name,
+            total: expect.objectContaining({ kind: "teams", count: 2 }),
+          }),
+        ]),
+      },
       sources: expect.arrayContaining([
         expect.objectContaining({
           url: `/tournaments/${archived.slug}/teams`,
-          text: expect.stringContaining('"count":2'),
+          text: "teams: 2",
         }),
       ]),
     });

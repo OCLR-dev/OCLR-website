@@ -77,25 +77,6 @@ function completion(text: string) {
   );
 }
 
-function countProvider() {
-  return vi.fn(async (url: unknown, init: RequestInit) => {
-    expect(String(url)).toBe("https://provider.example/v1/chat/completions");
-    const { messages } = JSON.parse(String(init.body));
-    expect(messages[0].content).toContain(
-      "preserve its exact number, scope and qualifications",
-    );
-    const { verifiedCount, evidence } = JSON.parse(messages.at(-1).content);
-    expect(verifiedCount).toMatchObject({
-      count: expect.any(Number),
-      source: 1,
-    });
-    expect(evidence).toHaveLength(1);
-    expect(evidence[0].source).toBe(1);
-    // The client still receives the verified public source if the model omits the citation marker.
-    return completion(verifiedCount.publicAnswer);
-  });
-}
-
 const season = (slug: string, body: string) => ({
   ...edition,
   slug,
@@ -402,7 +383,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
         },
       ]);
     context.token = (await createSession(accepted)).token;
-    const upstream = countProvider();
+    const upstream = vi.fn();
     vi.stubGlobal("fetch", upstream);
     for (const question of [
       "有多少人報名了",
@@ -442,9 +423,9 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     ).toContain(`historical roster lists ${archive.players.length}`);
     await seedEditions([{ ...season(cup, "Registration"), published: false }]);
     expect((await ask(["有多少人報名了"], { edition: cup })).status).toBe(404);
-    expect(upstream).toHaveBeenCalledTimes(6);
+    expect(upstream).not.toHaveBeenCalled();
   });
-  it("sends public season counts to generation and attaches matching citations without embedding", async () => {
+  it("returns public season counts and citations before any provider call", async () => {
     const archive = structuredClone(historicalArchive);
     const current = "empty-local-counts";
     await seedEditions([
@@ -461,7 +442,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       .insert(users)
       .values({ osuId: 1425071, username: "Local counts" });
     context.token = (await createSession(1425071)).token;
-    const upstream = countProvider();
+    const upstream = vi.fn();
     vi.stubGlobal("fetch", upstream);
     vi.stubEnv("OCLR_CHAT_EMBEDDING_MODEL", "synthetic-test");
     try {
@@ -492,7 +473,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       expect(
         await (await ask(["本屆有幾支隊伍？"], { edition: current })).text(),
       ).toContain("0 published teams");
-      expect(upstream).toHaveBeenCalledTimes(7);
+      expect(upstream).not.toHaveBeenCalled();
     } finally {
       vi.stubEnv("OCLR_CHAT_EMBEDDING_MODEL", "");
     }
@@ -516,8 +497,8 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
       ["賽程還剩幾場？", 0, "schedule"],
       ["公開的賽果有幾場？", 1, "results"],
     ] as const) {
-      const { total } = await chatEvidence(slug, question, "");
-      expect(total, question).toMatchObject({
+      const { counts } = await chatEvidence(slug, question, "");
+      expect(counts?.entries[0].total, question).toMatchObject({
         count: expected,
         source: { url: `/tournaments/${slug}/${path}` },
       });
@@ -1396,5 +1377,65 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     } finally {
       vi.stubEnv("OCLR_CHAT_MODEL", "test-chat");
     }
+  });
+  it("reuses the count across season changes and keeps unavailable counts distinct from zero", async () => {
+    const current = "s12";
+    const archive = {
+      ...structuredClone(historicalArchive),
+      editionSlug: "s13",
+      draftMode: "final-tiers" as const,
+      picks: [],
+    };
+    await seedEditions([
+      { ...season(current, "Count scope"), name: "Synthetic Season 12" },
+      {
+        ...edition,
+        slug: archive.editionSlug,
+        name: "Synthetic Season 13",
+        archive,
+        status: "completed",
+        registration: null,
+      },
+      { ...season("s14", "Unpublished"), published: false },
+    ]);
+    const user = { osuId: 1582006, username: "Synthetic count history reader" };
+    await db().insert(users).values(user);
+    context.token = (await createSession(user.osuId)).token;
+    const upstream = vi.fn();
+    vi.stubGlobal("fetch", upstream);
+
+    const askCount = async (questions: string[], previousAnswers?: string[]) =>
+      (await ask(questions, { edition: current, previousAnswers })).text();
+    const switched = await askCount(
+      ["本屆有幾支隊伍？", "那第十三季呢？", "再查一次"],
+      ["999 位", "777 位"],
+    );
+    expect(switched).toContain(
+      "Synthetic Season 13 · This season has 2 published teams.",
+    );
+    expect(switched).toContain("/tournaments/s13/teams");
+    expect(switched).not.toMatch(/\/tournaments\/s12\/teams|999|777/);
+
+    const counts = await askCount(["第十二季、第十三季有幾支隊伍？"]);
+    expect(counts).toContain(
+      "Synthetic Season 12 · This season has 0 published teams.",
+    );
+    expect(counts).toContain(
+      "Synthetic Season 13 · This season has 2 published teams.",
+    );
+    expect(counts).toContain("/tournaments/s12/teams");
+    expect(counts).toContain("/tournaments/s13/teams");
+
+    const unavailable = await askCount([
+      "How many published draft picks in Season 13?",
+    ]);
+    expect(unavailable).toContain(
+      "Published data for this analysis is currently unavailable.",
+    );
+    expect(unavailable).not.toContain("0 published draft picks");
+    expect(await askCount(["第十四季有幾支隊伍？"])).toContain(
+      "No published data is available for S14.",
+    );
+    expect(upstream).not.toHaveBeenCalled();
   });
 });

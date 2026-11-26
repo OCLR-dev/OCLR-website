@@ -4,7 +4,7 @@ import { requireBrowserSession } from "@/lib/auth/user";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import { chatConfiguration } from "@/lib/chat-config";
 import { readChatPrompt } from "@/lib/chat-prompt-settings";
-import { formatSeasonCount } from "@/lib/chat-season-counts";
+import { formatSeasonCountReport } from "@/lib/chat-season-counts";
 import { chatRequestBlockReason } from "@/lib/chat-request-filter";
 import { chatAnswer, chatScopeReply, chatTextReply } from "@/lib/chat-answer";
 import { createChatTrace, safeChatError } from "@/lib/chat-trace";
@@ -74,6 +74,7 @@ export async function POST(request: Request) {
       (error) => trace("embedding_fallback", undefined, safeChatError(error)),
       lastTurn?.answer ?? "",
       session.osuId,
+      questions.slice(0, -1),
     );
     if (evidence.blocked) {
       stage = "scope_filter";
@@ -130,30 +131,28 @@ export async function POST(request: Request) {
         reply.sources,
       );
     }
-    if (evidence.total?.kind === "captains") {
+    if (evidence.counts) {
       const tr = await getAppTranslations(locale);
       request.signal.throwIfAborted();
       trace("evidence_ready", undefined, {
         edition,
-        sourceCount: 1,
+        sourceCount: evidence.sources.length,
         retrievalMs: Math.round(performance.now() - retrievalStarted),
         route: "local_count",
         evidenceKind: "verified_count",
       });
       return chatTextReply(
         diagnostics,
-        "captain-count",
-        formatSeasonCount(evidence.total, tr),
-        [{ title: tr("Published captains"), url: evidence.total.source.url }],
+        "season-count",
+        formatSeasonCountReport(evidence.counts, tr),
+        evidence.sources.map(({ title, url }) => ({ title: tr(title), url })),
       );
     }
     const evidenceKind = evidence.greeting
       ? "greeting"
-      : evidence.total
-        ? "verified_count"
-        : evidence.sources.length
-          ? "published"
-          : "none";
+      : evidence.sources.length
+        ? "published"
+        : "none";
     trace("evidence_ready", undefined, {
       edition,
       sourceCount: evidence.sources.length,

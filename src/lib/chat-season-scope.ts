@@ -17,10 +17,22 @@ export function seasonOnlyFollowup(question: string) {
     .replace(currentSeason, " ");
   return (
     rest !== normalized &&
-    /^(?:(?:改(?:查|成|用)?|[換换]成|只看|查|what about|how about|switch to|only|in|for)\s*)?(?:\s|[、,，與与和及/]|\band\b)*(?:呢|[。？！?!\.])?\s*$/iu.test(
+    /^(?:(?:那(?:[麼么])?\s*)|(?:改(?:查|成|用)?|[換换]成|只看|查|what about|how about|switch to|only|in|for)\s*)?(?:\s|[、,，與与和及/]|\band\b)*呢?[。？！?!.]*\s*$/iu.test(
       rest.trim(),
     )
   );
+}
+
+export function chatSeasonSubject(question: string) {
+  return question
+    .normalize("NFKC")
+    .replace(seasonReference, (match, slug: string | undefined) =>
+      slug ? match : " ",
+    )
+    .replace(allSeasons, "")
+    .replace(/^\s*(?:的|在|(?:in|for)\b)\s*/i, "")
+    .replace(/\s+(?:in|for|of)(?=\s*[?!.。]*\s*$)/i, "")
+    .trim();
 }
 
 function numericSeason(value: string) {
@@ -100,15 +112,8 @@ export async function chatSeasonScope(
       : published;
   return {
     editions,
-    question: normalized
-      // Keep published page links so the direct route readers still recognize them.
-      .replace(seasonReference, (match, slug: string | undefined) =>
-        slug ? match : " ",
-      )
-      .replace(allSeasons, " ")
-      .replace(/^\s*(?:的|在|in|for)\s*/i, "")
-      .replace(/\s+(?:in|for|of)\s*$/i, "")
-      .trim(),
+    // Keep page links for the readers that recognize a published section URL.
+    question: chatSeasonSubject(normalized),
     summary: {
       editions: editions.map(({ name, slug }) => ({ name, slug })),
       unavailable: targets.flatMap(({ label, edition }) =>
