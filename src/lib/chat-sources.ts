@@ -7,6 +7,8 @@ import {
 import { chatPlayerProfile } from "./chat-player-profile";
 import { artworkQuery, artworkSources } from "./chat-artwork";
 import { seasonCount, seasonCountIntent } from "./chat-season-counts";
+import { chatSeasonScope } from "./chat-season-scope";
+import type { Edition } from "./editions";
 import { seasonContent } from "./chat-season-content";
 import { searchSeasonIndex } from "./chat-vectors";
 import {
@@ -39,18 +41,18 @@ export async function chatEvidence(
   onEmbeddingFallback?: (error: unknown) => void,
   previousAnswer = "",
 ) {
-  const edition = await getPublicEdition(slug);
-  if (!edition) throw new HttpError(404, "Tournament not found.");
+  const selected = await getPublicEdition(slug);
+  if (!selected) throw new HttpError(404, "Tournament not found.");
   const blocked = chatRequestBlockReason(question);
   if (blocked)
-    return { edition: edition.name, blocked, total: null, sources: [] };
+    return { edition: selected.name, blocked, total: null, sources: [] };
   if (
     /^(?:(?:莉露[，,\s]*)?(?:你好|您好|嗨|哈[囉啰]|早安|早上好|午安|晚安)(?:[，,\s]*莉露)?|(?:hello|hi|hey|good morning|good afternoon|good evening)(?:[,\s]+liru)?)\s*[?!.，,。？！]*$/i.test(
       question.trim().normalize("NFKC"),
     )
   )
     return {
-      edition: edition.name,
+      edition: selected.name,
       greeting: true as const,
       total: null,
       sources: [],
@@ -61,13 +63,13 @@ export async function chatEvidence(
     )
   ) {
     return {
-      edition: edition.name,
+      edition: selected.name,
       total: null,
       sources: [
         {
-          title: edition.name,
+          title: selected.name,
           url: "/tournaments/" + slug,
-          text: "Liru can answer questions about published information for this season: rules, dates, players, teams, draft picks, mappools, fixtures, results and statistics. Examples include how many upcoming matches have a start time, how many Hidden (HD) slots the mappools contain, and how many draft picks were published. Availability depends on what has been published.",
+          text: "Liru can answer questions about published information for this season and past OCLR seasons: rules, dates, players, teams, draft picks, mappools, fixtures, results and statistics. Examples include how many upcoming matches have a start time, how many Hidden (HD) slots the mappools contain, and how many draft picks were published. Availability depends on what has been published.",
         },
       ],
     };
@@ -80,6 +82,120 @@ export async function chatEvidence(
     );
   const previousSearch =
     refersBack && previousAnswer ? previous + "\n" + previousAnswer : previous;
+
+  const scope = await chatSeasonScope(selected, question, previous, refersBack);
+  if (!scope)
+    return seasonEvidence(
+      selected,
+      question,
+      previous,
+      previousSearch,
+      now,
+      signal,
+      onEmbeddingFallback,
+    );
+
+  const scopedQuestion = scope.question || question;
+  const evidence =
+    scope.editions.length === 1 && !scope.summary.allPublished
+      ? await seasonEvidence(
+          scope.editions[0],
+          scopedQuestion,
+          previous,
+          previousSearch,
+          now,
+          signal,
+          onEmbeddingFallback,
+        )
+      : await historyEvidence(
+          selected,
+          scope.editions,
+          scopedQuestion,
+          previous,
+          previousSearch,
+          now,
+          signal,
+          onEmbeddingFallback,
+        );
+  return { ...evidence, seasonScope: scope.summary };
+}
+
+async function historyEvidence(
+  selected: Edition,
+  editions: Edition[],
+  question: string,
+  previous: string,
+  previousSearch: string,
+  now: number,
+  signal?: AbortSignal,
+  onEmbeddingFallback?: (error: unknown) => void,
+) {
+  const base = { edition: selected.name, total: null };
+  if (!editions.length) return { ...base, sources: [] };
+  const count = seasonCountIntent(question);
+  if (count) {
+    const sources = [];
+    const unavailableCounts = [];
+    for (const edition of editions) {
+      const result = await seasonCount(edition, count, now);
+      if (result)
+        sources.push({
+          ...result.source,
+          title: edition.name + " · " + result.source.title,
+          text: JSON.stringify({
+            edition: edition.name,
+            ...result,
+            source: undefined,
+          }),
+        });
+      else unavailableCounts.push(edition.name);
+    }
+    return {
+      ...base,
+      historicalCounts: { unavailable: unavailableCounts },
+      sources,
+    };
+  }
+  const player = await chatPlayerProfile(selected, question, previous);
+  if (player)
+    return { ...base, playerProfile: true as const, sources: [player] };
+  const visual = artworkQuery(question);
+  if (visual !== null)
+    return {
+      ...base,
+      artworkSearch: visual,
+      sources: await searchSeasonIndex(
+        editions,
+        visual,
+        "",
+        signal,
+        "artwork",
+        onEmbeddingFallback,
+      ),
+    };
+  return {
+    ...base,
+    sources: await searchSeasonIndex(
+      editions,
+      question,
+      previousSearch,
+      signal,
+      undefined,
+      onEmbeddingFallback,
+    ),
+  };
+}
+
+async function seasonEvidence(
+  edition: Edition,
+  question: string,
+  previous: string,
+  previousSearch: string,
+  now: number,
+  signal?: AbortSignal,
+  onEmbeddingFallback?: (error: unknown) => void,
+) {
+  const slug = edition.slug;
   const mappoolLink = linksToSeasonSection(question, slug, "mappools");
   const mappoolContext =
     mappoolLink || linksToSeasonSection(previous, slug, "mappools");

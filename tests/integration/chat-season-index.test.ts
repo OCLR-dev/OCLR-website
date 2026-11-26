@@ -37,6 +37,8 @@ const url = process.env.TEST_DATABASE_URL;
 const archived = {
   ...edition,
   slug: historicalArchive.editionSlug,
+  season: "7",
+  name: "Synthetic historical season",
   status: "completed" as const,
   registration: null,
   archive: structuredClone(historicalArchive),
@@ -62,7 +64,7 @@ beforeAll(async () => {
         object: "embedding",
         index,
         embedding:
-          text.includes("Historical Title") || text === "星際旋律是哪首？"
+          text.includes("Historical Title") || text.normalize("NFKC") === "星際旋律是哪首?"
             ? [1, 0]
             : [0, 1],
       })),
@@ -130,6 +132,47 @@ it.skipIf(!url)(
         s.text.includes("Historical Title"),
       ),
     ).toBe(false);
+    calls.length = 0;
+    const across = await chatEvidence(other.slug, "歷屆星際旋律是哪首？", "");
+    expect(across).toMatchObject({
+      seasonScope: { allPublished: true },
+      sources: expect.arrayContaining([
+        expect.objectContaining({
+          title: expect.stringContaining(archived.name),
+          text: expect.stringContaining("Historical Title"),
+        }),
+      ]),
+    });
+    expect(calls).toEqual([["星際旋律是哪首?"]]);
+    expect(await chatEvidence(other.slug, "第七屆有幾隊？", "")).toMatchObject({
+      edition: archived.name,
+      total: { kind: "teams", count: 2 },
+    });
+    const counts = await chatEvidence(other.slug, "歷屆有幾隊？", "");
+    expect(counts).toMatchObject({
+      historicalCounts: { unavailable: [] },
+      sources: expect.arrayContaining([
+        expect.objectContaining({
+          url: `/tournaments/${archived.slug}/teams`,
+          text: expect.stringContaining('"count":2'),
+        }),
+      ]),
+    });
+    const player = await chatEvidence(
+      other.slug,
+      "Historical Player是什麼水平的玩家？",
+      "",
+    );
+    expect(player.playerProfile).toBe(true);
+    expect(JSON.parse(player.sources[0].text)).toMatchObject({
+      selectedEditionParticipation: [],
+      otherPublishedParticipation: [
+        expect.objectContaining({ editionSlug: archived.slug }),
+      ],
+      publishedTeamResults: [
+        expect.objectContaining({ editionSlug: archived.slug, wins: 1 }),
+      ],
+    });
     embeddingUnavailable = true;
     expect(
       (await searchSeasonIndex(archived, "Historical Title", "")).some((s) =>
@@ -155,6 +198,16 @@ it.skipIf(!url)(
     vi.stubEnv("OCLR_CHAT_EMBEDDING_MODEL", "other-model");
     expect((await refreshChatIndex()).updated).toBeGreaterThan(1);
     await seedEditions([{ ...changed, published: false }]);
+    expect(await chatEvidence(other.slug, "S7的圖池", "")).toMatchObject({
+      seasonScope: { editions: [], unavailable: ["S7"] },
+      sources: [],
+    });
+    expect(
+      (
+        await chatEvidence(other.slug, "歷屆 Replacement track", "")
+      ).sources.some((source) => source.url.includes(archived.slug)),
+    ).toBe(false);
+
     expect((await refreshChatIndex()).removed).toBeGreaterThan(0);
     expect(
       await db()
