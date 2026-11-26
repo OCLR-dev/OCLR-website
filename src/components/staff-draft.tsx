@@ -1,6 +1,7 @@
 "use client";
 import { useStaffReadOnly } from "./staff-read-only";
 
+import { draftBoardTiers } from "@/lib/award-tiers";
 import { useAppTranslations } from "@/i18n/shared";
 
 import { useState } from "react";
@@ -189,6 +190,10 @@ export function StaffDraftRoom({
         pool: null,
       }
     : null;
+  const tiers =
+    preview && session
+      ? draftBoardTiers(preview, session.turnSequence)
+      : undefined;
   const canPick = Boolean(!readOnly && connected && session?.state === "live");
   return (
     <>
@@ -229,6 +234,7 @@ export function StaffDraftRoom({
               }
               pool={data.availablePool}
               staff
+              tiers={tiers}
               enabled={canPick}
               feedback={pickFeedback}
               onFeedback={(message, publicVersion) =>
@@ -251,7 +257,7 @@ export function StaffDraftRoom({
               "Private operational state. This preview is not the public broadcast.",
             )}
           </p>
-          {preview && <DraftBoardView board={preview} privatePreview />}
+          {preview && <DraftBoardView board={preview} privateTiers={tiers} />}
         </>
       )}
       <Controls

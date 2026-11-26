@@ -5,7 +5,7 @@ import { draftBoardTiers } from "@/lib/award-tiers";
 
 import type { CaptainBoard, DraftBoard } from "@/lib/draft-types";
 import { useState } from "react";
-import { CaptainDraftOverview } from "./captain-draft-overview";
+import { DraftOverview } from "./draft-overview";
 import { CaptainDraftStatus } from "./captain-draft-status";
 import { DraftBoardView } from "./draft-board";
 import { DraftPick } from "./draft-pick";
@@ -88,6 +88,7 @@ export function LiveDraft({
               const own = board.rosters.find(
                 (r) => r.team.captain.osuId === captainId,
               );
+              const tiers = draftBoardTiers(board, board.turnSequence ?? []);
               return own ? (
                 <>
                   <DraftPick
@@ -98,7 +99,7 @@ export function LiveDraft({
                     turnIndex={board.turnIndex}
                     team={own.team}
                     players={own.players}
-                    tiers={draftBoardTiers(board, board.turnSequence ?? [])}
+                    tiers={tiers}
                     capacity={board.capacities?.[own.team.id]}
                     pool={board.eligiblePool}
                     staff={false}
@@ -125,7 +126,11 @@ export function LiveDraft({
                       })
                     }
                   />
-                  <CaptainDraftOverview board={board} ownTeamId={own.team.id} />
+                  <DraftOverview
+                    board={board}
+                    ownTeamId={own.team.id}
+                    tiers={tiers}
+                  />
                 </>
               ) : (
                 <p className="notice">

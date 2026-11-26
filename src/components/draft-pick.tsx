@@ -311,7 +311,9 @@ export function DraftPick({
               <li key={p.osuId}>
                 <PlayerIdentity player={p} />
                 {p.osuId === team.captain.osuId ? (
-                  <span className="badge">{tr("Captain")}</span>
+                  <span className="badge">
+                    {tiers ? "Captain" : tr("Captain")}
+                  </span>
                 ) : tier ? (
                   <span className="badge">{`Tier ${tier}`}</span>
                 ) : null}

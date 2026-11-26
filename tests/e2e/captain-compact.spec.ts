@@ -191,18 +191,13 @@ test.describe("compact Captain live state", () => {
           ),
         ).toBe(true);
         await expect(page.locator(".captain-history")).toBeVisible();
-        if (board.picks.length > 1) {
-          const list = page.locator(".captain-picks");
-          expect(
-            await list.evaluate((el) => el.scrollHeight > el.clientHeight),
-          ).toBe(true);
-          await list.focus();
-          await list.press("End");
-          await expect
-            .poll(() => list.evaluate((el) => el.scrollTop))
-            .toBeGreaterThan(0);
-          await list.press("Home");
-          await expect.poll(() => list.evaluate((el) => el.scrollTop)).toBe(0);
+        if (board.picks.length > 6) {
+          const older = page.locator(".captain-pick-details");
+          const earliest = older.getByText("Published pick 1", { exact: true });
+          await expect(earliest).not.toBeVisible();
+          await older.locator("summary").focus();
+          await older.locator("summary").press("Enter");
+          await expect(earliest).toBeVisible();
         }
         expect(
           (
