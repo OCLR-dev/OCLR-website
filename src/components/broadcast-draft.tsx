@@ -9,6 +9,10 @@ import type {
   DraftIdentity,
 } from "@/lib/draft-types";
 import { Avatar } from "./avatar";
+import {
+  copyPickLayers,
+  crossfadePickLayers,
+} from "./broadcast-pick-transition";
 import { DraftTierBadge } from "./draft-tier-badge";
 import { BroadcastRatingRadars } from "./player-rating-radar";
 import { RemoteReadOnlyContext } from "./staff-read-only";
@@ -98,6 +102,9 @@ function cancelBroadcastTransitions(overlay: HTMLDivElement | null) {
   for (const animation of overlay?.getAnimations({ subtree: true }) ?? []) {
     if (animation.id.startsWith("oclr-")) animation.cancel();
   }
+  overlay
+    ?.querySelectorAll("[data-outgoing-pick]")
+    .forEach((layer) => layer.remove());
 }
 
 function Portrait({
@@ -158,6 +165,7 @@ export function BroadcastDraft({
   const wasReceived = useRef(false);
   const seen = useRef(new Set(initial?.picks.map((p) => p.id)));
   const root = useRef<HTMLDivElement>(null);
+  const pickLayers = useRef<ReturnType<typeof copyPickLayers>>(undefined);
   const positions = useRef(new Map<string, number>());
   const suspended = useRef(false);
   useEffect(() => {
@@ -202,29 +210,25 @@ export function BroadcastDraft({
       newRevision &&
       !matchMedia("(prefers-reduced-motion: reduce)").matches &&
       !document.hidden;
-    function enter(el: Element | null | undefined, id: string, duration = 480) {
-      el?.animate(
-        [
-          { opacity: 0.08, transform: "translateY(8px)" },
-          { opacity: 1, transform: "translateY(0)" },
-        ],
-        { id, duration, easing: "cubic-bezier(.2,.65,.3,1)" },
-      );
+    function enter(
+      el: Element | null | undefined,
+      id: string,
+      opacity: number,
+    ) {
+      el?.animate([{ opacity }, { opacity: 1 }], {
+        id,
+        duration: 360,
+        easing: "ease-out",
+      });
     }
     if (motion) {
       if (additions.length) {
-        enter(overlay?.querySelector("[data-pick-heading]"), "oclr-pick", 720);
-        enter(overlay?.querySelector("[data-pick-player]"), "oclr-pick", 720);
-        enter(
-          overlay?.querySelector("[data-pick-ratings]"),
-          "oclr-pick-ratings",
-          720,
-        );
+        if (overlay) crossfadePickLayers(overlay, pickLayers.current);
         overlay
           ?.querySelectorAll<HTMLElement>("[data-history-pick]")
           .forEach((el) => {
             if (additions.some((p) => p.id === el.dataset.historyPick))
-              enter(el, "oclr-history");
+              enter(el, "oclr-history", 0.4);
             else {
               const before = positions.current.get(el.dataset.historyPick!);
               if (before !== undefined) {
@@ -255,7 +259,7 @@ export function BroadcastDraft({
           old.turnIndex !== board.turnIndex ||
           old.state !== board.state
         )
-          enter(overlay?.querySelector("[data-turn-card]"), "oclr-turn");
+          enter(overlay?.querySelector("[data-turn-card]"), "oclr-turn", 0.85);
       }
     }
     positions.current = new Map(
@@ -263,6 +267,8 @@ export function BroadcastDraft({
         overlay?.querySelectorAll<HTMLElement>("[data-history-pick]") ?? [],
       ).map((el) => [el.dataset.historyPick!, el.offsetTop]),
     );
+    pickLayers.current =
+      overlay && board?.picks.length ? copyPickLayers(overlay) : undefined;
     board?.picks.forEach((p) => seen.current.add(p.id));
     previous.current = board;
     wasConnected.current = connected;
