@@ -33,3 +33,9 @@ Same licence and credit as above (CC BY 4.0, "Liru by JerrYamada"; AI-assisted a
 `chat-launcher.webp` is an AI-assisted chibi redrawing for the floating chat button and chat headings, based on character sheet v1.2.1. The transparent WebP uses the original lavender hair, right-side ponytail, green sprout and left-side red and blue hairclips. Liru by JerrYamada, adapted for OCLR chat under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). [Character reference](https://oclr.org/wiki/liru).
 
 `chat-wink.webp` is a 160×160 AI-assisted portrait for Liru’s chat replies. The winking illustration adapts the approved character sheet. Liru by JerrYamada, adapted for OCLR chat under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). [Character reference](https://oclr.org/wiki/liru).
+
+## Draft broadcast illustrations (`draft/`, issue #1641)
+
+Ten full-body chibi illustrations in the main sports outfit for the first-pick waiting card. The poses are a wave, ready stance, wink, cheer, thumbs up, listening pose, surprise, thinking pose, high five and bow. They use square PNG canvases with transparent backgrounds.
+
+Liru by JerrYamada, adapted with ImageGen from the [official design](https://oclr.org/wiki/liru) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The prompts preserve the lavender side ponytail and outfit, green sprout and bracelet, crossed red and blue hairpins, mismatched sneakers, and sticker-style outline across the ten poses.

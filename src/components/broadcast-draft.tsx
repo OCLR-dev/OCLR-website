@@ -15,6 +15,19 @@ import { RemoteReadOnlyContext } from "./staff-read-only";
 import { usePoll } from "./use-poll";
 import styles from "./broadcast-draft.module.css";
 
+const liruPoses = [
+  "01-wave",
+  "02-ready",
+  "03-wink",
+  "04-cheer",
+  "05-thumbs-up",
+  "06-listen",
+  "07-surprise",
+  "08-think",
+  "09-high-five",
+  "10-bow",
+];
+
 // Retractions always clear the display. A delayed older snapshot must not rewind it.
 export function acceptBroadcastSnapshot(
   current: DraftBoard | null,
@@ -270,6 +283,7 @@ export function BroadcastDraft({
         <section
           className={styles.selection}
           data-featured
+          data-first-pick-waiting={showFirstPickHeadline || undefined}
           aria-label={tr("Latest published selection")}
         >
           {!showFirstPickHeadline && (
@@ -384,6 +398,21 @@ export function BroadcastDraft({
               ) : null}
             </div>
           </div>
+          {showFirstPickHeadline && (
+            <div className={styles.waitingLiru} aria-hidden="true">
+              {liruPoses.map((pose, index) => (
+                <Image
+                  key={pose}
+                  src={`/mascot/liru/draft/${pose}.png`}
+                  alt=""
+                  fill
+                  sizes="(max-width: 600px) 45vw, 30vw"
+                  unoptimized
+                  style={{ animationDelay: `${index * 6 - 0.4}s` }}
+                />
+              ))}
+            </div>
+          )}
         </section>
         <section
           className={styles.turn}

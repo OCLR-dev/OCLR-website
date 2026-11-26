@@ -185,6 +185,43 @@
   justify-content: center;
   overflow: hidden;
 }
+.selection[data-first-pick-waiting] {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+  align-items: center;
+}
+.selection[data-first-pick-waiting] .identity {
+  min-width: 0;
+}
+.waitingLiru {
+  position: relative;
+  align-self: stretch;
+  min-height: 0;
+}
+.waitingLiru img {
+  object-fit: contain;
+  opacity: 0;
+}
+.waitingLiru img:first-child {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .waitingLiru img {
+    animation: liru-pose 60s linear infinite both;
+  }
+}
+@keyframes liru-pose {
+  0%,
+  10.6667%,
+  100% {
+    opacity: 0;
+  }
+  0.6667%,
+  10% {
+    opacity: 1;
+  }
+}
 .selectionHeading {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
