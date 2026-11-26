@@ -1,10 +1,15 @@
 import { refreshArtwork } from "./chat-artwork-worker";
+import { safeChatError } from "./chat-trace";
 import { chatTerms } from "./chat-retrieval";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { db, getPool, readOnlyData } from "@/db";
 import { chatSourceVectors as vectors, editionState } from "@/db/schema";
 import { getPublicEdition } from "./content";
-import { chatCollections, seasonContent } from "./chat-season-content";
+import {
+  chatCollections,
+  seasonContent,
+  type ChatCollection,
+} from "./chat-season-content";
 import {
   embeddingProvider,
   normalizedEmbeddings,
@@ -25,6 +30,52 @@ type ArtworkProgress = { edition: string } & (
       unresolvedSlots: number;
     }
 );
+
+type IndexStage =
+  | "edition-read"
+  | "source-read"
+  | "artwork-lookup"
+  | "artwork-caption"
+  | "keyword-write"
+  | "embedding"
+  | "vector-write"
+  | "prune";
+
+type IndexEvent =
+  | ({
+      event: "chat_index_failure";
+      edition: string;
+      collection?: ChatCollection;
+      stage: IndexStage;
+      affected?: number;
+    } & Partial<ReturnType<typeof safeChatError>>)
+  | ({
+      event: "chat_index_collection_progress";
+      edition: string;
+      collection: ChatCollection;
+      embeddingEnabled: boolean;
+    } & (
+      | { status: "error" }
+      | {
+          status: "complete" | "partial" | "disabled";
+          completed: number;
+          pending: number;
+          failed: number;
+        }
+    ));
+
+async function upsertEmbeddings(rows: (typeof vectors.$inferInsert)[]) {
+  await db()
+    .insert(vectors)
+    .values(rows)
+    .onConflictDoUpdate({
+      target: [vectors.editionSlug, vectors.digest],
+      set: {
+        model: sql`excluded.model`,
+        embedding: sql`excluded.embedding`,
+      },
+    });
+}
 
 async function backfillEmbeddingVectors() {
   const batchSize = 512;
@@ -51,6 +102,7 @@ async function backfillEmbeddingVectors() {
 
 export async function refreshChatIndex(
   reportArtwork: (progress: ArtworkProgress) => void = () => {},
+  reportIndex: (event: IndexEvent) => void = () => {},
 ) {
   if (remoteMode() || inReadChannel())
     throw new Error("Indexing requires the local database worker.");
@@ -83,11 +135,11 @@ export async function refreshChatIndex(
       .orderBy(editionState.slug);
     const visitedArtwork = new Set<string>();
     for (const { slug } of editions) {
-      let reportedArtwork = false;
+      let edition, saved;
       try {
-        const edition = await getPublicEdition(slug);
+        edition = await getPublicEdition(slug);
         if (!edition) continue;
-        const saved = await db()
+        saved = await db()
           .select({
             digest: vectors.digest,
             model: vectors.model,
@@ -96,134 +148,224 @@ export async function refreshChatIndex(
           })
           .from(vectors)
           .where(eq(vectors.editionSlug, slug));
-        const remaining = new Map(saved.map((row) => [row.digest, row]));
-        const artwork = await refreshArtwork(edition, visitedArtwork);
-        counts.failed +=
-          (artwork?.failed ?? 0) + Number(artwork?.lookupIncomplete === true);
-        const completed = new Set<string>();
-        const failed = new Set<string>();
-        const seen = new Set<string>();
-        for (const collection of chatCollections) {
-          const isArtwork = collection === "artwork";
+      } catch (error) {
+        counts.failed++;
+        reportArtwork({ edition: slug, status: "error" });
+        reportIndex({
+          event: "chat_index_failure",
+          edition: slug,
+          stage: "edition-read",
+          ...safeChatError(error),
+        });
+        continue;
+      }
+
+      const savedByCollection = Map.groupBy(saved, (row) => row.collection);
+      for (const collection of chatCollections) {
+        const isArtwork = collection === "artwork";
+        const report = (
+          stage: IndexStage,
+          affected?: number,
+          error?: unknown,
+        ) =>
+          reportIndex({
+            event: "chat_index_failure",
+            edition: slug,
+            collection,
+            stage,
+            affected,
+            ...safeChatError(error),
+          });
+        const progress = {
+          event: "chat_index_collection_progress" as const,
+          edition: slug,
+          collection,
+          embeddingEnabled: !!provider,
+        };
+        let current: Map<
+          string,
+          Awaited<ReturnType<typeof seasonContent>>[number]
+        >;
+        let artwork: Awaited<ReturnType<typeof refreshArtwork>> = null;
+        try {
+          artwork = isArtwork
+            ? await refreshArtwork(edition, visitedArtwork)
+            : null;
           const sources = isArtwork
             ? (artwork?.sources ?? [])
             : await readOnlyData(() => seasonContent(edition, collection));
-          const changed = [];
-          for (const source of sources) {
-            const digest = sourceDigest(collection, source);
-            if (seen.has(digest)) continue;
-            seen.add(digest);
-            const old = remaining.get(digest);
-            remaining.delete(digest);
-            if (
-              !old ||
-              old.model !== (provider?.key ?? null) ||
-              (provider && !old.hasEmbedding)
-            ) {
-              changed.push({ source, digest });
-            } else if (isArtwork && old.hasEmbedding) {
-              completed.add(digest);
-            }
-          }
-          for (let i = 0; i < changed.length; i += 32) {
-            const batch = changed.slice(i, i + 32);
-            let embeddings: number[][] = [];
-            try {
-              if (provider)
-                embeddings = await normalizedEmbeddings(
-                  provider,
-                  batch.map(({ source }) =>
-                    isArtwork
-                      ? source.text
-                      : collection + " · " + source.title + "\n" + source.text,
-                  ),
-                );
-            } catch (error) {
-              if (!isArtwork) throw error;
-              counts.failed++;
-              for (const { digest } of batch) failed.add(digest);
-              break;
-            }
-            await db()
-              .insert(vectors)
-              .values(
-                batch.map(({ source, digest }, j) => ({
-                  editionSlug: slug,
-                  digest,
-                  collection,
-                  title: source.title,
-                  url: source.url,
-                  content: source.text,
-                  keywords: chatTerms(
-                    isArtwork
-                      ? source.text
-                      : collection + " " + source.title + " " + source.text,
-                  ),
-                  model: provider?.key ?? null,
-                  embedding: embeddings[j] ?? null,
-                })),
-              )
-              .onConflictDoUpdate({
-                target: [vectors.editionSlug, vectors.digest],
-                set: {
-                  model: sql`excluded.model`,
-                  embedding: sql`excluded.embedding`,
-                },
-              });
-            counts.updated += batch.length;
-            if (isArtwork && provider)
-              for (const { digest } of batch) completed.add(digest);
-          }
-          if (isArtwork) {
-            if (artwork) {
-              const progress = {
-                completed: 0,
-                pending: 0,
-                failed: artwork.unresolvedSlots,
-              };
-              for (const map of artwork.maps) {
-                const text = artwork.descriptions.get(map.image);
-                const digest =
-                  text && sourceDigest("artwork", { ...map, text });
-                if (digest && completed.has(digest)) progress.completed++;
-                else if (text === null || (digest && failed.has(digest)))
-                  progress.failed++;
-                else progress.pending++;
-              }
-              reportArtwork({
-                edition: slug,
-                status: "active",
-                embeddingEnabled: !!provider,
-                unresolvedSlots: artwork.unresolvedSlots,
-                ...progress,
-              });
-            } else {
-              reportArtwork({ edition: slug, status: "disabled" });
-            }
-            reportedArtwork = true;
-          }
+          current = new Map(
+            sources.map((source) => [sourceDigest(collection, source), source]),
+          );
+        } catch (error) {
+          counts.failed++;
+          report("source-read", undefined, error);
+          reportIndex({ ...progress, status: "error" });
+          if (isArtwork) reportArtwork({ edition: slug, status: "error" });
+          continue;
         }
-        const obsolete = [...remaining.values()]
-          .filter(
-            (row) => row.collection !== "artwork" || !artwork?.lookupIncomplete,
+
+        if (artwork?.lookupIncomplete) {
+          counts.failed++;
+          report("artwork-lookup", artwork.unresolvedSlots);
+        }
+        if (artwork?.failed) {
+          counts.failed += artwork.failed;
+          report("artwork-caption", artwork.failed);
+        }
+
+        const old = new Map(
+          (savedByCollection.get(collection) ?? []).map((row) => [
+            row.digest,
+            row,
+          ]),
+        );
+        const completed = new Set<string>();
+        const failed = new Set<string>();
+        const changed = [];
+        for (const [digest, source] of current) {
+          const existing = old.get(digest);
+          if (
+            !existing ||
+            existing.model !== (provider?.key ?? null) ||
+            (provider && !existing.hasEmbedding)
           )
-          .map((row) => row.digest);
-        for (let i = 0; i < obsolete.length; i += 500) {
-          counts.removed +=
-            (
-              await db()
-                .delete(vectors)
-                .where(
-                  and(
-                    eq(vectors.editionSlug, slug),
-                    inArray(vectors.digest, obsolete.slice(i, i + 500)),
-                  ),
-                )
-            ).rowCount ?? 0;
+            changed.push({ digest, source, existing });
+          else completed.add(digest);
         }
-      } catch {
-        if (!reportedArtwork) reportArtwork({ edition: slug, status: "error" });
-        counts.failed++;
+
+        for (let i = 0; i < changed.length; i += 32) {
+          const batch = changed.slice(i, i + 32);
+          const rows = batch.map(({ source, digest }) => ({
+            editionSlug: slug,
+            digest,
+            collection,
+            title: source.title,
+            url: source.url,
+            content: source.text,
+            keywords: chatTerms(
+              isArtwork
+                ? source.text
+                : collection + " " + source.title + " " + source.text,
+            ),
+            model: null,
+            embedding: null,
+          }));
+          let stage: IndexStage = "keyword-write";
+          let inserted = 0;
+          try {
+            if (provider) {
+              // Commit searchable text before asking the provider. Do not overwrite an
+              // existing vector until its replacement has been stored.
+              const newRows = rows.filter((_, j) => !batch[j].existing);
+              if (newRows.length) {
+                const result = await db()
+                  .insert(vectors)
+                  .values(newRows)
+                  .onConflictDoNothing({
+                    target: [vectors.editionSlug, vectors.digest],
+                  });
+                inserted = result.rowCount ?? 0;
+                counts.updated += inserted;
+              }
+              stage = "embedding";
+              const embeddings = await normalizedEmbeddings(
+                provider,
+                batch.map(({ source }) =>
+                  isArtwork
+                    ? source.text
+                    : collection + " · " + source.title + "\n" + source.text,
+                ),
+              );
+              stage = "vector-write";
+              await upsertEmbeddings(
+                rows.map((row, j) => ({
+                  ...row,
+                  model: provider.key,
+                  embedding: embeddings[j],
+                })),
+              );
+            } else {
+              await upsertEmbeddings(rows);
+            }
+            counts.updated += batch.length - inserted;
+            for (const { digest } of batch) completed.add(digest);
+          } catch (error) {
+            counts.failed++;
+            for (const { digest } of batch) failed.add(digest);
+            report(stage, batch.length, error);
+          }
+        }
+
+        let pruneFailed = false;
+        // A partial artwork projection cannot establish which old sources disappeared.
+        if (!artwork?.lookupIncomplete) {
+          const obsolete = [...old.keys()].filter(
+            (digest) => !current.has(digest),
+          );
+          for (let i = 0; i < obsolete.length; i += 500) {
+            const batch = obsolete.slice(i, i + 500);
+            try {
+              counts.removed +=
+                (
+                  await db()
+                    .delete(vectors)
+                    .where(
+                      and(
+                        eq(vectors.editionSlug, slug),
+                        inArray(vectors.digest, batch),
+                      ),
+                    )
+                ).rowCount ?? 0;
+            } catch (error) {
+              counts.failed++;
+              pruneFailed = true;
+              report("prune", batch.length, error);
+            }
+          }
+        }
+
+        reportIndex({
+          ...progress,
+          status:
+            failed.size ||
+            pruneFailed ||
+            artwork?.lookupIncomplete ||
+            artwork?.failed
+              ? "partial"
+              : isArtwork && !artwork
+                ? "disabled"
+                : "complete",
+          completed: completed.size,
+          pending: current.size - completed.size,
+          failed: failed.size,
+        });
+
+        if (artwork) {
+          const artworkProgress = {
+            completed: 0,
+            pending: 0,
+            failed: artwork.unresolvedSlots,
+          };
+          for (const map of artwork.maps) {
+            const text = artwork.descriptions.get(map.image);
+            const digest = text && sourceDigest("artwork", { ...map, text });
+            if (provider && digest && completed.has(digest))
+              artworkProgress.completed++;
+            else if (text === null || (digest && failed.has(digest)))
+              artworkProgress.failed++;
+            else artworkProgress.pending++;
+          }
+          reportArtwork({
+            edition: slug,
+            status: "active",
+            embeddingEnabled: !!provider,
+            unresolvedSlots: artwork.unresolvedSlots,
+            ...artworkProgress,
+          });
+        } else if (isArtwork) {
+          reportArtwork({ edition: slug, status: "disabled" });
+        }
       }
     }
     return { status: counts.failed ? "partial" : "complete", ...counts };

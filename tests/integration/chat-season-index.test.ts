@@ -5,6 +5,7 @@ import {
   chatArtworkCaptions as captions,
   chatSourceVectors as vectors,
   draftSessions,
+  editionRevisions,
   editionState,
   etxRatingCache,
   fixtures,
@@ -22,6 +23,7 @@ import {
   users,
 } from "@/db/schema";
 import * as archiveArtwork from "@/lib/archive-artwork";
+import * as seasonSources from "@/lib/chat-season-content";
 import { statisticsArchiveKey } from "@/lib/archive-statistics-key";
 import { visionConfiguration } from "@/lib/chat-artwork";
 import { refreshChatIndex } from "@/lib/chat-index-worker";
@@ -274,6 +276,190 @@ it.skipIf(!url)(
         .from(vectors)
         .where(eq(vectors.editionSlug, archived.slug)),
     ).toEqual([]);
+  },
+);
+
+it.skipIf(!url)(
+  "saves keywords, keeps existing vectors and retries failed batches independently",
+  async () => {
+    const scope = structuredClone(archived);
+    const slug = (scope.slug = scope.archive.editionSlug = "index-retry-test");
+    const pool = scope.archive.pools[0];
+    pool.maps = Array.from({ length: 36 }, (_, i) => ({
+      ...pool.maps[0],
+      slot: `NM${i + 1}`,
+      beatmapId: 7254000 + i,
+      title: "Synthetic Retry Map " + i,
+    }));
+    const rows = () =>
+      db()
+        .select()
+        .from(vectors)
+        .where(
+          and(
+            eq(vectors.editionSlug, slug),
+            eq(vectors.collection, "mappools"),
+          ),
+        );
+    const currentFetch = globalThis.fetch;
+    const previousModel = process.env.OCLR_CHAT_EMBEDDING_MODEL;
+    const report = vi.fn();
+    const findMap = (result: Awaited<ReturnType<typeof rows>>, id: number) =>
+      result.find(({ content }) => content.split(" ").includes(String(id)));
+    try {
+      await seedEditions([scope]);
+      expect((await refreshChatIndex()).status).toBe("complete");
+      const initial = await rows();
+      const old = findMap(initial, 7254000)!;
+      expect(old.embeddingVector).not.toBeNull();
+
+      pool.maps.splice(0, 0, {
+        ...pool.maps[0],
+        slot: "HD1",
+        beatmapId: 7254999,
+        title: "Synthetic KeywordOnlyMarker",
+      });
+      pool.maps.pop();
+      await seedEditions([scope]);
+
+      const attempted: string[][] = [];
+      let rejected: string[] = [];
+      let shouldFail = true;
+      vi.stubEnv("OCLR_CHAT_EMBEDDING_MODEL", "retry-replacement-model");
+      vi.stubGlobal("fetch", async (address: string, init: RequestInit) => {
+        const { input } = JSON.parse(String(init.body)) as { input: string[] };
+        attempted.push(input);
+        if (
+          shouldFail &&
+          input.some(
+            (item) =>
+              item.startsWith("mappools · ") &&
+              item.includes("KeywordOnlyMarker"),
+          )
+        ) {
+          rejected = input;
+          return Response.json(
+            {
+              error: {
+                message: "SYNTHETIC_REJECTED_CONTENT",
+                code: "server_error",
+              },
+            },
+            { status: 503 },
+          );
+        }
+        return currentFetch(address, init);
+      });
+      expect(await refreshChatIndex(undefined, report)).toMatchObject({
+        status: "partial",
+        failed: 1,
+      });
+      expect(rejected).toHaveLength(32);
+      expect(report.mock.calls.map(([event]) => event)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            event: "chat_index_failure",
+            edition: slug,
+            collection: "mappools",
+            stage: "embedding",
+            affected: 32,
+            upstreamStatus: 503,
+          }),
+          expect.objectContaining({
+            event: "chat_index_collection_progress",
+            edition: slug,
+            collection: "mappools",
+            status: "partial",
+            pending: 32,
+            failed: 32,
+          }),
+          expect.objectContaining({
+            event: "chat_index_collection_progress",
+            edition: slug,
+            collection: "staff",
+            status: "complete",
+            completed: expect.any(Number),
+          }),
+        ]),
+      );
+      expect(JSON.stringify(report.mock.calls)).not.toContain(
+        "SYNTHETIC_REJECTED_CONTENT",
+      );
+      const partial = await rows();
+      expect(findMap(partial, 7254999)).toMatchObject({
+        model: null,
+        embeddingVector: null,
+      });
+      expect(findMap(partial, 7254000)).toMatchObject({
+        model: old.model,
+        embeddingVector: old.embeddingVector,
+      });
+      expect(findMap(partial, 7254034)?.embeddingVector).not.toBeNull();
+      expect(findMap(partial, 7254034)?.model).not.toBe(old.model);
+      expect(findMap(partial, 7254035)).toBeUndefined();
+
+      embeddingUnavailable = true;
+      const keywordHits = await searchSeasonIndex(
+        scope,
+        "KeywordOnlyMarker",
+        "",
+      );
+      expect(
+        keywordHits.some((hit) => hit.text.includes("KeywordOnlyMarker")),
+      ).toBe(true);
+      embeddingUnavailable = false;
+
+      attempted.length = 0;
+      report.mockClear();
+      shouldFail = false;
+      expect(await refreshChatIndex(undefined, report)).toMatchObject({
+        status: "complete",
+        updated: 32,
+        failed: 0,
+      });
+      expect(attempted).toEqual([rejected]);
+      const indexed = await rows();
+      expect(findMap(indexed, 7254999)?.embeddingVector).not.toBeNull();
+      expect(findMap(indexed, 7254000)?.model).toBe(
+        findMap(indexed, 7254999)?.model,
+      );
+
+      const readSources = seasonSources.seasonContent;
+      const failSourceRead = vi
+        .spyOn(seasonSources, "seasonContent")
+        .mockImplementation(async (target, collection) => {
+          if (target.slug === slug && collection === "mappools")
+            throw new Error("SYNTHETIC_READ_FAILURE");
+          return readSources(target, collection);
+        });
+      try {
+        report.mockClear();
+        expect(await refreshChatIndex(undefined, report)).toMatchObject({
+          status: "partial",
+          updated: 0,
+          removed: 0,
+          failed: 1,
+        });
+        expect(report).toHaveBeenCalledWith(
+          expect.objectContaining({
+            edition: slug,
+            collection: "mappools",
+            stage: "source-read",
+          }),
+        );
+        expect(await rows()).toHaveLength(indexed.length);
+      } finally {
+        failSourceRead.mockRestore();
+      }
+    } finally {
+      embeddingUnavailable = false;
+      vi.stubGlobal("fetch", currentFetch);
+      vi.stubEnv("OCLR_CHAT_EMBEDDING_MODEL", previousModel);
+      await db()
+        .delete(editionRevisions)
+        .where(eq(editionRevisions.editionSlug, slug));
+      await db().delete(editionState).where(eq(editionState.slug, slug));
+    }
   },
 );
 
