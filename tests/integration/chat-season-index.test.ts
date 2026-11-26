@@ -2,6 +2,7 @@ import { afterAll, beforeAll, expect, it, vi } from "vitest";
 import { eq, and, sql } from "drizzle-orm";
 import { closeDb, db } from "@/db";
 import {
+  chatArtworkCaptions as captions,
   chatSourceVectors as vectors,
   draftSessions,
   etxRatingCache,
@@ -19,6 +20,7 @@ import {
   users,
 } from "@/db/schema";
 import * as archiveArtwork from "@/lib/archive-artwork";
+import { visionConfiguration } from "@/lib/chat-artwork";
 import { refreshChatIndex } from "@/lib/chat-index-worker";
 import { chatEvidence } from "@/lib/chat-sources";
 import { normalizeOsuProfile } from "@/lib/osu-profile-model";
@@ -709,7 +711,8 @@ it.skipIf(!url)(
     vi.stubEnv("OCLR_CHAT_VISION_MODEL", "vision-test");
     vi.stubEnv("OCLR_CHAT_EMBEDDING_MODEL", "artwork-embedding-test");
     const requests: string[] = [];
-    const first = "Anime girl under cherry blossoms. 美少女、櫻花、樱花";
+    const first =
+      "Anime girl with long blue hair and a red ribbon under cherry blossoms. 美少女、藍髮、紅色蝴蝶結、櫻花、蓝发、红色蝴蝶结、樱花";
     const second = "Snowy mountain peaks. 雪山、山峰";
     const sharp = (await import("sharp")).default;
     const pix = await Promise.all(
@@ -721,6 +724,7 @@ it.skipIf(!url)(
     );
     let visions = 0;
     let blockArtworkEmbeddings = false;
+    let blockVision = false;
     let unavailableSetId = "";
     vi.stubGlobal("fetch", async (input: string, init: RequestInit) => {
       const address = new URL(input);
@@ -740,6 +744,10 @@ it.skipIf(!url)(
       const body = JSON.parse(String(init.body));
       if (address.pathname.endsWith("/chat/completions")) {
         expect(body.model).toBe("vision-test");
+        expect(body.messages[0].content[0].text).toContain(
+          "hair style and color",
+        );
+        if (blockVision) return new Response(null, { status: 503 });
         const image = body.messages[0].content.find(
           (part: { type: string }) => part.type === "image_url",
         );
@@ -776,7 +784,7 @@ it.skipIf(!url)(
         data: body.input.map((value: string, index: number) => ({
           object: "embedding",
           index,
-          embedding: value.includes("美少女") ? [1, 0] : [0, 1],
+          embedding: /美少女|藍髮/.test(value) ? [1, 0] : [0, 1],
         })),
         model: body.model,
         usage: { prompt_tokens: 1, total_tokens: 1 },
@@ -794,6 +802,18 @@ it.skipIf(!url)(
       text: first,
     });
     expect(results[0].title).toContain(maps[0].slot);
+    const standalone = "有哪些背景圖有美少女";
+    const evidence = await chatEvidence(season.slug, standalone, "");
+    expect(evidence).toMatchObject({
+      artworkSearch: "美少女",
+      sources: results,
+    });
+    expect(
+      await chatEvidence(season.slug, "我說的就是譜面背景", standalone),
+    ).toMatchObject({ artworkSearch: "美少女", sources: results });
+    expect(
+      await chatEvidence(season.slug, "藍髮的譜面背景圖有哪些？", ""),
+    ).toMatchObject({ artworkSearch: "藍髮", sources: results });
     const livePath = `/tournaments/${live.slug}/mappools`;
     const liveUrl = "https://oclr.org" + livePath;
     const overview = await chatEvidence(live.slug, liveUrl, "");
@@ -915,6 +935,25 @@ it.skipIf(!url)(
       unresolvedSlots: 0,
     });
     expect(visions).toBe(beforeRetry);
+
+    const { key, previousKey } = visionConfiguration()!;
+    await db()
+      .update(captions)
+      .set({ model: previousKey })
+      .where(eq(captions.image, "8899003"));
+    blockVision = true;
+    expect((await refreshChatIndex()).failed).toBe(1);
+    expect(await chatEvidence(live.slug, standalone, "")).toMatchObject({
+      artworkSearch: "美少女",
+      sources: liveVisual.sources,
+    });
+    blockVision = false;
+    expect((await refreshChatIndex()).failed).toBe(0);
+    const [refreshed] = await db()
+      .select({ model: captions.model })
+      .from(captions)
+      .where(eq(captions.image, "8899003"));
+    expect(refreshed.model).toBe(key);
     lookup.mockRestore();
   },
 );

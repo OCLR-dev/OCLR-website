@@ -83,9 +83,9 @@ export async function chatEvidence(
   const mappoolLink = linksToSeasonSection(question, slug, "mappools");
   const mappoolContext =
     mappoolLink || linksToSeasonSection(previous, slug, "mappools");
-  const visual =
-    artworkQuery(question, mappoolContext) ??
-    (mappoolLink ? artworkQuery(previous, true) : null);
+  let visual = artworkQuery(question, mappoolContext);
+  if (!visual && (visual === "" || mappoolLink))
+    visual = artworkQuery(previous, true) ?? visual;
   if (visual !== null) {
     const indexed = visual
       ? await searchSeasonIndex(
@@ -100,6 +100,7 @@ export async function chatEvidence(
     const sources = indexed.length ? indexed : await artworkSources(edition);
     return {
       edition: edition.name,
+      artworkSearch: visual,
       total: null,
       sources:
         indexed.length || !visual

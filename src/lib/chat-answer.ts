@@ -99,6 +99,9 @@ export function chatAnswer({
           evidence.mappoolDirectory
             ? "The mappool overview lists published pool and slot counts. The supplied beatmap entries are an excerpt, not a complete roster of slots."
             : "",
+          evidence.artworkSearch !== undefined
+            ? "Use artworkSearch as the visual subject, including when the current turn merely clarifies that the user means beatmap backgrounds. List matching beatmaps by name and pool slot with a brief description of the visible characters or details that match, citing each source. The evidence describes indexed mappool artwork and may come from a representative cover. Do not infer characters' identities or ages. If the supplied descriptions cannot establish a match, say so."
+            : "",
           evidence.competitionPage
             ? "For the linked competition page, distinguish published team identities from released rosters, draft picks from final tiers and scheduled times from published scores. The detail rows are an excerpt. Use the supplied overview totals and preserve individual match time zones."
             : "",
@@ -117,6 +120,7 @@ export function chatAnswer({
           currentQuestion: question,
           previousTurns: evidence.greeting ? [] : previousTurns,
           verifiedCount,
+          artworkSearch: evidence.artworkSearch,
           evidence: evidence.sources.map((s) => ({
             source: sources.findIndex((c) => c.url === s.url) + 1,
             title: tr ? tr(s.title) : s.title,
