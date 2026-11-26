@@ -17,8 +17,8 @@ ineligible applicants and delegated remote sessions.
 
 `/tournaments/[edition]/player/practice` automatically selects the most recently
 published mappool, with tabs for other published pools and each available Mod.
-Changing Mod keeps each map's unsaved inputs mounted; changing pools asks before
-discarding drafts. Hidden pools and historical archives are unavailable.
+Changing Mod keeps each map's inputs and save progress. Changing pools asks
+before discarding pending changes. Hidden pools and historical archives are unavailable.
 Each map has an optional manually entered score, an optional **Feel** selection
 (Poor / Okay / Good), and a compact, vertically resizable comment field (up to
 2,000 characters). Players fill in their own record cell directly, with score,
@@ -26,6 +26,12 @@ Feel and save above the comment and delete control. There is no separate editor
 row. The actor's column appears first beside the fixed map column, including
 when saved roster order differs. Pool and Mod selectors use compact
 underlined tabs, and reload/save/delete use labelled utility controls.
+Changes save after 750 ms of inactivity. Each map sends one save at a time, and
+players can keep typing while it is in progress. The cell shows when a save is
+pending, confirmed or needs a retry. Manual save sends pending changes right
+away. Retrying first confirms the previous attempt with the same request key
+so newer edits can save under the confirmed version. Inputs are retained on
+failure. Reload the sheet to resolve a conflict with a changed map or record.
 
 Team records use a map-by-player comparison table with fixed map and player
 headers. The map identity column reuses the official beatmapset cover as a
@@ -155,9 +161,11 @@ Per-fixture Schedule reports and rescheduling requests retain their own workflow
   `/api/tournaments/[edition]/player/availability` (GET/POST).
 - POST requires same-origin JSON, a direct browser session and current
   eligibility. The owner is derived from the authenticated session; commands
-  reject extra owner fields. Completed/locked editions are read-only.
+  reject extra owner fields. Completed editions are read-only. Starting the
+  draft locks season timetable edits. Practice stays writable for published
+  mappools throughout the draft.
 - Commands use optimistic versions, a chart-context check where applicable,
-  edition locking and idempotency keys. An uncertain response can be retried
+  edition row locks and idempotency keys. An uncertain response can be retried
   with the same key. Record and automatic audit changes commit together.
 - Migration `0070_player_workspace.sql` creates `player_practice_records`,
   `player_season_availability` and `player_workspace_events`. Private events are
