@@ -28,6 +28,32 @@ const liruPoses = [
   "10-bow",
 ];
 
+function LiruRotation({ position }: { position: "header" | "selection" }) {
+  return (
+    <div
+      className={styles.liruRotation}
+      data-liru-position={position}
+      aria-hidden="true"
+    >
+      {liruPoses.map((pose, index) => (
+        <Image
+          key={pose}
+          src={`/mascot/liru/draft/${pose}.png`}
+          alt=""
+          fill
+          sizes={
+            position === "header"
+              ? "(max-width: 733px) 44px, 6vw"
+              : "(max-width: 600px) 45vw, 30vw"
+          }
+          unoptimized
+          style={{ animationDelay: `${index * 6 - 0.4}s` }}
+        />
+      ))}
+    </div>
+  );
+}
+
 // Retractions always clear the display. A delayed older snapshot must not rewind it.
 export function acceptBroadcastSnapshot(
   current: DraftBoard | null,
@@ -247,6 +273,10 @@ export function BroadcastDraft({
   const seasonEleven = slug === "s11" || slug === "dev-s11";
   const waitingForFirstPick = !latest && board?.state === "live";
   const showFirstPickHeadline = seasonEleven && waitingForFirstPick;
+  const showHeaderLiru =
+    seasonEleven &&
+    latest !== undefined &&
+    (board?.state === "live" || board?.state === "paused");
   const ratings = latest?.ratings;
   const ratingNumber = new Intl.NumberFormat(tr.locale, {
     maximumFractionDigits: 2,
@@ -284,6 +314,7 @@ export function BroadcastDraft({
             )}
           </div>
           <h1>{tr("Draft Day")}</h1>
+          {showHeaderLiru && <LiruRotation position="header" />}
         </div>
         <section
           className={styles.streamChat}
@@ -410,21 +441,7 @@ export function BroadcastDraft({
               ) : null}
             </div>
           </div>
-          {showFirstPickHeadline && (
-            <div className={styles.waitingLiru} aria-hidden="true">
-              {liruPoses.map((pose, index) => (
-                <Image
-                  key={pose}
-                  src={`/mascot/liru/draft/${pose}.png`}
-                  alt=""
-                  fill
-                  sizes="(max-width: 600px) 45vw, 30vw"
-                  unoptimized
-                  style={{ animationDelay: `${index * 6 - 0.4}s` }}
-                />
-              ))}
-            </div>
-          )}
+          {showFirstPickHeadline && <LiruRotation position="selection" />}
         </section>
         <section
           className={styles.turn}
