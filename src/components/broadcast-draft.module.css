@@ -122,11 +122,17 @@
 }
 .round {
   color: #e9b8fc;
+  font-size: clamp(0.9rem, 1.15vw, 1.3rem);
   font-weight: 650;
   margin: 0;
 }
-.pickTier {
-  text-transform: none;
+.stageLabel {
+  margin: 0 0 0.6rem;
+  color: #e9b8fc;
+  font-size: clamp(1rem, 1.45vw, 1.65rem);
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 .progress {
   display: flex;

@@ -103,7 +103,10 @@ test.describe("published OBS browser-source rehearsal", () => {
     const current = page.getByRole("region", {
       name: "Current published captain turn",
     });
-    await expect(current).toContainText(fixture.a.username);
+    await expect(current).toContainText(
+      fixture.teamRows.find(({ captainId }) => captainId === fixture.a.osuId)!
+        .name,
+    );
     await expect(page.locator(".site-header")).toBeHidden();
     await expect(page.getByRole("button")).toHaveCount(0);
     expect(
@@ -130,9 +133,13 @@ test.describe("published OBS browser-source rehearsal", () => {
       }),
     ).toBeVisible();
     await expect(selection).toContainText(
-      `Selected by Captain ${fixture.a.username}`,
+      fixture.teamRows.find(({ captainId }) => captainId === fixture.a.osuId)!
+        .name,
     );
-    await expect(current).toContainText(fixture.b.username);
+    await expect(current).toContainText(
+      fixture.teamRows.find(({ captainId }) => captainId === fixture.b.osuId)!
+        .name,
+    );
 
     // A lagging response must never rewind the already displayed published turn.
     await page.route(`**${endpoint}*`, (route) =>
@@ -159,12 +166,16 @@ test.describe("published OBS browser-source rehearsal", () => {
       }),
     ).toBeVisible();
     await expect(selection).toContainText(
-      `Selected by Captain ${fixture.b.username}`,
+      fixture.teamRows.find(({ captainId }) => captainId === fixture.b.osuId)!
+        .name,
     );
     await expect(page.locator("[data-broadcast]")).not.toContainText(
       fixture.staff.username,
     );
-    await expect(current).toContainText(fixture.a.username); // Explicit repeating order, A → B → A → B.
+    await expect(current).toContainText(
+      fixture.teamRows.find(({ captainId }) => captainId === fixture.a.osuId)!
+        .name,
+    ); // Explicit repeating order, A → B → A → B.
 
     await command("pause");
     await expect(page.locator("[data-state]")).toHaveText("Paused");

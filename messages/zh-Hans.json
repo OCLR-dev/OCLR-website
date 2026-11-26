@@ -5320,6 +5320,9 @@
     "m92dac1314ce3": "总第{overall}順位",
     "m3caa933814cd": "总順位",
     "m38a1390bcc7a": "首次参加 OCLR",
-    "m4c29fdfb1ea0": "第 {count} 次参加 OCLR"
+    "m4c29fdfb1ea0": "第 {count} 次参加 OCLR",
+    "mabd77de8da39": "下一选择",
+    "mddff837c1980": "第{round}轮 第{position}順位",
+    "md294fe3976e6": "近期选秀结果"
   }
 }

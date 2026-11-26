@@ -5320,6 +5320,9 @@
     "m92dac1314ce3": "Overall pick {overall}",
     "m3caa933814cd": "Overall pick order",
     "m38a1390bcc7a": "First OCLR appearance",
-    "m4c29fdfb1ea0": "OCLR appearance {count}"
+    "m4c29fdfb1ea0": "OCLR appearance {count}",
+    "mabd77de8da39": "Next pick",
+    "mddff837c1980": "Round {round} · Pick {position}",
+    "md294fe3976e6": "Recent draft results"
   }
 }

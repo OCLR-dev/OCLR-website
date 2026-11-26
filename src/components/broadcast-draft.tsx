@@ -276,7 +276,7 @@ export function BroadcastDraft({
           data-featured
           aria-label={tr("Latest published selection")}
         >
-          <p className="eyebrow">
+          <p className={styles.stageLabel}>
             {latest
               ? latest.roundPosition
                 ? tr(
@@ -387,12 +387,12 @@ export function BroadcastDraft({
           data-turn-card
           aria-label={tr("Current published captain turn")}
         >
-          <p className="eyebrow">
+          <p className={styles.stageLabel}>
             {complete
               ? tr("DRAFT COMPLETE")
               : board?.state === "paused"
                 ? tr("ON HOLD")
-                : tr("CURRENT TURN")}
+                : tr("Next pick")}
           </p>
           <h2>
             {board?.activeTeam?.name ??
@@ -402,7 +402,7 @@ export function BroadcastDraft({
           </h2>
           {board?.activeRound && (
             <p className={styles.round}>
-              {tr("Round {round}", { round: board.activeRound.round })}
+              {tr("Round {round} · Pick {position}", board.activeRound)}
             </p>
           )}
           <div className={styles.progress}>
@@ -437,7 +437,7 @@ export function BroadcastDraft({
           aria-label={tr("Recent published selections")}
           tabIndex={0}
         >
-          <h2>{tr("Recent picks")}</h2>
+          <h2>{tr("Recent draft results")}</h2>
           {board?.picks.length ? (
             <ol>
               {board.picks
