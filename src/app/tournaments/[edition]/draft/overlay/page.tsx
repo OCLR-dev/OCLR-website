@@ -35,7 +35,6 @@ async function Issue271Page({
   return (
     <BroadcastDraft
       slug={slug}
-      name={edition.name}
       initial={initial}
       available={available}
       background={

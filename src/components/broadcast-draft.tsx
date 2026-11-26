@@ -84,13 +84,11 @@ const format = (value: number | null | undefined) =>
 
 export function BroadcastDraft({
   slug,
-  name,
   initial,
   available,
   background,
 }: {
   slug: string;
-  name: string;
   initial: BroadcastBoard | null;
   available: boolean;
   background: "opaque" | "transparent";
@@ -281,8 +279,7 @@ export function BroadcastDraft({
           )}
         </div>
         <div className={styles.heading}>
-          <p className="eyebrow">{tr("CAPTAIN DRAFT")}</p>
-          <h1>{name}</h1>
+          <h1>{tr("Draft Day")}</h1>
         </div>
         <div className={styles.status}>
           <strong data-live-status data-state={board?.state ?? "waiting"}>
