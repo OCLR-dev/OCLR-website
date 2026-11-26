@@ -99,23 +99,39 @@ export function formatTechnicalReply(
               }),
           );
         } else {
-          lines.push(
+          const poolGaps = sample.exclusions["unverified-pool-map"];
+          let line =
             "- " +
-              tr(
-                "{edition} · {games, number} of {published, number} published plays are comparable, on {maps, number} beatmaps.",
-                {
-                  edition,
-                  games: sample.usable.games,
-                  published: sample.publishedPlays,
-                  maps: sample.usable.beatmaps,
-                },
-              ) +
+            tr(
+              "{edition} · {games, number} of {published, number} published plays are comparable, on {maps, number} beatmaps.",
+              {
+                edition,
+                games: sample.usable.games,
+                published: sample.publishedPlays,
+                maps: sample.usable.beatmaps,
+              },
+            ) +
+            " " +
+            cite(
+              tr("Published {edition} results", { edition }),
+              sample.statisticsUrl,
+            );
+          if (poolGaps) {
+            line +=
               " " +
-              cite(
-                tr("Published {edition} results", { edition }),
-                sample.statisticsUrl,
-              ),
-          );
+              tr(
+                "{count, number} published plays could not be matched to a verified mappool slot.",
+                { count: poolGaps },
+              ) +
+              (season.slots
+                ? " " +
+                  cite(
+                    tr("Published {edition} mappools", { edition }),
+                    "/tournaments/" + season.slug + "/mappools",
+                  )
+                : "");
+          }
+          lines.push(line);
         }
       } else if (!season.slots) {
         lines.push(

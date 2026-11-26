@@ -30,6 +30,19 @@ describe("historical schedule adapter", () => {
       expect(matches.map((m) => m.score)).toEqual(source.map((m) => m.score));
       expect(matches.map((m) => m.mps)).toEqual(source.map((m) => m.mpUrls));
       expect(matches.every((m) => m.sourceRed === undefined)).toBe(true);
+      if (season === 7) {
+        expect(matches.every((m) => m.poolHref === undefined)).toBe(true);
+        const reviewed = { ...source[0], poolId: "gs" };
+        expect(
+          archiveEventMatches(
+            archive,
+            [reviewed],
+            href,
+            "Asia/Shanghai",
+            "en",
+          )[0].poolHref,
+        ).toBe(href("mappools", "gs"));
+      }
       if (season === 10) expect(matches).toHaveLength(30);
     });
   it("keeps forfeits, multiple rooms, time zone and preview links without altering records", () => {

@@ -144,6 +144,7 @@ type Exclusion =
   | "unusable-score"
   | "duplicate-player"
   | "too-few-peers";
+type ExclusionCounts = Partial<Record<Exclusion, number>>;
 
 export function scoreEvidence(play: Evidence) {
   return {
@@ -170,15 +171,19 @@ export function scoreEvidence(play: Evidence) {
 
 /** Join to the reviewed fixture's published pool membership before using any difficulty values. */
 export function collectPlayerEvidence(snapshot: PracticeCorpus, osuId: number) {
-  const exclusions: Partial<Record<Exclusion, number>> = {};
+  const exclusions: ExclusionCounts = {};
+  const exclusionsBySeason = new Map<string, ExclusionCounts>();
   const published = new Set<number>();
   const evidence: Evidence[] = [];
   let publishedPlays = 0;
-  function exclude(play: Play, reason: Exclusion) {
-    if (play.osuId === osuId)
-      exclusions[reason] = (exclusions[reason] ?? 0) + 1;
-  }
   for (const release of snapshot.releases) {
+    const seasonExclusions: ExclusionCounts = {};
+    exclusionsBySeason.set(release.slug, seasonExclusions);
+    function exclude(play: Play, reason: Exclusion) {
+      if (play.osuId !== osuId) return;
+      exclusions[reason] = (exclusions[reason] ?? 0) + 1;
+      seasonExclusions[reason] = (seasonExclusions[reason] ?? 0) + 1;
+    }
     const fixtures = new Set(
       release.fixtures
         .filter((fixture) => fixture.covered && !fixture.technicalAdjudication)
@@ -293,5 +298,11 @@ export function collectPlayerEvidence(snapshot: PracticeCorpus, osuId: number) {
     }
   }
 
-  return { publishedPlays, exclusions, published, evidence };
+  return {
+    publishedPlays,
+    exclusions,
+    exclusionsBySeason,
+    published,
+    evidence,
+  };
 }

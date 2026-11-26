@@ -5291,6 +5291,7 @@
     "md856f82e883c": "指定范围内的公开数据不足以核对 BID {bid} 搭配 {mod} 的谱面特征。",
     "me94a4ec41686": "已找到 BID {bid} 搭配 {mod} 的谱面，但这个范围没有其他可比较的公开谱面。",
     "meb79628accf3": "BID {bid} · {mod}。共有 {candidates, number} 张可比较的公开谱面，以下列出前 {shown, number} 张。",
-    "mbe4a8898d973": "{published, number} 条已发布的单图成绩中有 {games, number} 条可比较，涵盖 {maps, number} 张谱面和 {fixtures, number} 个场次。"
+    "mbe4a8898d973": "{published, number} 条已发布的单图成绩中有 {games, number} 条可比较，涵盖 {maps, number} 张谱面和 {fixtures, number} 个场次。",
+    "mccb00614e5ca": "有 {count, number} 笔已发布成绩无法对应到可核对的图池栏位。"
   }
 }
