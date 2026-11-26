@@ -1326,24 +1326,6 @@
     }
   },
   {
-    "route": "/api/v1/streaming/tournaments/{edition}/showcase/pools/{poolId}/replays/{replayId}",
-    "source": "src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/replays/[replayId]/route.ts",
-    "methods": {
-      "POST": {
-        "status": "read-only"
-      },
-      "PUT": {
-        "status": "read-only"
-      },
-      "PATCH": {
-        "status": "read-only"
-      },
-      "DELETE": {
-        "status": "read-only"
-      }
-    }
-  },
-  {
     "route": "/api/v1/streaming/tournaments/{edition}/showcase/pools/{poolId}/replays",
     "source": "src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/replays/route.ts",
     "methods": {

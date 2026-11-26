@@ -60,6 +60,19 @@ const config: NextConfig = {
       },
     ];
   },
+  async rewrites() {
+    const replayPath =
+      "/tournaments/:edition/showcase/pools/:poolId/replays/:replayId";
+    return {
+      beforeFiles: [
+        // Use the native Node API before the App Router's /api/v1 catch-all.
+        {
+          source: `/api/v1/streaming${replayPath}`,
+          destination: `/api/internal/streaming${replayPath}`,
+        },
+      ],
+    };
+  },
   async headers() {
     return [
       ...publicAssetCacheHeaders(

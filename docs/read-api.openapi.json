@@ -15100,7 +15100,10 @@
             "description": "Download a slot's preferred original private .osr for the granted Showcase pool version. Unselected attachments are unavailable.",
             "headers": {
               "Cache-Control": {
-                "schema": { "type": "string", "const": "private, no-store" }
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store, no-transform"
+                }
               },
               "X-Request-Id": {
                 "schema": { "type": "string", "format": "uuid" }

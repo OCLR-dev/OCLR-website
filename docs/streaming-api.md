@@ -165,7 +165,7 @@ Contract **1.42.0** adds two routes under
 | GET path | Response |
 | --- | --- |
 | `/{poolId}/replays?version={version}` | `data: { poolId, version, entries }`. Every saved slot has its stable `entryId`, `slot`, and `replays` array containing zero or one preferred replay. |
-| `/{poolId}/replays/{replayId}?version={version}` | The preferred replay's original `.osr` bytes as `application/octet-stream`, with the saved filename in `Content-Disposition`. |
+| `/{poolId}/replays/{replayId}?version={version}` | The preferred replay's original `.osr` bytes as `application/octet-stream`, with the saved filename in `Content-Disposition` and the original size in `Content-Length`. |
 
 Use the same Streaming bearer credential and the selected pool's version for both
 requests. Join the replay list to the pool detail by `entryId`, whether or not
@@ -197,12 +197,15 @@ refresh the pool selection on 404 or 409 and clear stale replay data. A duplicat
 deletion of a missing attachment does not change the version.
 
 The list limit is 2 MiB. The download limit is 8 MiB, matching the upload limit.
-Both routes support HEAD and OPTIONS and use `private, no-store` and
-`CDN-Cache-Control: no-store`. Successful replay-list GETs renew the idle lease.
+Both routes support HEAD and OPTIONS and send `private, no-store` and
+`CDN-Cache-Control: no-store`. Successful replay file GET and HEAD responses also
+send `no-transform` to preserve the byte stream and length through intermediaries.
+Successful replay-list GETs renew the idle lease.
 File downloads use the same lease behavior as covers. A missing or damaged
 storage file returns 503. Keep both routes server-side in Overlay, send
 credentials only to the configured OCLR backend and keep the original files
 out of shared caches.
+For proxy setup and transfer diagnostics, see [Showcase replay transfers](deployment.md#showcase-replay-transfers-1561).
 
 ## Transport and future Overlay adapter
 

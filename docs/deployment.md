@@ -544,6 +544,37 @@ sudo systemctl reload nginx
 
 Run those commands only after adapting/installing the file and certificates; syntax and hosted traffic have not been verified here. Nginx must reach the app's private port, and the app must reach PostgreSQL; no Nginx-to-database connection is needed. If the existing Nginx host also uses SELinux, follow its approved proxy network policy (Rocky's [Nginx guidance](https://docs.rockylinux.org/it/guides/web/nginx-mainline/) documents httpd_can_network_connect); do not disable SELinux. Verify HTTPS, redirects, real-account OAuth login/logout, POST Origin checks, private cache behavior and draft polling on staging before declaring release ready.
 
+### Showcase replay transfers (#1561)
+
+On the existing proxy, use the replay download location in the example. It
+buffers upstream data in memory, disables temporary body files and gzip, and
+inherits the site's disabled proxy cache and forwarding headers. Keep any
+additional edge compression or transformations disabled for this path. The
+app verifies the full replay before sending its original byte count in
+`Content-Length`. The public URL uses Next.js's native Node response because the
+App Router's Web Response bridge strips `Content-Length` from route responses.
+Other streaming routes use the server's usual proxy settings.
+
+For a stalled download, find the Overlay's website `X-Request-Id` and time in
+`oclr-showcase-replay.log`. Compare `upstream_bytes` and `body_bytes_sent` with
+the two declared lengths and the upstream and downstream transfer and content
+encodings. `body_bytes_sent` can include HTTP framing, such as HTTP/2 DATA
+frame headers or HTTP/1.1 chunk delimiters. Compare `upstream_header_time`,
+`upstream_response_time` and `request_time` to separate waiting for upstream
+headers, reading the upstream body and delivering the response. Check `complete`
+and the Nginx error log in the same time window for an upstream close or client
+disconnect. A status of 200 can still accompany an interrupted body. The access
+log records no URL, credentials, filenames or replay contents.
+
+For the [#1561 incident](https://github.com/OCLR-dev/OCLR-website/issues/1561),
+compare any retained app journal and Nginx logs at `2026-11-25 16:33:41.650 UTC`
+and `16:35:02.026 UTC`, using the two request IDs in the issue. After rollout,
+use the same Windows Overlay environment and authorized account to cache NM3
+and DT1. Record time to first body bytes, total duration and gaps between
+received chunks if the transfer stalls again. Compare each downloaded file's
+size and SHA-256 with the corresponding original from mappool management, and
+confirm both slots show as cached.
+
 ### Team images (#99)
 
 Set `OCLR_MEDIA_DIR=/var/lib/oclr/media` in the existing runtime environment. Provision this directory once as root (`install -d -o oclr -g oclr -m 0700 /var/lib/oclr/media`); updates must retain it outside `/opt/oclr/releases`. The app stores only bounded, decoded/re-encoded 512px WebP images under `teams/<UUID>.webp`; original uploads/metadata are discarded. Images are served through a publication/permission checked route, not a public writable directory. Unconfigured/missing storage falls back to the team monogram; uploads fail clearly.

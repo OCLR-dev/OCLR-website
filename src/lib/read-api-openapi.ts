@@ -346,7 +346,12 @@ export function readApiSpecification() {
             headers: {
               ...(responses["200"].headers as Record<string, unknown>),
               "Cache-Control": {
-                schema: { type: "string", const: "private, no-store" },
+                schema: {
+                  type: "string",
+                  const: replayFile
+                    ? "private, no-store, no-transform"
+                    : "private, no-store",
+                },
               },
               "CDN-Cache-Control": {
                 schema: { type: "string", const: "no-store" },

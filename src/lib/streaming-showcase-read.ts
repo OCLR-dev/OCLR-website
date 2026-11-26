@@ -138,8 +138,13 @@ async function currentPool(
   return pool;
 }
 
-function privateShowcase(response: Response) {
-  response.headers.set("Cache-Control", "private, no-store");
+function privateShowcase(response: Response, { noTransform = false } = {}) {
+  response.headers.set(
+    "Cache-Control",
+    noTransform && response.status === 200
+      ? "private, no-store, no-transform"
+      : "private, no-store",
+  );
   response.headers.set("CDN-Cache-Control", "no-store");
   response.headers.append("Vary", "Authorization");
   return response;
@@ -482,5 +487,6 @@ export async function streamingShowcaseReplayFile(
         maxBytes: REPLAY_MAX_BYTES,
       },
     ),
+    { noTransform: true },
   );
 }
