@@ -1,13 +1,14 @@
 /** Explicit local-only demo data. Never imported by application routes. */
 import * as nextEnv from "@next/env";
 import { createHash, randomUUID } from "node:crypto";
-import { and, desc, eq, isNotNull, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import { db, closeDb } from "../src/db";
 import {
   captains,
   editionEvents,
   editionRevisions,
   editionState,
+  etxRatingCache,
   fixtures,
   fixtureReferees,
   mappoolEntries,
@@ -18,6 +19,7 @@ import {
   memberships,
   registrations,
   resultRevisions,
+  sipRatingCache,
   staffRoles,
   teams,
   tournamentRounds,
@@ -26,6 +28,8 @@ import {
   users,
 } from "../src/db/schema";
 import { editionSchema } from "../src/lib/editions";
+import { etxMods } from "../src/lib/etx-rating-model";
+import { sipSkillsets } from "../src/lib/sip-rating-model";
 import { scoringRulesSchema } from "../src/lib/competition-model";
 import {
   matchSourceSchema,
@@ -88,14 +92,89 @@ async function seedRolePreviewAccounts(tx: SeedTransaction) {
       .orderBy(desc(fixtures.scheduledAt))
       .limit(1);
     if (fixture)
-      await tx
-        .insert(fixtureReferees)
-        .values({
-          fixtureId: fixture.id,
-          userId: referee.osuId,
-          assignedBy: admin.osuId,
-        });
+      await tx.insert(fixtureReferees).values({
+        fixtureId: fixture.id,
+        userId: referee.osuId,
+        assignedBy: admin.osuId,
+      });
   }
+}
+
+/** Backfill only synthetic competitors so a reseed can populate an active preview. */
+async function seedDemoRatings(tx: SeedTransaction, now: Date) {
+  const existing = await tx
+    .select({ osuId: users.osuId })
+    .from(users)
+    .where(
+      inArray(
+        users.osuId,
+        demoPlayers.map(({ osuId }) => osuId),
+      ),
+    );
+  if (!existing.length) return;
+
+  const ratings = existing.map(({ osuId }) => {
+    const index = osuId - demoPlayerBase;
+    const stars = (axis: number) =>
+      Math.round((4.7 + ((index * 3 + axis * 7) % 19) / 6) * 100) / 100;
+    const value = 105 + index * 3;
+    const sipEntry = (name: string, axis: number) => ({
+      name,
+      value: value + axis,
+      sr: stars(axis),
+      globalRank: 500 + index * 32,
+      countryRank: 20 + index,
+      pp: 400 + index * 12,
+      accuracy: 0.94 + (index % 6) / 100,
+      combo: 0.75 + (index % 7) / 100,
+    });
+    return {
+      osuId,
+      etx: {
+        value: stars(0),
+        provisional: false,
+        outdated: false,
+        mods: Object.fromEntries(
+          etxMods.map((mod, axis) => [mod, stars(axis + 1)]),
+        ),
+      },
+      sip: {
+        rating: sipEntry("Overall", 0),
+        modifications: Object.fromEntries(
+          ["NoMod", "Hidden", "Hard Rock", "Double Time"].map((mod, axis) => [
+            mod,
+            sipEntry(mod, axis + 1),
+          ]),
+        ),
+        skillsets: Object.fromEntries(
+          sipSkillsets.map((skill, axis) => [skill, sipEntry(skill, axis + 5)]),
+        ),
+      },
+    };
+  });
+  const day = now.toISOString().slice(0, 10);
+  await tx
+    .insert(etxRatingCache)
+    .values(
+      ratings.map(({ osuId, etx }) => ({
+        osuId,
+        rating: etx,
+        attemptedOn: day,
+        fetchedAt: now,
+      })),
+    )
+    .onConflictDoNothing();
+  await tx
+    .insert(sipRatingCache)
+    .values(
+      ratings.map(({ osuId, sip }) => ({
+        osuId,
+        value: sip.rating.value,
+        snapshot: sip,
+        fetchedAt: now,
+      })),
+    )
+    .onConflictDoNothing();
 }
 
 const env = "default" in nextEnv ? nextEnv.default : nextEnv;
@@ -151,6 +230,7 @@ async function seed() {
       if (!seedEvent)
         throw new Error("The demo edition was not created by the local seed.");
       await seedRolePreviewAccounts(tx);
+      await seedDemoRatings(tx, now);
       return "Demo data and role preview accounts are ready; existing edits were preserved.";
     }
 
@@ -552,6 +632,7 @@ async function seed() {
       approvedAt: day(-1),
     });
     await seedRolePreviewAccounts(tx);
+    await seedDemoRatings(tx, now);
     return "Created 2 demo editions, 39 synthetic accounts, 4 teams, 12 maps, 3 fixtures and 1 published synthetic result.";
   });
 }
