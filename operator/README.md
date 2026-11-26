@@ -157,7 +157,7 @@ Use the same pgvector version and extension schema as the OCLR database.
 The template contains pgvector and starts empty of application objects and data.
 Keep it free of active sessions during a restore. Set
 `OCLR_OPERATOR_RESTORE_TEMPLATE=oclr_restore_template` in the private operator
-environment and update the [separate operator release](#updating-the-backup-worker-on-an-existing-rocky-installation-1316).
+environment and update the [separate operator release](#upgrade-an-existing-backup-operator).
 Use the existing role with `CREATEDB` and retain the current website runtime
 role. The DBA owns the extension. During the data restore, `pg_restore` skips
 SQL object comments so it can use that preinstalled extension.
@@ -266,69 +266,41 @@ operator upgrade; do not assume an older operator understands a new credential
 family. The first-install script intentionally refuses to overwrite an existing
 operator installation.
 
-### Updating the backup worker on an existing Rocky installation (#1316)
+### Upgrade an existing backup operator
 
-The website and the operator have separate releases. An operator based on
-`332f6ce7` reports the stop command, database inventory and physical size
-check under the same `stopping-service` audit phase. Check the database name
-and `current_user` on the **operator** connection before changing grants.
-`OCLR_OPERATOR_DATABASE_URL` supplies that login. `OCLR_OPERATOR_RUNTIME_ROLE`
-names the website role that receives application grants after a restore.
-Verify the ledger query above using the operator login in the application database.
-
-For the worker-only fix, the standard Rocky installation can bind the reviewed
-worker file read-only into the backup service. This preserves its installed
-dependencies, service account, sudo policy, package key and old release files.
-Use the commands below from a **clean, trusted installer checkout** after fetching
-canonical main. Run in Bash as the maintainer who owns that checkout and has sudo.
-Use the full commit containing the reviewed fix. The checks below require the
-installed worker and its local imports to match the supported source. If a check
-fails, review the installed operator as a separate release upgrade.
-
-The command below installs the first worker drop-in. To update an existing
-reviewed drop-in, verify its current bind path and worker against the previous
-reviewed commit. Preserve a copy of that drop-in and switch only its worker
-path under the same update lock. Use the saved drop-in if activation fails.
+From a clean, trusted installer checkout on the Rocky application host, fetch
+canonical main and pass the full commit of the reviewed operator release.
 
 ```bash
-(
-  set -euo pipefail
-  read -rp 'Full reviewed fix commit: ' fix
-  [[ $fix =~ ^[0-9a-f]{40}$ ]]
-  git merge-base --is-ancestor "$fix" origin/main
-  run=$(systemctl show oclr-backup.service -p WorkingDirectory --value)
-  [[ $run =~ ^/opt/oclr-backup/releases/([0-9a-f]{40})$ ]]
-  base=${BASH_REMATCH[1]}
-  git merge-base --is-ancestor "$base" "$fix"
-  for file in worker health package; do
-    git show "$base:operator/$file.ts" | cmp - "$run/operator/$file.ts"
-  done
-  git diff --quiet "$base" "$fix" -- operator/health.ts operator/package.ts
-  work=$(mktemp -d)
-  trap 'rm -rf -- "$work"' EXIT
-  git show "$fix:operator/worker.ts" > "$work/worker.ts"
-  grep -Fq 'phase = "archive-size"' "$work/worker.ts"
-  patch=/etc/oclr-backup/worker-$fix.ts
-  dropin=/etc/systemd/system/oclr-backup.service.d/40-backup-worker.conf
-  sudo test ! -e "$dropin"
-  sudo install -o root -g root -m 0644 "$work/worker.ts" "$patch"
-  printf '[Service]\nBindReadOnlyPaths=%s:%s/operator/worker.ts\n' "$patch" "$run" > "$work/dropin"
-  sudo install -d -o root -g root -m 0755 /etc/systemd/system/oclr-backup.service.d
-  sudo flock -n /opt/oclr/.update.lock /bin/bash -ec '
-    install -o root -g root -m 0644 "$1" "$2"
-    systemctl daemon-reload
-    systemctl restart oclr-backup.service
-    systemctl is-active --quiet oclr-backup.service
-  ' bash "$work/dropin" "$dropin"
-)
+git fetch origin main
+sudo bash scripts/install-backup-operator.sh --ref FULL_REVIEWED_SHA --upgrade
 ```
 
-Schedule this when the operator is idle. Lock contention aborts activation.
-If the backup service cannot start, remove only this drop-in, reload systemd
-and start the previous backup service during the same approved maintenance
-window. Remove the drop-in when installing a full operator upgrade. In the
-Admin page, verify a new backup completes and downloads during a maintenance
-window. The backup itself briefly stops the website. Validate any restore
+This installs a complete root-owned release and its locked dependencies, then
+activates it under the shared update lock. It preserves the existing service
+account, private environment, package key, sudoers entry and PostgreSQL role.
+Configure the [pgvector restore template](#prepare-a-pgvector-restore-template)
+in the existing environment file before upgrading to use pgvector restore.
+
+The upgrade migrates the unit's working directory to the current operator
+release pointer and removes the former standard worker override if present.
+Other unit settings stay in place. An active operator is started on the new
+release. A stopped operator stays stopped. If activation fails, the upgrade
+restores the previous pointer, unit and standard override. If recovery cannot
+finish, the command reports the saved activation files to inspect.
+
+Schedule the upgrade when the operator is idle. The installer uses the same lock
+as backup jobs and website updates. A deployment or backup in progress prevents
+the operator switch. The website service stays running during the operator
+upgrade. The active operator release can be checked without exposing settings:
+
+```bash
+sudo systemctl is-active oclr-backup.service
+readlink -f /opt/oclr-backup/current
+```
+
+In the Admin page, verify a new backup completes and downloads during a
+maintenance window. A backup briefly stops the website. Validate a restore
 rehearsal on a disposable database with its matching media.
 
 ### Repair an existing unreadable release marker
