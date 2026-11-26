@@ -160,9 +160,8 @@ Per-fixture Schedule reports and rescheduling requests retain their own workflow
   `/api/tournaments/[edition]/player/availability` (GET/POST).
 - POST requires same-origin JSON, a direct browser session and current
   eligibility. The owner is derived from the authenticated session; commands
-  reject extra owner fields. Completed editions are read-only. Starting the
-  draft locks season timetable edits. Practice stays writable for published
-  mappools throughout the draft.
+  reject extra owner fields. Completed editions are read-only. Season timetable
+  and published-pool practice edits remain available throughout the draft.
 - Commands use optimistic versions, a chart-context check where applicable,
   edition row locks and idempotency keys. An uncertain response can be retried
   with the same key. Record and automatic audit changes commit together.
