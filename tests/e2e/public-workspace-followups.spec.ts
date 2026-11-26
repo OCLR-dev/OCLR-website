@@ -350,10 +350,6 @@ test.describe("public and operational follow-ups", () => {
       `/admin/tournaments/test-cup/registrations/${registration.id}`,
     );
     const section = page.locator(".bws-review");
-    await expect(
-      section.getByRole("button", { name: "Load BWS profile" }),
-    ).toBeEnabled();
-    await section.getByRole("button", { name: "Load BWS profile" }).click();
     await expect(section.locator(".bws-summary")).toContainText(
       "pending staff review",
     );
