@@ -32,11 +32,21 @@ export async function localRolePreviewAccountsWithRoles() {
       db()
         .select({ osuId: captains.userId })
         .from(captains)
-        .where(eq(captains.editionSlug, demoEdition)),
+        .where(
+          and(
+            eq(captains.editionSlug, demoEdition),
+            eq(captains.published, true),
+          ),
+        ),
       db()
         .select({ osuId: memberships.userId })
         .from(memberships)
-        .where(eq(memberships.editionSlug, demoEdition)),
+        .where(
+          and(
+            eq(memberships.editionSlug, demoEdition),
+            isNull(memberships.leftAt),
+          ),
+        ),
       db()
         .select({ osuId: registrations.userId, status: registrations.status })
         .from(registrations)
