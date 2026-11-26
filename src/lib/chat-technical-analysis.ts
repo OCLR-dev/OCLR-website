@@ -8,7 +8,8 @@ import {
   profiles,
 } from "./beatmap-similarity-ranking";
 import type { chatAnalysisIntent } from "./chat-analysis-intent";
-import { chatSeasonScope } from "./chat-season-scope";
+import { publicModHistoryRanking } from "./chat-player-mod-history";
+import { chatSeasonScope, type ChatSeasonSummary } from "./chat-season-scope";
 import { remoteMode } from "./data-source";
 import type { Edition } from "./editions";
 import { HttpError } from "./http-error";
@@ -32,13 +33,18 @@ export type TechnicalCoverage = {
   unavailable: string[];
 };
 export type AnalysisResult =
-  | { status: "needs-input"; intent: Intent }
+  | { status: "needs-input"; intent: Exclude<Intent, { kind: "mod-history" }> }
   | { status: "unavailable"; coverage?: TechnicalCoverage }
   | {
       status: "map-missing";
       bid: number;
       mod: MapReport["input"]["mod"];
       coverage: TechnicalCoverage;
+    }
+  | {
+      status: "mod-history";
+      report: Awaited<ReturnType<typeof publicModHistoryRanking>>;
+      scope: ChatSeasonSummary;
     }
   | { status: "maps"; report: MapReport; coverage: TechnicalCoverage }
   | { status: "player"; report: PlayerReport; coverage: TechnicalCoverage };
@@ -131,10 +137,32 @@ export async function chatTechnicalAnalysis(
   previous: string,
   signal?: AbortSignal,
 ): Promise<AnalysisResult> {
-  if (intent.kind === "beatmap" ? !intent.bid || !intent.mod : !intent.uid)
+  if (
+    (intent.kind === "beatmap" && (!intent.bid || !intent.mod)) ||
+    (intent.kind === "player" && !intent.uid)
+  )
     return { status: "needs-input", intent };
   if (remoteMode() || !process.env.DATABASE_URL)
     return { status: "unavailable" };
+
+  if (intent.kind === "mod-history") {
+    return readOnlyData(async () => {
+      const scope = await chatSeasonScope(
+        selected,
+        question,
+        previous,
+        Boolean(previous),
+        true,
+      );
+      if (!scope) return { status: "unavailable" };
+      const report = await publicModHistoryRanking(
+        scope.editions,
+        intent.category,
+        signal,
+      );
+      return { status: "mod-history", report, scope: scope.summary };
+    });
+  }
 
   const { snapshot, coverage } = await publishedCorpus(
     selected,

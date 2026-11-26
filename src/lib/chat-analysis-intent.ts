@@ -1,8 +1,15 @@
-import { difficultyMods, type DifficultyConfiguration } from "./mappool-model";
+import {
+  categories,
+  categoryNames,
+  difficultyMods,
+  type DifficultyConfiguration,
+  type MappoolCategory,
+} from "./mappool-model";
 
 type AnalysisIntent =
   | { kind: "beatmap"; bid?: number; mod?: DifficultyConfiguration }
-  | { kind: "player"; uid?: number };
+  | { kind: "player"; uid?: number }
+  | { kind: "mod-history"; category: MappoolCategory };
 
 const mapWords = /(?:[譜谱]面|地[圖图]|\b(?:beatmaps?|maps?)\b)/i;
 const similarWords =
@@ -83,6 +90,33 @@ function parse(text: string) {
   return { bid, uid, mod, referredMod: tokens.length > 0 };
 }
 
+function historicalModCategory(question: string) {
+  const publicResults =
+    /[歷历](?:史|[屆届])|跨[季屆届]|[實实][戰战]|[賽赛]果|比[賽赛][成結结][績绩果]|\b(?:historical|history|past|played|match results|tournament results)\b/i;
+  const cohort =
+    /哪些|哪[幾几位]|有[誰谁]|[誰谁]|排名|排行|榜[單单]|\b(?:who|which players?|top|best|rank(?:ing|ings|ed)?)\b/i;
+  const performance =
+    /[擅善][長长]|[強强]|表[現现]|排名|排行|榜[單单]|\b(?:strong(?:est)?|best|top|good at|excel(?:s|led)?|perform\w*|rank(?:ing|ings|ed)?)\b/i;
+  const excluded =
+    /[隊队][員员]|可以[選选]|可[選选]|[選选][誰谁]|挑[誰谁]|\b(?:SIP|ETX|recruit|pick|draftable|recommend\w*)\b/i;
+  if (
+    !publicResults.test(question) ||
+    !cohort.test(question) ||
+    !performance.test(question) ||
+    draftWords.test(question) ||
+    playPractice.test(question) ||
+    excluded.test(question)
+  )
+    return;
+
+  const matchingCategories = categories.filter((category) =>
+    new RegExp(`\\b(?:${category}|${categoryNames[category]})\\b`, "i").test(
+      question,
+    ),
+  );
+  return matchingCategories.length === 1 ? matchingCategories[0] : undefined;
+}
+
 function kindOf(
   question: string,
   input: ReturnType<typeof parse>,
@@ -109,6 +143,9 @@ export function chatAnalysisIntent(
   previous: string,
 ): AnalysisIntent | undefined {
   const current = question.normalize("NFKC").trim();
+  const category = historicalModCategory(current);
+  if (category) return { kind: "mod-history", category };
+
   const input = parse(current);
   const kind = kindOf(current, input);
   if (kind === "beatmap") return { kind, bid: input.bid, mod: input.mod };

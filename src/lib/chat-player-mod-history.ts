@@ -10,6 +10,8 @@ import {
 import { playerModBreakdownForMaps } from "./player-mod-breakdown";
 import { publicPlayerDirectoryModel } from "./public-read-models";
 
+const minimumRatedMaps = 3;
+
 export function modHistoryFields(rows: readonly PlayerMapRow[]) {
   const breakdown = playerModBreakdownForMaps(rows);
   return {
@@ -51,6 +53,51 @@ async function editionModHistory(edition: Edition, ids?: ReadonlySet<number>) {
       };
     },
   );
+}
+
+export async function publicModHistoryRanking(
+  editions: readonly Edition[],
+  category: MappoolCategory,
+  signal?: AbortSignal,
+) {
+  const comparable = [];
+  for (const edition of editions) {
+    signal?.throwIfAborted();
+    for (const history of await editionModHistory(edition)) {
+      const pool = history.poolPerformance.find(
+        (entry) => entry.category === category,
+      );
+      if (
+        !pool ||
+        pool.ratedMaps < minimumRatedMaps ||
+        pool.averageEffectiveRating === null
+      )
+        continue;
+
+      comparable.push({
+        osuId: history.osuId,
+        username: history.username,
+        edition: history.edition,
+        editionSlug: history.editionSlug,
+        ratedMaps: pool.ratedMaps,
+        averageEffectiveRating: pool.averageEffectiveRating,
+      });
+    }
+  }
+  signal?.throwIfAborted();
+  comparable.sort(
+    (a, b) =>
+      b.averageEffectiveRating - a.averageEffectiveRating ||
+      b.ratedMaps - a.ratedMaps ||
+      a.editionSlug.localeCompare(b.editionSlug, "en", { numeric: true }) ||
+      a.osuId - b.osuId,
+  );
+  return {
+    category,
+    minimumRatedMaps,
+    totalComparable: comparable.length,
+    rows: comparable.slice(0, 10),
+  };
 }
 
 export async function playerModHistorySources(
@@ -136,7 +183,6 @@ export async function draftModHistorySources(
   if (!ranked.length) return [];
 
   // A handful of maps can be shown as evidence without becoming a ranked result.
-  const minimumRatedMaps = 3;
   const comparable = ranked
     .filter((candidate) => candidate.ratedMaps >= minimumRatedMaps)
     .sort(

@@ -8,7 +8,7 @@ import type {
 type Citation = { title: string; url: string };
 
 function plain(text: string) {
-  return text.replace(/\s+/g, " ").replace(/([\\*_[\]<>])/g, "\\$1");
+  return text.replace(/\s+/g, " ").replace(/([\\*_[\]<>`])/g, "\\$1");
 }
 
 function featureNames(tr: AppTranslator): Record<Feature, string> {
@@ -52,31 +52,39 @@ export function formatTechnicalReply(
 
   type Player = Extract<AnalysisResult, { status: "player" }>["report"];
   const list = new Intl.ListFormat(tr.locale, { style: "short" });
-  function label(season: TechnicalCoverage["seasons"][number]) {
+  function label(season: { slug: string; name: string }) {
     return /^s\d+$/i.test(season.slug)
       ? season.slug.toUpperCase()
       : plain(season.name);
   }
-  function coverageLines(coverage: TechnicalCoverage, player?: Player) {
+  function scopeLines(
+    seasons: readonly { slug: string; name: string }[],
+    unavailable: readonly string[],
+  ) {
     const lines: string[] = [];
-    if (coverage.seasons.length) {
+    if (seasons.length) {
       lines.push(
         tr("Seasons in this analysis are {seasons}.", {
-          seasons: list.format(coverage.seasons.map(label)),
+          seasons: list.format(seasons.map(label)),
         }),
       );
     }
-    if (coverage.unavailable.length) {
+    if (unavailable.length) {
       lines.push(
         tr("No published data is available for {seasons}.", {
           seasons: list.format(
-            coverage.unavailable.map((slug) =>
+            unavailable.map((slug) =>
               /^s\d+$/i.test(slug) ? slug.toUpperCase() : plain(slug),
             ),
           ),
         }),
       );
     }
+    return lines;
+  }
+
+  function coverageLines(coverage: TechnicalCoverage, player?: Player) {
+    const lines = scopeLines(coverage.seasons, coverage.unavailable);
     for (const season of coverage.seasons) {
       const edition = label(season);
       if (player) {
@@ -165,6 +173,73 @@ export function formatTechnicalReply(
         ...coverageLines(result.coverage),
       ].join("\n"),
     };
+
+  if (result.status === "mod-history") {
+    const { report, scope } = result;
+    const { category, minimumRatedMaps, totalComparable, rows } = report;
+    const heading =
+      "**" +
+      tr("Published results") +
+      " · " +
+      category +
+      " · " +
+      tr("Ranking") +
+      "**";
+    const scopeDetails = scopeLines(scope.editions, scope.unavailable);
+    const minimum = tr("Rated maps") + " ≥ " + n.format(minimumRatedMaps);
+    if (!rows.length)
+      return {
+        sources,
+        text: [
+          heading,
+          tr("Insufficient comparison data"),
+          minimum,
+          ...scopeDetails,
+        ].join("\n\n"),
+      };
+
+    const rating = new Intl.NumberFormat(tr.locale, {
+      maximumFractionDigits: 4,
+    });
+    const headings = [
+      tr("Season"),
+      tr("Player"),
+      tr("Rated maps"),
+      tr("Average effective rating"),
+    ];
+    // Markdown table cells use a pipe as a separator.
+    const cell = (value: string) => plain(value).replaceAll("|", "\\|");
+    const table = [
+      "| " + headings.join(" | ") + " |",
+      "| --- | --- | ---: | ---: |",
+      ...rows.map((row) => {
+        const source = cite(
+          tr("Published {edition} results", { edition: row.edition }),
+          "/tournaments/" + row.editionSlug + "/statistics",
+        );
+        return (
+          "| " +
+          [
+            cell(label({ slug: row.editionSlug, name: row.edition })),
+            cell(row.username) + " " + source,
+            n.format(row.ratedMaps),
+            rating.format(row.averageEffectiveRating),
+          ].join(" | ") +
+          " |"
+        );
+      }),
+    ];
+    const shown =
+      rows.length < totalComparable
+        ? " · " + n.format(rows.length) + "/" + n.format(totalComparable)
+        : "";
+    return {
+      sources,
+      text: [heading, table.join("\n"), minimum + shown, ...scopeDetails].join(
+        "\n\n",
+      ),
+    };
+  }
 
   const names = featureNames(tr);
   if (result.status === "maps") {
