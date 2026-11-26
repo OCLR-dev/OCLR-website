@@ -83,6 +83,7 @@
     "react-dom": "19.3.1",
     "react-markdown": "^10.1.0",
     "react-svg-pan-zoom": "^3.13.1",
+    "remark-gfm": "^4.0.1",
     "replayviewer-js": "file:vendor/replayviewer-js-2.0.0-06bd864ee.tgz",
     "sharp": "^0.35.5",
     "styled-components": "^6.6.0",
