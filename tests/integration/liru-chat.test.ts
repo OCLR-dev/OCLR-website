@@ -960,6 +960,91 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     );
     expect(upstream).toHaveBeenCalledTimes(2);
   });
+  it("ranks published historical DT scores across seasons without a provider or index", async () => {
+    const user = { osuId: 1582002, username: "Synthetic MOD history reader" };
+    await db().insert(users).values(user);
+    context.token = (await createSession(user.osuId)).token;
+
+    await seedEditions([season(slug, "Historical ranking scope")]);
+    for (const [seasonSlug, bestPlayer, bestScore] of [
+      ["s6", 91001, 200_000],
+      ["s7", 91003, 300_000],
+    ] as const) {
+      const archive = structuredClone(statisticsArchive);
+      archive.editionSlug = seasonSlug;
+      archive.matches[0].score = [3, 0];
+      archive.players.find(({ osuId }) => osuId === 91004)!.role = "player";
+      for (const [index, map] of archive.pools[0].maps.entries())
+        map.slot = "DT" + (index + 1);
+      await seedEditions([
+        {
+          ...edition,
+          slug: seasonSlug,
+          season: seasonSlug.slice(1),
+          name: "Synthetic " + seasonSlug.toUpperCase(),
+          status: "completed",
+          registration: null,
+          archive,
+        },
+      ]);
+      const source = statisticsSource();
+      for (const game of source.games) {
+        for (const score of game.scores)
+          score.total = score.osuId === bestPlayer ? bestScore : 100_000;
+      }
+      const snapshot = {
+        archiveKey: statisticsArchiveKey(archive),
+        source,
+        poolId: archive.pools[0].id,
+        included: [1, 2, 4],
+      };
+      await db()
+        .insert(historicalStatistics)
+        .values({
+          editionSlug: seasonSlug,
+          fixtureId: archive.matches[0].id,
+          mpId: source.match.id,
+          version: 2,
+          draft: snapshot,
+          published: snapshot,
+          publishedAt: new Date("2026-11-01T00:00:00Z"),
+        });
+    }
+
+    const upstream = vi.fn();
+    vi.stubEnv("OCLR_CHAT_EMBEDDING_MODEL", "synthetic-embedding");
+    vi.stubGlobal("fetch", upstream);
+    const question = "從歷史記錄查看哪些選手擅長DT？";
+    const request = await ask([question]);
+    expect(request.status).toBe(200);
+    const stream = await request.text();
+    const s7Top = "| S7 | Historical Player [1] | 3 | 2 |";
+    const s6Top = "| S6 | Historical Captain A [2] | 3 | 1.6 |";
+    expect(stream).toContain(
+      "| Season | Player | Rated maps | Average effective rating |",
+    );
+    expect(stream).toContain(s7Top);
+    expect(stream).toContain(s6Top);
+    expect(stream.indexOf(s7Top)).toBeLessThan(stream.indexOf(s6Top));
+    expect(stream).toContain('"url":"/tournaments/s7/statistics"');
+
+    const scoped = await (await ask([question, "只看第六季"])).text();
+    expect(scoped).toContain("| S6 | Historical Captain A [1] | 3 | 1.6 |");
+    expect(scoped).not.toContain("| S7 |");
+
+    await db()
+      .update(historicalStatistics)
+      .set({ published: null, publishedAt: null })
+      .where(eq(historicalStatistics.editionSlug, "s7"));
+    const withdrawn = await (await ask([question])).text();
+    expect(withdrawn).toContain("| S6 | Historical Captain A [1] | 3 | 1.6 |");
+    expect(withdrawn).not.toContain("| S7 |");
+
+    const unavailable = await (await ask([question, "只看第七季"])).text();
+    expect(unavailable).toContain("Insufficient comparison data");
+    expect(upstream).not.toHaveBeenCalled();
+    vi.stubEnv("OCLR_CHAT_EMBEDDING_MODEL", "");
+  });
   it("refreshes scheduled time, scores and pool entries from the published edition", async () => {
     const archive = structuredClone(historicalArchive);
     const published = {

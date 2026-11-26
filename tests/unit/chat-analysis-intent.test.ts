@@ -55,3 +55,24 @@ it("asks for ambiguous inputs and keeps technical follow-ups separate from exist
     chatAnalysisIntent("推薦有 HD 強項的選秀隊員 UID 10260284", ""),
   ).toBeUndefined();
 });
+
+it("routes historical pool rankings separately from player profiles and draft picks", () => {
+  for (const [question, category] of [
+    ["從歷史記錄查看哪些選手擅長DT？", "DT"],
+    ["历届公开赛果里哪些选手的 HD 表现更强？", "HD"],
+    ["Who performed best in Hard Rock in past seasons?", "HR"],
+  ]) {
+    expect(chatAnalysisIntent(question, "")).toEqual({
+      kind: "mod-history",
+      category,
+    });
+  }
+  for (const question of [
+    "歷屆選秀有哪些選手擅長 DT？",
+    "建議挑誰？需要歷屆實戰強的 HD 隊員",
+    "PlayerName 的歷屆 DT 實戰表現如何？",
+    "歷屆有哪些選手的 DT SIP 排名最高？",
+  ]) {
+    expect(chatAnalysisIntent(question, "")).toBeUndefined();
+  }
+});

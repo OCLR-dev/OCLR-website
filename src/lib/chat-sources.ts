@@ -102,6 +102,7 @@ export async function chatEvidence(
       ],
     };
   }
+  const draft = draftRecommendationRequest(question, previous);
   const direct = chatAnalysisIntent(question, "");
   const technical =
     direct ??
@@ -109,7 +110,7 @@ export async function chatEvidence(
     (seasonOnlyFollowup(question)
       ? chatAnalysisIntent(previous, "")
       : undefined);
-  if (technical)
+  if (technical && (technical.kind !== "mod-history" || !draft))
     return {
       edition: selected.name,
       technical: await chatTechnicalAnalysis(
@@ -131,7 +132,6 @@ export async function chatEvidence(
   const previousSearch =
     refersBack && previousAnswer ? previous + "\n" + previousAnswer : previous;
 
-  const draft = draftRecommendationRequest(question, previous);
   const scope = await chatSeasonScope(
     selected,
     question,
