@@ -109,6 +109,7 @@ function hasReadHandler(file: string) {
 }
 const showcaseReplayDownloadRoute =
   "src/pages/api/internal/streaming/tournaments/[edition]/showcase/pools/[poolId]/replays/[replayId].ts";
+const localRolePreviewPage = "src/app/dev/roles/page.tsx";
 const files = [
   ...walk("src/app").filter(
     (p) =>
@@ -123,6 +124,24 @@ const files = [
   ),
 ].sort();
 const rows = files.map((file) => {
+  if (file === localRolePreviewPage) {
+    return {
+      file,
+      kind: "page",
+      authority: "denied",
+      operations: [],
+      commands: "Local synthetic role preview only",
+      metadata: "Static, noindex",
+      services: ["src/lib/auth/local-role-preview.ts"],
+      test: "unit/local-role-preview.test.ts + integration/auth.test.ts",
+      authorization:
+        "Explicit opt-in, exact loopback origin and dedicated demo database",
+      adapter: "Disabled in remote development",
+      media: "None",
+      requiredVerification:
+        "Disabled and remote rejection, synthetic account selection and session isolation",
+    };
+  }
   if (
     file === "src/app/tournaments/[edition]/chat/page.tsx" ||
     file === "src/components/liru-chat.tsx"
@@ -450,6 +469,7 @@ const pages = files
   .filter(
     (p) =>
       p.endsWith("/page.tsx") &&
+      p !== localRolePreviewPage &&
       !p.includes("/streaming/[edition]/") &&
       p !== "src/app/streaming/page.tsx" &&
       !p.includes("/admin/backups/") &&

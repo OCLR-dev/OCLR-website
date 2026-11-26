@@ -6,7 +6,7 @@ import { join } from "node:path";
 import {
   localDatabase as local,
   developmentEnvironment,
-} from "./development-database";
+} from "../src/lib/development-database";
 
 const databaseImage = "pgvector/pgvector:0.8.7-pg17-bookworm";
 

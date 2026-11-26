@@ -44434,11 +44434,11 @@
         }
       }
     },
-    "/auth/logout": {
+    "/auth/dev-role": {
       "post": {
-        "operationId": "logout",
-        "summary": "Sign out of the browser session",
-        "description": "Revokes the current site session from its cookie when present. No request fields are read. A missing session still clears the cookie and redirects to the login confirmation page.",
+        "operationId": "switchLocalRolePreview",
+        "summary": "Start or switch a local synthetic role preview",
+        "description": "Requires explicitly enabled loopback development and the dedicated demo database. The first selection requires the local access code. An active preview cookie allows switching between seeded accounts and the previous preview session is revoked.",
         "security": [],
         "parameters": [
           {
@@ -44451,9 +44451,34 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 256,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "account": {
+                    "type": "string",
+                    "pattern": "^[1-9]\\d{0,15}$"
+                  },
+                  "code": {
+                    "type": "string",
+                    "maxLength": 43
+                  }
+                },
+                "required": [
+                  "account"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
         "responses": {
           "303": {
-            "description": "Empty redirect to /login?loggedOut=1.",
+            "description": "Empty redirect to /dev/roles. A successful switch sets the preview cookie. An invalid code or unavailable account redirects back with a form error.",
             "headers": {
               "Cache-Control": {
                 "schema": {
@@ -44470,7 +44495,121 @@
               "Set-Cookie": {
                 "schema": {
                   "type": "string",
-                  "description": "Clears __Host-oclr_session or the local oclr_session cookie with Max-Age=0."
+                  "description": "Opaque HttpOnly local role preview cookie on a successful switch."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid form fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin or authentication channel rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Local role preview is disabled or unavailable on this host.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The previous preview session was already replaced or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The form body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/x-www-form-urlencoded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "logout",
+        "summary": "Sign out of the browser session",
+        "description": "Revokes the current site session from its cookie when present. No request fields are read. A missing session still clears the cookie and redirects to the login confirmation page. An active local role preview exits to /dev/roles and preserves the osu! session.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "303": {
+            "description": "Empty redirect to /login?loggedOut=1 or /dev/roles when exiting a local role preview.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Location": {
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string",
+                  "description": "Clears the current site or local role preview cookie with Max-Age=0."
                 }
               }
             }

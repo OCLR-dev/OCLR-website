@@ -1,4 +1,4 @@
-import { localDatabase } from "../scripts/development-database";
+import { localDatabase } from "../src/lib/development-database";
 /** Destructive fixtures require an explicitly supplied, clearly named test database. */
 export function assertTestDatabase(
   value: string | undefined,

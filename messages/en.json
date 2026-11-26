@@ -5292,6 +5292,25 @@
     "me94a4ec41686": "I found BID {bid} with {mod}, but no other comparable published beatmaps in this scope.",
     "meb79628accf3": "BID {bid} · {mod}. Showing {shown, number} of {candidates, number} comparable published beatmaps.",
     "mbe4a8898d973": "{games, number} of {published, number} published plays are comparable, covering {maps, number} beatmaps across {fixtures, number} matches.",
-    "mccb00614e5ca": "{count, number} published plays could not be matched to a verified mappool slot."
+    "mccb00614e5ca": "{count, number} published plays could not be matched to a verified mappool slot.",
+    "m8bbb06203bf6": "Development role preview",
+    "m8f371d82b653": "Viewing as {username}",
+    "m3f147223ddd5": "Exit role preview",
+    "m52e2b9cc0c19": "The local role preview session has changed.",
+    "m5162c2879212": "Switch between synthetic accounts to test tournament pages and actions with their current permissions.",
+    "m3998537558df": "Enter the local access code to start a role preview.",
+    "mde0c10221cd1": "That synthetic account is unavailable. Choose another account.",
+    "m48cf85e11b5d": "Synthetic account",
+    "m0e4dbf48c2e0": "Choose an account",
+    "m8062dbb50d10": "Team member",
+    "ma4a8fd0ac355": "Local access code",
+    "mfedce010cffc": "Switch account",
+    "mee07323fa17f": "Seed the local demo database to add synthetic accounts.",
+    "mcf48a770d7ab": "Tournament overview",
+    "m9af95b3f10a5": "Staff workspace",
+    "ma951c5945635": "Streaming",
+    "m9e138aa7a268": "Local role preview is unavailable.",
+    "m6a3789af96ea": "Send a URL-encoded form.",
+    "m08f64868f5fa": "The role preview form is invalid."
   }
 }

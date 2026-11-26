@@ -1986,6 +1986,20 @@
       "requiredVerification": "403 without database/provider access"
     },
     {
+      "file": "src/app/dev/roles/page.tsx",
+      "kind": "page",
+      "authority": "denied",
+      "operations": [],
+      "commands": "Local synthetic role preview only",
+      "metadata": "Static, noindex",
+      "services": ["src/lib/auth/local-role-preview.ts"],
+      "test": "unit/local-role-preview.test.ts + integration/auth.test.ts",
+      "authorization": "Explicit opt-in, exact loopback origin and dedicated demo database",
+      "adapter": "Disabled in remote development",
+      "media": "None",
+      "requiredVerification": "Disabled and remote rejection, synthetic account selection and session isolation"
+    },
+    {
       "file": "src/app/developer/page.tsx",
       "kind": "page",
       "authority": "connection-control",

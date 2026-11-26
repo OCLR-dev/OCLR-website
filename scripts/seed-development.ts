@@ -1,7 +1,7 @@
 /** Explicit local-only demo data. Never imported by application routes. */
 import * as nextEnv from "@next/env";
 import { createHash, randomUUID } from "node:crypto";
-import { eq, sql } from "drizzle-orm";
+import { and, desc, eq, isNotNull, sql } from "drizzle-orm";
 import { db, closeDb } from "../src/db";
 import {
   captains,
@@ -9,6 +9,7 @@ import {
   editionRevisions,
   editionState,
   fixtures,
+  fixtureReferees,
   mappoolEntries,
   mappools,
   matchGames,
@@ -17,6 +18,7 @@ import {
   memberships,
   registrations,
   resultRevisions,
+  staffRoles,
   teams,
   tournamentRounds,
   tournamentStages,
@@ -33,7 +35,68 @@ import { normalizeOsuProfile } from "../src/lib/osu-profile-model";
 import {
   assertDevelopmentDatabase,
   localDatabase,
-} from "./development-database";
+} from "../src/lib/development-database";
+
+import {
+  demoEdition,
+  demoPlayerBase,
+  demoPlayers,
+  demoStaff,
+  demoVisitor,
+} from "../src/lib/local-role-preview-model";
+
+type SeedTransaction = Parameters<
+  Parameters<ReturnType<typeof db>["transaction"]>[0]
+>[0];
+
+async function seedRolePreviewAccounts(tx: SeedTransaction) {
+  const newAccounts = await tx
+    .insert(users)
+    .values([
+      ...demoStaff.map(({ osuId, username }) => ({ osuId, username })),
+      demoVisitor,
+    ])
+    .onConflictDoNothing()
+    .returning({ osuId: users.osuId });
+  const newStaff = demoStaff.filter(({ osuId }) =>
+    newAccounts.some((account) => account.osuId === osuId),
+  );
+  if (!newStaff.length) return;
+  const admin = demoStaff.find(({ role }) => role === "admin")!;
+  await tx.insert(staffRoles).values(
+    newStaff.map(({ osuId, role }) => ({
+      userId: osuId,
+      role,
+      editionSlug:
+        role === "admin" || role === "developer" ? null : demoEdition,
+      grantedBy: admin.osuId,
+    })),
+  );
+  const referee = newStaff.find(({ role }) => role === "referee");
+  if (referee) {
+    const [fixture] = await tx
+      .select({ id: fixtures.id })
+      .from(fixtures)
+      .where(
+        and(
+          eq(fixtures.editionSlug, demoEdition),
+          eq(fixtures.status, "scheduled"),
+          isNotNull(fixtures.homeTeamId),
+          isNotNull(fixtures.awayTeamId),
+        ),
+      )
+      .orderBy(desc(fixtures.scheduledAt))
+      .limit(1);
+    if (fixture)
+      await tx
+        .insert(fixtureReferees)
+        .values({
+          fixtureId: fixture.id,
+          userId: referee.osuId,
+          assignedBy: admin.osuId,
+        });
+  }
+}
 
 const env = "default" in nextEnv ? nextEnv.default : nextEnv;
 (env as typeof nextEnv).loadEnvConfig(process.cwd(), true);
@@ -52,8 +115,8 @@ async function seed() {
     throw new Error("Connected to an unexpected database.");
   const now = new Date();
   const day = (offset: number) => new Date(now.getTime() + offset * 86400000);
-  const slug = "dev-s11";
-  const playerBase = 8_000_000_000_000;
+  const slug = demoEdition;
+  const playerBase = demoPlayerBase;
   const rules = scoringRulesSchema.parse({
     version: "local-demo-v1",
     mode: "osu",
@@ -74,8 +137,22 @@ async function seed() {
       .select({ slug: editionState.slug })
       .from(editionState)
       .where(eq(editionState.slug, slug));
-    if (existing)
-      return "Demo data already exists; existing edits were preserved.";
+    if (existing) {
+      const [seedEvent] = await tx
+        .select({ kind: editionEvents.kind })
+        .from(editionEvents)
+        .where(
+          and(
+            eq(editionEvents.editionSlug, slug),
+            eq(editionEvents.kind, "local_development_seed"),
+          ),
+        )
+        .limit(1);
+      if (!seedEvent)
+        throw new Error("The demo edition was not created by the local seed.");
+      await seedRolePreviewAccounts(tx);
+      return "Demo data and role preview accounts are ready; existing edits were preserved.";
+    }
 
     const current = editionSchema.parse({
       slug,
@@ -149,10 +226,7 @@ async function seed() {
       });
     }
 
-    const people = Array.from({ length: 28 }, (_, i) => ({
-      osuId: playerBase + i + 1,
-      username: `Demo_${String(i + 1).padStart(2, "0")}`,
-    }));
+    const people = demoPlayers;
     await tx.insert(users).values(people);
     await tx.insert(registrations).values(
       people.map((person, i) => ({
@@ -477,7 +551,8 @@ async function seed() {
       approvedBy: people[0].osuId,
       approvedAt: day(-1),
     });
-    return "Created 2 demo editions, 28 synthetic identities (24 accepted / 4 pending), 4 teams, 12 maps, 3 fixtures and 1 published synthetic result.";
+    await seedRolePreviewAccounts(tx);
+    return "Created 2 demo editions, 39 synthetic accounts, 4 teams, 12 maps, 3 fixtures and 1 published synthetic result.";
   });
 }
 

@@ -3,6 +3,10 @@ import { and, eq, gt } from "drizzle-orm";
 import { db } from "@/db";
 import { oauthStates, users } from "@/db/schema";
 import { equalTokens, hashToken } from "@/lib/auth/tokens";
+import {
+  localRolePreviewCookie,
+  localRolePreviewKey,
+} from "@/lib/auth/local-role-preview-config";
 import { exchangeIdentity } from "@/lib/auth/osu";
 import { createSession, revokeSession } from "@/lib/auth/sessions";
 import { cookieOptions, sessionCookie, stateCookie } from "@/lib/auth/config";
@@ -77,6 +81,15 @@ export async function GET(request: NextRequest) {
         `${origin}${consumed.desktopRequestId ? `/desktop/authorize?request_id=${consumed.desktopRequestId}` : (streamingReturn ?? pickemReturnPath(consumed.pickemReturnTo) ?? chatReturn ?? "/dashboard")}`,
         303,
       );
+      const previewKey = localRolePreviewKey(request.headers.get("host"));
+      const preview = request.cookies.get(localRolePreviewCookie)?.value;
+      if (previewKey && preview) {
+        await revokeSession(preview, previewKey);
+        response.cookies.set(localRolePreviewCookie, "", {
+          ...cookieOptions(),
+          maxAge: 0,
+        });
+      }
       response.cookies.set(sessionCookie(), session.token, {
         ...cookieOptions(),
         expires: session.expiresAt,

@@ -122,6 +122,9 @@ Remote development connection management uses the local same-origin channel.
 Connecting sets an opaque cookie, refresh clears only that connection's
 public snapshots, and disconnect clears the connection and cookie. Website
 logout revokes the cookie's site session and returns an empty 303 redirect.
+The [local role preview](development.md#preview-roles-locally) has its own
+same-origin form and session cookie. Switching replaces the preview session.
+Signing out during a preview ends that session and returns to the role picker.
 
 Admin backups queue jobs through the separately installed operator. Import uses
 raw package bytes and restore requires the source job and explicit confirmation.
