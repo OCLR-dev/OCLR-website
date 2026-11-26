@@ -11,6 +11,7 @@ import { sql, eq } from "drizzle-orm";
 import { db, closeDb } from "@/db";
 import {
   users,
+  historicalStatistics,
   sessions,
   registrations,
   staffRoles,
@@ -20,6 +21,11 @@ import {
 import { createSession, revokeSession } from "@/lib/auth/sessions";
 import { hashToken } from "@/lib/auth/tokens";
 import { english } from "@/i18n/translate";
+import { statisticsArchiveKey } from "@/lib/archive-statistics-key";
+import {
+  statisticsArchive,
+  statisticsSource,
+} from "../fixtures/archive-statistics";
 import { seasonCountIntent } from "@/lib/chat-season-counts";
 import { chatRequestBlockReason } from "@/lib/chat-request-filter";
 import { normalizeOsuProfile } from "@/lib/osu-profile-model";
@@ -174,6 +180,122 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     await expect(chatEvidence(slug, "換人", "")).rejects.toMatchObject({
       status: 404,
     });
+  });
+  it("answers technical queries from published S9/S10 without sending scores to a provider", async () => {
+    const subject = 1582001;
+    await db()
+      .insert(users)
+      .values({ osuId: subject, username: "Synthetic technical reader" });
+    context.token = (await createSession(subject)).token;
+    const year = (slug: "s9" | "s10", firstBid: number) => {
+      const archive = structuredClone(statisticsArchive);
+      archive.editionSlug = slug;
+      archive.players.find((player) => player.osuId === 91004)!.role = "player";
+      for (const [index, map] of archive.pools[0].maps.entries()) {
+        const bid = firstBid + index;
+        map.beatmapId = bid;
+        map.beatmapSetId = bid;
+        map.title = "Synthetic comparison " + bid;
+        map.difficultySnapshot = {
+          beatmapId: bid,
+          ruleset: "osu",
+          checksum: "a".repeat(32),
+          fetchedAt: "2026-11-01T00:00:00Z",
+          base: {
+            stars: 5.5,
+            bpm: 170 + index,
+            duration: 123,
+            ar: 9,
+            od: 8,
+            cs: 4,
+            hp: 5,
+          },
+          variants: {},
+        };
+      }
+      return {
+        ...edition,
+        slug,
+        status: "completed" as const,
+        registration: null,
+        archive,
+      };
+    };
+    const s9 = year("s9", 9015801);
+    const s10 = year("s10", 9015811);
+    await seedEditions([season(slug, "Technical test scope"), s9, s10]);
+    for (const saved of [s9, s10]) {
+      const source = statisticsSource();
+      source.games = source.games.slice(0, 2);
+      for (const [index, game] of source.games.entries()) {
+        game.beatmapId = saved.archive.pools[0].maps[index].beatmapId;
+        for (const score of game.scores) score.total = score.total! * 1000;
+      }
+      const snapshot = {
+        archiveKey: statisticsArchiveKey(saved.archive),
+        poolId: saved.archive.pools[0].id,
+        source,
+        included: source.games.map((game) => game.id),
+      };
+      await db()
+        .insert(historicalStatistics)
+        .values({
+          editionSlug: saved.slug,
+          fixtureId: saved.archive.matches[0].id,
+          mpId: source.match.id,
+          version: 1,
+          draft: snapshot,
+          published: snapshot,
+          publishedAt: new Date("2026-11-01T00:00:00Z"),
+        });
+    }
+    const upstream = vi.fn();
+    vi.stubGlobal("fetch", upstream);
+    const map = await ask(["Find similar beatmaps for BID 9015801 and MOD NM"]);
+    expect(map.status).toBe(200);
+    const mapStream = await map.text();
+    expect(mapStream).toContain("Showing 3 of 3 comparable beatmaps");
+    expect(mapStream).toContain("Synthetic comparison 9015811");
+    expect(mapStream).toContain('"url":"/tournaments/s10/mappools/final"');
+
+    const player = await ask(["UID 91003 的技術強弱與練習推薦"]);
+    expect(player.status).toBe(200);
+    const playerStream = await player.text();
+    expect(playerStream).toContain("4 of 4 published plays are comparable");
+    expect(playerStream).toContain("too few comparable published plays");
+    expect(playerStream).toContain('"url":"/tournaments/s9/statistics"');
+    expect(playerStream).toContain('"url":"/tournaments/s10/statistics"');
+    expect(playerStream).not.toContain("Recommended practice beatmaps");
+
+    expect(
+      await (await ask(["Find similar beatmaps for BID 9015801"])).text(),
+    ).toContain("specific mod combination");
+    expect(
+      await (await ask(["Find similar beatmaps for BID 9015801", "NM"])).text(),
+    ).toContain("Showing 3 of 3");
+    expect(
+      await (
+        await ask(["Find similar beatmaps for BID 99999999 with NM"])
+      ).text(),
+    ).toContain("could not verify enough published");
+
+    await db()
+      .update(historicalStatistics)
+      .set({ published: null, publishedAt: null })
+      .where(eq(historicalStatistics.editionSlug, "s10"));
+    const withdrawnScores = await (
+      await ask(["UID 91003 practice recommendations"])
+    ).text();
+    expect(withdrawnScores).toContain("currently unavailable");
+    expect(withdrawnScores).not.toContain(
+      '"url":"/tournaments/s10/statistics"',
+    );
+
+    await seedEditions([{ ...s10, published: false }]);
+    const withdrawnPool = await (await ask(["BID 9015801 MOD NM"])).text();
+    expect(withdrawnPool).toContain("currently unavailable");
+    expect(withdrawnPool).not.toContain("9015811");
+    expect(upstream).not.toHaveBeenCalled();
   });
   it("retrieves the published overview dates for natural time questions and refreshes changed dates", async () => {
     const e = season(slug, "Substitutes need approval.");

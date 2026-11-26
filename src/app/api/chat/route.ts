@@ -1,9 +1,11 @@
+import { getAppTranslations } from "@/i18n/server";
+import { formatTechnicalReply } from "@/lib/chat-technical-reply";
 import { requireBrowserSession } from "@/lib/auth/user";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import { chatConfiguration } from "@/lib/chat-config";
 import { readChatPrompt } from "@/lib/chat-prompt-settings";
 import { chatRequestBlockReason } from "@/lib/chat-request-filter";
-import { chatAnswer, chatScopeReply } from "@/lib/chat-answer";
+import { chatAnswer, chatScopeReply, chatTextReply } from "@/lib/chat-answer";
 import { createChatTrace, safeChatError } from "@/lib/chat-trace";
 import { chatWrite } from "@/lib/chat-write-contract";
 import { chatEvidence } from "@/lib/chat-sources";
@@ -73,6 +75,27 @@ export async function POST(request: Request) {
         reason: evidence.blocked,
       });
       return await chatScopeReply(diagnostics);
+    }
+    if (evidence.technical) {
+      request.signal.throwIfAborted();
+      const reply = formatTechnicalReply(
+        evidence.technical,
+        await getAppTranslations(locale),
+      );
+      trace("evidence_ready", undefined, {
+        edition,
+        sourceCount: reply.sources.length,
+        retrievalMs: Math.round(performance.now() - retrievalStarted),
+        route: "technical_analysis",
+        evidenceKind: "verified_analysis",
+        analysisStatus: evidence.technical.status,
+      });
+      return chatTextReply(
+        diagnostics,
+        "technical-analysis",
+        reply.text,
+        reply.sources,
+      );
     }
     const evidenceKind = evidence.greeting
       ? "greeting"

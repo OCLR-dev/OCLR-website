@@ -2,14 +2,14 @@ import { createHash } from "node:crypto";
 import { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
-  fileFeatures,
   projectPublicPools,
   snapshotSchema,
-} from "../../scripts/beatmap-similarity-data";
+} from "../../src/lib/beatmap-similarity-model";
+import { fileFeatures } from "../../scripts/beatmap-similarity-data";
 import {
   compareBeatmaps,
   describePools,
-} from "../../scripts/beatmap-similarity-ranking";
+} from "../../src/lib/beatmap-similarity-ranking";
 import type { DifficultySnapshot } from "../../src/lib/mappool-model";
 import { assertTestDatabase } from "../database";
 

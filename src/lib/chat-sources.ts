@@ -1,3 +1,5 @@
+import { chatAnalysisIntent } from "./chat-analysis-intent";
+import { chatTechnicalAnalysis } from "./chat-technical-analysis";
 import { chatRequestBlockReason } from "./chat-request-filter";
 import {
   chatDirectoryPlayers,
@@ -42,6 +44,7 @@ type ChatEvidence = {
   sources: ChatSource[];
   total: Awaited<ReturnType<typeof seasonCount>>;
   blocked?: NonNullable<ReturnType<typeof chatRequestBlockReason>>;
+  technical?: Awaited<ReturnType<typeof chatTechnicalAnalysis>>;
   greeting?: true;
   draftRecommendation?: true;
   playerProfile?: true;
@@ -90,11 +93,19 @@ export async function chatEvidence(
         {
           title: selected.name,
           url: "/tournaments/" + slug,
-          text: "Liru can answer questions about published information for this season and past OCLR seasons: rules, dates, players, teams, draft picks, mappools, fixtures, results and statistics. Examples include how many upcoming matches have a start time, how many Hidden (HD) slots the mappools contain, and how many draft picks were published. Availability depends on what has been published.",
+          text: "Liru can answer questions about published information for this season and past OCLR seasons: rules, dates, players, teams, draft picks, mappools, fixtures, results and statistics. Examples include how many upcoming matches have a start time, how many Hidden (HD) slots the mappools contain, and how many draft picks were published. For similarity and practice from published S9 and S10 evidence, ask for similar beatmaps with a BID and MOD, or ask for player strengths and practice recommendations with an osu! UID. Availability depends on what has been published.",
         },
       ],
     };
   }
+  const technical = chatAnalysisIntent(question, previous);
+  if (technical)
+    return {
+      edition: selected.name,
+      technical: await chatTechnicalAnalysis(technical, signal),
+      total: null,
+      sources: [],
+    };
   // Prior answers can supply search terms for references, but only current
   // publication-checked hits are returned as evidence.
   const refersBack =

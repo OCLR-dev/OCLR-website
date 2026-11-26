@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import type { Client } from "pg";
-import { difficultyRate } from "../src/lib/difficulty-display";
+import { difficultyRate } from "./difficulty-display";
 import {
   baseFeatures,
   features,
@@ -10,7 +10,7 @@ import {
   type Feature,
   type Slot,
   type Snapshot,
-} from "./beatmap-similarity-data";
+} from "./beatmap-similarity-model";
 
 export const profiles = {
   base: baseFeatures,
@@ -234,6 +234,8 @@ const rankSql = `
   FROM ranked WHERE rank <= 10 ORDER BY method, rank
 `;
 
+export type SimilarityDatabase = Pick<Client, "query">;
+
 type Rank = {
   bid: string;
   method: "baseline" | "vector";
@@ -245,7 +247,7 @@ const setKey = (row: MapVersion) =>
   row.setId ? "set:" + row.setId : "bid:" + row.bid;
 
 export async function compareBeatmaps(
-  db: Client,
+  db: SimilarityDatabase,
   snapshot: Snapshot,
   query: Query,
 ) {

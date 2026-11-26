@@ -1,11 +1,11 @@
 import { createHash } from "node:crypto";
-import type { Client } from "pg";
-import { features, type Snapshot } from "./beatmap-similarity-data";
+import { features, type Snapshot } from "./beatmap-similarity-model";
 import {
   compareBeatmaps,
   latestVersions,
   profiles,
   snapshotInfo,
+  type SimilarityDatabase,
 } from "./beatmap-similarity-ranking";
 import {
   collectPlayerEvidence,
@@ -191,7 +191,7 @@ function chooseAnchor(
 }
 
 async function recommendations(
-  db: Client,
+  db: SimilarityDatabase,
   pools: Snapshot,
   assessments: Assessment[],
   played: Set<number>,
@@ -319,7 +319,7 @@ function validateTemporal(
 }
 
 export async function playerPractice(
-  db: Client,
+  db: SimilarityDatabase,
   snapshot: PracticeSnapshot,
   osuId: number,
   validate: boolean,

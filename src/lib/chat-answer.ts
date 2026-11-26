@@ -18,14 +18,29 @@ export async function chatScopeReply({ headers }: ChatTrace) {
   const text = tr(
     "Liru can help with public information for this OCLR season. Try asking about the schedule, rules, mappools or results.",
   );
+  return chatTextReply({ headers }, "scope", text, []);
+}
+
+export function chatTextReply(
+  { headers }: Pick<ChatTrace, "headers">,
+  id: string,
+  text: string,
+  sources: { title: string; url: string }[],
+) {
   return createUIMessageStreamResponse({
     headers: { ...headers, "X-Accel-Buffering": "no" },
     stream: createUIMessageStream({
       execute: ({ writer }) => {
         writer.write({ type: "start" });
-        writer.write({ type: "text-start", id: "scope" });
-        writer.write({ type: "text-delta", id: "scope", delta: text });
-        writer.write({ type: "text-end", id: "scope" });
+        writer.write({ type: "text-start", id });
+        writer.write({ type: "text-delta", id, delta: text });
+        writer.write({ type: "text-end", id });
+        for (const [i, source] of sources.entries())
+          writer.write({
+            type: "source-url",
+            sourceId: String(i + 1),
+            ...source,
+          });
         writer.write({ type: "finish", finishReason: "stop" });
       },
     }),
