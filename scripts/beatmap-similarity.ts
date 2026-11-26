@@ -6,15 +6,16 @@ import {
   bidSchema,
   editionSchema,
   modSchema,
-  readPublicSnapshot,
   snapshotSchema,
-} from "./beatmap-similarity-data";
-import { compareBeatmaps, describePools } from "./beatmap-similarity-ranking";
+} from "../src/lib/beatmap-similarity-model";
+import { readPublicSnapshot } from "./beatmap-similarity-data";
 import {
-  practiceSnapshotSchema,
-  readPracticeSnapshot,
-} from "./player-practice-data";
-import { playerPractice } from "./player-practice";
+  compareBeatmaps,
+  describePools,
+} from "../src/lib/beatmap-similarity-ranking";
+import { readPracticeSnapshot } from "./player-practice-data";
+import { practiceSnapshotSchema } from "../src/lib/player-practice-data";
+import { playerPractice } from "../src/lib/player-practice";
 
 const usage = `
 npm run beatmap:similarity -- snapshot [--editions s9,s10] [--osu-dir DIR]

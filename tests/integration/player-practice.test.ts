@@ -1,12 +1,14 @@
 import { Client } from "pg";
+import { english } from "@/i18n/translate";
+import { formatTechnicalReply } from "@/lib/chat-technical-reply";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import type { Slot } from "../../scripts/beatmap-similarity-data";
+import type { Slot } from "../../src/lib/beatmap-similarity-model";
 import {
   collectPlayerEvidence,
   practiceSnapshotSchema,
   type PracticeSnapshot,
-} from "../../scripts/player-practice-data";
-import { playerPractice } from "../../scripts/player-practice";
+} from "../../src/lib/player-practice-data";
+import { playerPractice } from "../../src/lib/player-practice";
 import { assertTestDatabase } from "../database";
 
 const checksum = "a".repeat(32);
@@ -173,6 +175,16 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
         feature: "bpm",
         classification: "practice-opportunity",
       });
+      const reply = formatTechnicalReply({ status: "player", report }, english);
+      expect(reply.text).toContain("16 of 16 published plays");
+      expect(reply.text).toContain("Starter beatmap · BID 113 with NM");
+      expect(reply.text).toContain("meets the");
+      expect(reply.sources.map((source) => source.url)).toContain(
+        "https://osu.ppy.sh/beatmaps/113",
+      );
+      expect(
+        reply.sources.some((source) => source.url.endsWith("/matches/match-a")),
+      ).toBe(true);
       const recommendation = report.recommendations[0];
       expect(recommendation.anchor.fixtureUrl).toMatch(
         /^https:\/\/oclr.org\/tournaments\/s(9|10)\/matches\//,

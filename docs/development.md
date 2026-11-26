@@ -169,6 +169,14 @@ Examples of questions with verified totals:
 | 圖池裡有幾張HD圖？ / How many TB slots are there?          | Slots in the specified NM, HD, HR, DT, FM, TB or historical ACE category                         |
 | 已公布的選秀紀錄有幾筆？ / How many draft picks are there? | Picks in the released draft or historical pick list. A final-tier roster alone has no pick count |
 
+### Similar beatmaps and player practice in Liru
+
+Open Liru on a published season. Ask “用 BID 3786810 和 MOD NM 找相似譜面” or “查 UID 10260284 的技術強弱和練習推薦”. The same requests work in Simplified Chinese and English. The analysis uses the published S9 and S10 evidence from any public season's chat. In a follow-up, a standalone MOD can complete a similarity question and a standalone UID can complete a practice question.
+
+The server uses the same pgvector ranking and same-game comparison rules as the [#1582 prototypes](verification/issue-1582/README.md). It reads the current public archive mappools and, for player queries, the published statistics projection. It streams the computed answer and source links without sending the scores or numeric evidence to the chat model. Similarity returns up to ten maps with feature differences, sample size and overlap with the star rating and BPM baseline. Player replies show the comparable sample size, supported strengths and practice priorities, and candidate reasons with links to results, the reference match and the candidate pool.
+
+A missing BID, MOD or UID prompts for the required input. A missing verified map, unavailable season release or insufficient comparison group receives a data-availability reply. A withdrawn release is excluded on the next request. The CLI captures used for the prototype report are reproducibility artifacts. The deployed answer reads its own public data and saved difficulty values.
+
 ### Season search and embeddings
 
 The index worker reads the public, edition-scoped projections for overview dates, rules, players, teams, draft picks, matches and results, mappools, statistics, brackets/standings, awards, staff and public predictions. Configure `OCLR_CHAT_EMBEDDING_MODEL` with a model ID supported by the provider’s `/embeddings` endpoint. The worker and queries share the chat base URL, key and proxy. The chat generation model is configured separately. A blank embedding model builds a keyword-only index.
