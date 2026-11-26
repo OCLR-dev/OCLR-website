@@ -1,16 +1,16 @@
 import { readOnlyData } from "@/db";
-import { publicCaptains } from "./captain-reads";
+import { sipModCode } from "./chat-rating-sources";
 import {
   chatDirectoryPlayers,
   chatPlayerDirectorySources,
   playerDirectoryRequest,
 } from "./chat-player-directory";
 import type { ChatSource } from "./chat-retrieval";
-import { publicDraft } from "./draft-reads";
+import { publicDraftCandidatePool } from "./draft-reads";
 import type { Edition } from "./editions";
 import { readListedPlayerRatings } from "./listed-player-ratings";
 
-export function asksDraftRecommendation(question: string) {
+function asksDraftRecommendation(question: string) {
   const text = question.normalize("NFKC");
   if (
     /^(?:(?:我|我們|我们)\s*)?(?:可不可以|可以|能不能|能)[選选]\s*[^。？?]{1,32}(?:嗎|吗)\s*[?？]?$/i.test(
@@ -19,70 +19,75 @@ export function asksDraftRecommendation(question: string) {
     !/[圖图]|[譜谱]面|\b(?:nm|hd|hr|dt|fm|tb)\d+\b/i.test(text)
   )
     return true;
-  return /(?:可以|[應应][該该]|能|[該该]|建[議议])[^。？?]{0,20}[選选挑]\s*(?:[誰谁]|哪(?:一?[位個个]|些))|(?:[選选]秀|[補补](?:[強强]|充))[^。？?]{0,28}(?:推薦|推荐|[選选]手|[強强]手|[選选挑]\s*[誰谁])|(?:推薦|推荐)[^。？?]{0,16}(?:[選选]誰|[選选]手)|\b(?:who (?:can|should|could) (?:we|i) (?:pick|draft)|can (?:we|i) draft|recommend (?:a |some )?(?:draft (?:pick|candidate)|players?))\b/i.test(
+  return /(?:可以|[應应][該该]|能|[該该]|建[議议])[^。？?]{0,20}[選选挑]\s*(?:[誰谁]|哪(?:一?[位個个]|些))|(?:[選选]秀|[補补](?:[強强]|充))[^。？?]{0,28}(?:推薦|推荐|[選选]手|[強强]手|[選选挑]\s*[誰谁])|(?:推薦|推荐|建[議议])[^。？?]{0,30}(?:[誰谁]|[選选]手|[隊队][員员]|[團团][員员]|人[選选]|候[選选]人)|\b(?:who (?:can|should|could) (?:we|i) (?:pick|draft)|can (?:we|i) draft|recommend (?:a |some )?(?:draft (?:pick|candidate)|(?:(?:nm|hd|hr|dt|fm|hidden) )?(?:players?|teammates?)))\b/i.test(
     text,
   );
 }
 
-function requestedSipSkill(question: string) {
+const shortRecommendationFollowUp =
+  /^(?:那|再|換|换|what about\s+|and\s+)?\s*(?:(?:high|low|高|低)\s*ar|high\s*bpm|aim|tapping|technical|precision|nm|hd|hr|dt|fm|hidden|[還还]有(?:誰|谁|其他人[選选]))\s*(?:呢|[嗎吗])?\s*[?。!]*$/i;
+
+export function draftRecommendationRequest(question: string, previous: string) {
+  if (asksDraftRecommendation(question)) return { previous: "" };
+  if (
+    shortRecommendationFollowUp.test(question.normalize("NFKC").trim()) &&
+    asksDraftRecommendation(previous)
+  )
+    return { previous };
+  return null;
+}
+
+function requestedSipMetric(question: string) {
   const text = question
     .normalize("NFKC")
     .replace(/高\s*AR/gi, "High AR")
     .replace(/低\s*AR/gi, "Low AR");
-  return text
-    .match(
-      /\b(?:(?:high|low)[ -]*ar|high[ -]*bpm|tapping|aim|precision|technical)\b/i,
-    )?.[0]
-    .toLowerCase()
-    .replace(/[ -]/g, "");
+  const skill = text.match(
+    /\b(?:(?:high|low)[ -]*ar|high[ -]*bpm|tapping|aim|precision|technical)\b/i,
+  )?.[0];
+  if (skill)
+    return {
+      category: "skillsets" as const,
+      key: skill.toLowerCase().replace(/[ -]/g, ""),
+    };
+  const mod = text.match(
+    /\b(?:nm|hd|hr|dt|fm|no[ -]*mod|hidden|hard[ -]*rock|double[ -]*time|free[ -]*mod)\b/i,
+  )?.[0];
+  if (!mod) return null;
+  return {
+    category: "modifications" as const,
+    key: sipModCode(mod.replace(/-/g, "")) ?? mod.toUpperCase(),
+  };
 }
 
 export async function draftCandidateSources(
   edition: Edition,
   question: string,
+  previous = "",
 ): Promise<ChatSource[]> {
   if (edition.archive) return [];
   return readOnlyData(async () => {
-    const draft = await publicDraft(edition.slug);
-    if (
-      !draft?.pool ||
-      !draft.activeTeam ||
-      draft.turnIndex >= draft.turnCount ||
-      !["ready", "live", "paused"].includes(draft.state)
-    )
-      return [];
-
-    const captains = await publicCaptains(edition.slug);
-    const excluded = new Set([
-      ...captains.map((captain) => captain.osuId),
-      draft.activeTeam.captain.osuId,
-      ...draft.rosters.flatMap(({ team, players }) => [
-        team.captain.osuId,
-        ...players.map((player) => player.osuId),
-      ]),
-      ...draft.picks.flatMap(({ player, team }) => [
-        player.osuId,
-        team.captain.osuId,
-      ]),
-    ]);
-    const candidates = draft.pool.filter(
-      (player) => !excluded.has(player.osuId),
-    );
+    const pool = await publicDraftCandidatePool(edition.slug);
+    if (!pool) return [];
+    const { state, candidates } = pool;
     const url = "/tournaments/" + edition.slug + "/draft";
     const status = {
-      draftState: draft.state,
+      draftState: state,
       selectablePlayers: candidates.length,
     };
-    const metric = requestedSipSkill(question);
+    const metric = requestedSipMetric(question) ?? requestedSipMetric(previous);
     if (metric) {
       const ratings = await readListedPlayerRatings(
         candidates.map((player) => player.osuId),
         false,
       );
       const rated = candidates.flatMap((player) => {
-        const skills = ratings.get(player.osuId)?.sip.api?.snapshot?.skillsets;
-        const entry = Object.entries(skills ?? {}).find(
-          ([label]) => label.toLowerCase().replace(/[ -]/g, "") === metric,
+        const snapshot = ratings.get(player.osuId)?.sip.api?.snapshot;
+        const entry = Object.entries(snapshot?.[metric.category] ?? {}).find(
+          ([label]) =>
+            (metric.category === "modifications"
+              ? (sipModCode(label.replace(/-/g, "")) ?? label.toUpperCase())
+              : label.toLowerCase().replace(/[ -]/g, "")) === metric.key,
         );
         if (!entry) return [];
         const [label, rating] = entry;
@@ -102,7 +107,7 @@ export async function draftCandidateSources(
           title: "Public draft pool · SIP",
           text: JSON.stringify({
             ...status,
-            requestedSkill: metric,
+            requestedMetric: metric,
             candidatesWithRating: rated.length,
             candidates: rated.slice(0, 8),
           }),

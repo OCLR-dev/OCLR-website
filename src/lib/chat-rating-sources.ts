@@ -9,6 +9,10 @@ const modCodes = new Map([
   ["freemod", "FM"],
 ]);
 
+export function sipModCode(label: string) {
+  return modCodes.get(label.toLowerCase().replace(/\s/g, ""));
+}
+
 export function playerRatingSources(
   username: string,
   url: string,
@@ -42,10 +46,7 @@ export function playerRatingSources(
   };
   for (const [group, entries] of Object.entries(groups)) {
     for (const [label, entry] of Object.entries(entries ?? {})) {
-      const mod =
-        group === "MOD"
-          ? modCodes.get(label.toLowerCase().replace(/\s/g, ""))
-          : undefined;
+      const mod = group === "MOD" ? sipModCode(label) : undefined;
       const category = mod ? `${label} (${mod})` : label;
       sources.push({
         url,
