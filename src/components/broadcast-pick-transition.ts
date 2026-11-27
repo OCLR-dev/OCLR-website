@@ -312,18 +312,19 @@ function roll(
   root: HTMLElement,
   scene: Scene | undefined,
   attribute: "data-turn-team" | "data-turn-round" | "data-turn-digit",
+  animatePart: typeof animate,
 ) {
   const incoming = root.querySelector<HTMLElement>(`[${attribute}]`);
   const outgoing = scene?.layers.get(attribute);
   if (incoming?.textContent === outgoing?.textContent) return;
   // The duration includes the brief overlap, without overlapping the text baselines.
-  animate(incoming, "turn", rollIn, 330, 350);
+  animatePart(incoming, "turn", rollIn, 330, 350);
   if (!outgoing || !incoming?.parentElement) return;
   outgoing.dataset.leavingLayer = attribute;
   incoming.parentElement.append(outgoing);
   removeAfter(
     outgoing,
-    animate(
+    animatePart(
       outgoing,
       "outgoing-turn",
       [
@@ -513,9 +514,15 @@ export function createBroadcastMotion() {
     );
     stop(root);
     root.dataset.pickReveal = "";
-    resumeBackground = window.setTimeout(() => {
-      root.removeAttribute("data-pick-reveal");
-    }, revealDuration);
+    const parts: Animation[] = [];
+    function stage(animation: Animation | undefined) {
+      if (!animation) return;
+      animation.pause();
+      animation.currentTime = 0;
+      parts.push(animation);
+      return animation;
+    }
+    const animatePart: typeof animate = (...args) => stage(animate(...args));
 
     if (previousFeature && visibleFeature?.parentElement) {
       if (sameTier)
@@ -524,7 +531,7 @@ export function createBroadcastMotion() {
       visibleFeature.parentElement.append(previousFeature);
       removeAfter(
         previousFeature,
-        animate(
+        animatePart(
           previousFeature,
           "outgoing-pick",
           [
@@ -541,7 +548,7 @@ export function createBroadcastMotion() {
       );
     }
     for (const [part, delay, duration, from] of featureParts) {
-      animate(
+      animatePart(
         root.querySelector(`[data-feature-part="${part}"]`),
         "pick",
         [
@@ -553,7 +560,7 @@ export function createBroadcastMotion() {
       );
     }
     if (!sameTier) {
-      animate(
+      animatePart(
         root.querySelector("[data-feature-tier] > [data-draft-tier]"),
         "tier",
         [
@@ -566,7 +573,7 @@ export function createBroadcastMotion() {
         "ease-out",
       );
     }
-    animate(
+    animatePart(
       root.querySelector("[data-border-glow]"),
       "border",
       [{ opacity: 0.92 }, { opacity: 1, offset: 0.08 }, { opacity: 0 }],
@@ -574,7 +581,7 @@ export function createBroadcastMotion() {
       0,
       "ease-out",
     );
-    animate(
+    animatePart(
       root.querySelector("[data-star-sweep]"),
       "sweep",
       [
@@ -592,7 +599,7 @@ export function createBroadcastMotion() {
       ["tier", 150],
     ] as const) {
       if (part === "tier" && sameTier) continue;
-      animate(
+      animatePart(
         root.querySelector(`[data-part-glow="${part}"]`),
         "glow",
         [{ opacity: 0 }, { opacity: 0.72, offset: 0.28 }, { opacity: 0 }],
@@ -605,7 +612,7 @@ export function createBroadcastMotion() {
     for (const [id, { element: row, top }] of currentRows ?? []) {
       const before = historyOffsets.get(id);
       if (before === undefined) {
-        animate(
+        animatePart(
           row,
           "history",
           [
@@ -616,7 +623,7 @@ export function createBroadcastMotion() {
           historyDelay,
           "ease-out",
         );
-        animate(
+        animatePart(
           row.querySelector("[data-history-glow]"),
           "history-glow",
           [{ opacity: 1 }, { opacity: 0 }],
@@ -627,7 +634,7 @@ export function createBroadcastMotion() {
       } else {
         const delta = before - top;
         if (delta)
-          animate(
+          animatePart(
             row,
             "history-move",
             [
@@ -646,7 +653,7 @@ export function createBroadcastMotion() {
       list.append(copy);
       removeAfter(
         copy,
-        animate(
+        animatePart(
           copy,
           "history-exit",
           [
@@ -661,7 +668,7 @@ export function createBroadcastMotion() {
     }
 
     if (sameTeam) {
-      animate(
+      animatePart(
         root.querySelector("[data-turn-team-glow]"),
         "turn-team-pulse",
         [
@@ -672,10 +679,10 @@ export function createBroadcastMotion() {
         460,
         220,
       );
-    } else roll(root, scene, "data-turn-team");
-    roll(root, scene, "data-turn-round");
-    roll(root, scene, "data-turn-digit");
-    animate(
+    } else roll(root, scene, "data-turn-team", animatePart);
+    roll(root, scene, "data-turn-round", animatePart);
+    roll(root, scene, "data-turn-digit", animatePart);
+    animatePart(
       root.querySelector("[data-picking-pulse]"),
       "turn-ring",
       [
@@ -693,13 +700,15 @@ export function createBroadcastMotion() {
         const previous = previousStats?.[index]?.textContent ?? "—";
         if (value.textContent === "—" && previous === "—") return;
         const delay = statRollDelay + index * statRollStagger;
-        animate(value, "stat-roll", rollIn, statRollDuration, delay);
-        value.animate([{ color: "#ffffff" }, { color: "#f4f3fc" }], {
-          id: "oclr-stat-settle",
-          duration: 110,
-          delay: delay + statRollDuration,
-          easing: "ease-out",
-        });
+        animatePart(value, "stat-roll", rollIn, statRollDuration, delay);
+        stage(
+          value.animate([{ color: "#ffffff" }, { color: "#f4f3fc" }], {
+            id: "oclr-stat-settle",
+            duration: 110,
+            delay: delay + statRollDuration,
+            easing: "ease-out",
+          }),
+        );
       });
     const radarJobs = readRadars(root).map((job) => {
       const { target } = job;
@@ -722,7 +731,7 @@ export function createBroadcastMotion() {
     );
     for (const { glow, changing, delay } of radarJobs) {
       if (!changing) continue;
-      animate(
+      animatePart(
         glow,
         "radar-glow",
         [
@@ -757,12 +766,8 @@ export function createBroadcastMotion() {
       }
     }
     paint(0);
-    let start: number | undefined;
+    let start: number;
     function tick(now: number) {
-      if (start === undefined) {
-        start = now;
-        deadline = start + revealDuration;
-      }
       const elapsed = now - start;
       paint(elapsed);
       if (elapsed < interpolationDuration) {
@@ -775,7 +780,19 @@ export function createBroadcastMotion() {
         }
       }
     }
-    request = requestAnimationFrame(tick);
+    // Allow the compositor to prepare the paused effects before starting
+    // both WAAPI and the radar morph on the same frame.
+    request = requestAnimationFrame(() => {
+      request = requestAnimationFrame((now) => {
+        start = now;
+        deadline = now + revealDuration;
+        for (const part of parts) part.startTime = now;
+        resumeBackground = window.setTimeout(() => {
+          root.removeAttribute("data-pick-reveal");
+        }, revealDuration);
+        tick(now);
+      });
+    });
   }
 
   return {

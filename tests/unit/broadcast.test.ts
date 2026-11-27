@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   acceptBroadcastSnapshot,
   draftClosingAction,
@@ -6,6 +6,7 @@ import {
   shouldRevealPick,
   newPublishedPicks,
 } from "../../src/components/broadcast-draft";
+import { createBroadcastMotion } from "../../src/components/broadcast-pick-transition";
 import type { BroadcastBoard, DraftBoard } from "../../src/lib/draft-types";
 
 function snapshot(
@@ -173,5 +174,79 @@ describe("published broadcast reconciliation", () => {
         (p) => p.id,
       ),
     ).toEqual(["b", "c"]);
+  });
+});
+
+describe("broadcast reveal timing", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
+  function setupReveal() {
+    vi.useFakeTimers();
+    vi.stubGlobal("window", globalThis);
+    let request = 0;
+    const queued = new Map<number, FrameRequestCallback>();
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+      queued.set(++request, callback);
+      return request;
+    });
+    vi.stubGlobal("cancelAnimationFrame", (id: number) => queued.delete(id));
+    const frame = (now: number) => {
+      const callbacks = Array.from(queued.values());
+      queued.clear();
+      for (const callback of callbacks) callback(now);
+    };
+    const animations = ["border-glow", "star-sweep"].map((part) => ({
+      part,
+      id: `oclr-${part}`,
+      pause: vi.fn(),
+      cancel: vi.fn(),
+      currentTime: null as number | null,
+      startTime: null as number | null,
+    }));
+    const root = {
+      dataset: {},
+      querySelector: (selector: string) => {
+        const animation = animations.find(
+          ({ part }) => selector === `[data-${part}]`,
+        );
+        return animation ? { animate: () => animation } : null;
+      },
+      querySelectorAll: () => [],
+      getAnimations: () =>
+        animations.filter(({ pause }) => pause.mock.calls.length),
+      removeAttribute: vi.fn(),
+    } as unknown as HTMLElement;
+    const motion = createBroadcastMotion();
+    motion.reveal(root, undefined, undefined, true, true);
+    return { animations, frame, motion, root };
+  }
+
+  it("keeps reveal effects on their initial frame until their shared start", () => {
+    const { animations, frame } = setupReveal();
+    frame(16.67);
+    for (const animation of animations) {
+      expect(animation.pause).toHaveBeenCalledOnce();
+      expect(animation.currentTime).toBe(0);
+      expect(animation.startTime).toBeNull();
+    }
+
+    frame(250);
+    expect(animations.map(({ startTime }) => startTime)).toEqual([250, 250]);
+  });
+
+  it("cancels a staged reveal before any effect starts", () => {
+    const { animations, frame, motion, root } = setupReveal();
+    frame(16.67);
+    motion.stop(root);
+    frame(250);
+
+    expect(motion.running).toBe(false);
+    for (const animation of animations) {
+      expect(animation.cancel).toHaveBeenCalledOnce();
+      expect(animation.startTime).toBeNull();
+    }
   });
 });
