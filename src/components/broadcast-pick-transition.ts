@@ -18,6 +18,8 @@ const radarDuration = 680;
 const historyDelay = 140;
 const historyGlowDuration = 950;
 const revealDuration = historyDelay + historyGlowDuration;
+const finalPickDisplayDuration = 3500;
+export const finalPickHold = revealDuration + finalPickDisplayDuration;
 const featureParts = [
   ["portrait", 110, 460, "translateX(28px) scale(0.88)"],
   ["heading", 110, 400, "translateY(18px)"],
@@ -31,6 +33,26 @@ const savedLayers = [
   "data-turn-team",
   "data-turn-round",
   "data-turn-digit",
+] as const;
+
+const closingLayers = [
+  [
+    "[data-featured]",
+    "[data-pick-feature]",
+    0,
+    260,
+    "translateY(-16px) scale(0.985)",
+  ],
+  [
+    "[data-stream-chat]",
+    '[data-liru-position="header"]',
+    0,
+    200,
+    "translateY(-10px) scale(0.86)",
+  ],
+  ["[data-ratings]", "[data-rating-display]", 60, 280, "scale(0.92)"],
+  ["[data-turn-card]", "[data-turn-heading]", 140, 220, "translateY(-10px)"],
+  ["[data-turn-card]", "[data-turn-info]", 140, 220, "translateY(-10px)"],
 ] as const;
 
 type Layer = (typeof savedLayers)[number];
@@ -93,6 +115,69 @@ export function captureBroadcastScene(overlay: HTMLElement): Scene {
     history.set(element.dataset.historyPick!, { top, element, copy });
   }
   return { layers, history };
+}
+
+export function captureClosingScene(overlay: HTMLElement) {
+  // Position each copy against its card, whose layout stays fixed during the
+  // transition. Read all boxes and in-flight styles before building copies.
+  const measured = closingLayers.flatMap(
+    ([card, selector, delay, duration, exit]) => {
+      const container = overlay.querySelector<HTMLElement>(card);
+      const element = container?.querySelector<HTMLElement>(selector);
+      if (!container || !element) return [];
+      const { left, top } = container.getBoundingClientRect();
+      const box = element.getBoundingClientRect();
+      const animated = new Set(
+        element
+          .getAnimations({ subtree: true })
+          .map(({ effect }) =>
+            effect instanceof KeyframeEffect ? effect.target : null,
+          ),
+      );
+      const styles = Array.from(element.querySelectorAll("*")).flatMap(
+        (child, index) => {
+          if (!animated.has(child)) return [];
+          const { opacity, transform, color } = getComputedStyle(child);
+          return [{ index, opacity, transform, color }];
+        },
+      );
+      return [
+        {
+          container,
+          delay,
+          duration,
+          exit,
+          styles,
+          layer: {
+            element,
+            left: box.left - left - container.clientLeft + container.scrollLeft,
+            top: box.top - top - container.clientTop + container.scrollTop,
+            width: box.width,
+            height: box.height,
+          },
+        },
+      ];
+    },
+  );
+  return measured.map(({ layer, styles, ...entry }) => {
+    const copy = copyLayer(layer);
+    copy.dataset.outgoingClosing = "";
+    const children = copy.querySelectorAll<HTMLElement | SVGElement>("*");
+    for (const { index, ...style } of styles)
+      Object.assign(children[index].style, {
+        ...style,
+        animation: "none",
+        transition: "none",
+      });
+    for (const attribute of savedLayers) {
+      copy.removeAttribute(attribute);
+      copy
+        .querySelectorAll(`[${attribute}]`)
+        .forEach((node) => node.removeAttribute(attribute));
+    }
+    copy.querySelector("#broadcast-ratings-heading")?.removeAttribute("id");
+    return { ...entry, copy };
+  });
 }
 
 function animate(
@@ -281,6 +366,119 @@ export function createBroadcastMotion() {
       paint(target);
       radars.set(id, target);
     }
+  }
+
+  function revealClosing(
+    root: HTMLElement,
+    outgoing: ReturnType<typeof captureClosingScene>,
+  ) {
+    for (const { container, copy, delay, duration, exit } of outgoing) {
+      container.append(copy);
+      const ring = copy.querySelector("[data-picking-status]");
+      animate(
+        ring,
+        "closing-ring",
+        [{ transform: "scale(1)" }, { transform: "scale(0.5)" }],
+        duration,
+        delay,
+      );
+      removeAfter(
+        copy,
+        animate(
+          copy,
+          "closing-out",
+          [
+            { opacity: 1, transform: "none" },
+            { opacity: 0, transform: exit },
+          ],
+          duration,
+          delay,
+        ),
+      );
+    }
+
+    const title = root.querySelector("[data-closing-title]");
+    animate(
+      title,
+      "closing-title",
+      [
+        { transform: "translateY(22px) scale(0.96)", opacity: 0 },
+        { transform: "none", opacity: 1 },
+      ],
+      580,
+      220,
+    );
+    title?.animate([{ color: "#ffffff" }, { color: "#e9b8fc" }], {
+      id: "oclr-closing-title-settle",
+      duration: 180,
+      delay: 800,
+      easing: "ease-out",
+    });
+    animate(
+      root.querySelector('[data-liru-position="selection"]'),
+      "closing-liru",
+      [
+        { transform: "translateY(24px) scale(0.92)", opacity: 0 },
+        { transform: "translateY(-4px) scale(1.02)", opacity: 1, offset: 0.65 },
+        { transform: "none", opacity: 1 },
+      ],
+      580,
+      280,
+    );
+    animate(
+      root.querySelector("[data-closing-message]"),
+      "closing-message",
+      [
+        { transform: "translateY(18px)", opacity: 0 },
+        { transform: "none", opacity: 1 },
+      ],
+      640,
+      340,
+    );
+    animate(
+      root.querySelector("[data-ratings-glow]"),
+      "closing-ratings-glow",
+      [{ opacity: 0 }, { opacity: 0.42, offset: 0.28 }, { opacity: 0 }],
+      640,
+      340,
+    );
+    animate(
+      root.querySelector("[data-border-glow]"),
+      "closing-border",
+      [{ opacity: 0.66 }, { opacity: 0.75, offset: 0.15 }, { opacity: 0 }],
+      1100,
+      100,
+    );
+    animate(
+      root.querySelector("[data-star-sweep]"),
+      "closing-sweep",
+      [
+        {
+          transform: "translateX(-95%) skewX(-20deg) scaleX(1.18)",
+          opacity: 0,
+        },
+        { opacity: 0.6, offset: 0.29 },
+        {
+          transform: "translateX(150%) skewX(-20deg) scaleX(1.18)",
+          opacity: 0,
+        },
+      ],
+      760,
+      180,
+    );
+    for (const selector of ["[data-turn-label]", "[data-turn-team]"])
+      animate(root.querySelector(selector), "closing-turn", rollIn, 460, 300);
+    animate(
+      root.querySelector("[data-turn-digit]"),
+      "closing-order",
+      [
+        { color: "#f4f3fc" },
+        { color: "#ffffff", offset: 0.23 },
+        { color: "#f4f3fc" },
+      ],
+      380,
+      360,
+    );
   }
 
   function reveal(
@@ -482,19 +680,6 @@ export function createBroadcastMotion() {
       220,
       "ease-out",
     );
-    animate(
-      root.querySelector('[data-liru-position="header"]'),
-      "mascot",
-      [
-        { transform: "translateY(0)" },
-        { transform: "translateY(-12px)", offset: 0.32 },
-        { transform: "translateY(2px)", offset: 0.68 },
-        { transform: "translateY(0)" },
-      ],
-      380,
-      700,
-    );
-
     visibleFeature
       ?.querySelectorAll<HTMLElement>("[data-motion-number]")
       .forEach((value, index) => {
@@ -588,6 +773,7 @@ export function createBroadcastMotion() {
 
   return {
     reveal,
+    revealClosing,
     stop,
     sync,
     refresh(root: HTMLElement) {

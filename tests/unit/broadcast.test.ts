@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   acceptBroadcastSnapshot,
+  draftClosingAction,
   sameBroadcastSnapshot,
   shouldRevealPick,
   newPublishedPicks,
@@ -35,6 +36,45 @@ function snapshot(
   };
 }
 describe("published broadcast reconciliation", () => {
+  it("keeps the last pick on stage until staff finalizes the rosters", () => {
+    const live = snapshot(3, ["a", "b", "c"]);
+    const completed: DraftBoard = {
+      ...snapshot(4, ["a", "b", "c", "d"]),
+      state: "completed",
+      activeTeam: null,
+    };
+    const finalized = { ...completed, state: "finalized" as const, version: 5 };
+    expect(draftClosingAction(live, completed, true)).toBeNull();
+    expect(draftClosingAction(completed, finalized, true)).toBe("curtain");
+    expect(draftClosingAction(live, finalized, true)).toBe("reveal");
+    expect(
+      draftClosingAction(finalized, { ...finalized, version: 6 }, true),
+    ).toBe("direct");
+  });
+
+  it("skips the curtain for initial loads, reconnects, reduced motion and corrections", () => {
+    const live = snapshot(3, ["a", "b", "c"]);
+    const finalized: DraftBoard = {
+      ...snapshot(5, ["a", "b", "c", "d"]),
+      state: "finalized",
+      activeTeam: null,
+    };
+    expect(draftClosingAction(null, finalized, true)).toBe("direct");
+    expect(draftClosingAction(live, finalized, false)).toBe("direct");
+    expect(
+      draftClosingAction(live, { ...finalized, sessionId: "reset" }, true),
+    ).toBe("direct");
+    expect(
+      draftClosingAction(
+        live,
+        { ...finalized, picks: snapshot(5, ["x", "b", "c", "d"]).picks },
+        true,
+      ),
+    ).toBe("direct");
+    expect(
+      draftClosingAction(finalized, { ...live, version: 6 }, true),
+    ).toBeNull();
+  });
   it("preserves the displayed snapshot across polling and profile timestamp refreshes", () => {
     const initial = snapshot(3, ["a"]);
     const board: BroadcastBoard = {

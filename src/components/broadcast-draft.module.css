@@ -138,6 +138,7 @@
   overflow-wrap: anywhere;
 }
 .streamChat {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -185,6 +186,7 @@
 }
 .borderGlow,
 .starSweep,
+.ratingsGlow,
 .partGlow,
 .historyGlow,
 .pickingPulse,
@@ -222,6 +224,12 @@
 .tierFrame {
   position: relative;
   justify-self: end;
+}
+.ratingsGlow {
+  inset: 2px;
+  border: 1px solid #e9b8fc;
+  border-radius: inherit;
+  box-shadow: inset 0 0 20px #c884ff66;
 }
 .partGlow {
   inset: -1px;
@@ -325,6 +333,7 @@
   overflow-wrap: anywhere;
 }
 .turn {
+  position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -449,7 +458,11 @@
 
 .ratings {
   display: grid;
+}
+.ratingDisplay {
+  display: grid;
   grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
 }
 .ratings h2 {
   margin-bottom: 8px;
@@ -603,7 +616,7 @@
 .statRoll > span {
   display: block;
 }
-[data-outgoing-pick] .statistics {
+[data-outgoing-pick]:not([data-outgoing-closing]) .statistics {
   visibility: hidden;
 }
 .history .smallPortrait {
