@@ -6,23 +6,26 @@ import { DraftTierBadge } from "./draft-tier-badge";
 
 function PickList({
   picks,
-  highlightLatest = false,
+  label,
 }: {
   picks: DraftBoard["picks"];
-  highlightLatest?: boolean;
+  label: string;
 }) {
   return (
     <ol
       className="captain-picks"
       reversed
-      aria-live={highlightLatest ? "polite" : undefined}
-      aria-relevant={highlightLatest ? "additions" : undefined}
+      role="list"
+      tabIndex={0}
+      aria-label={label}
+      aria-live="polite"
+      aria-relevant="additions"
     >
       {picks.map((pick, index) => (
         <li
           key={pick.id}
           value={pick.turnIndex + 1}
-          data-latest={(highlightLatest && index === 0) || undefined}
+          data-latest={index === 0 || undefined}
         >
           <span className="captain-pick-number" aria-hidden="true">
             {String(pick.turnIndex + 1).padStart(2, "0")}
@@ -51,8 +54,6 @@ export function DraftOverview({
 }) {
   const tr = useAppTranslations();
   const picks = [...board.picks].reverse();
-  const recent = picks.slice(0, 6);
-  const older = picks.slice(6);
   return (
     <div className="captain-draft-overview">
       <section
@@ -117,17 +118,7 @@ export function DraftOverview({
           {picks.length > 0 && <span className="badge">{picks.length}</span>}
         </div>
         {picks.length ? (
-          <>
-            <PickList picks={recent} highlightLatest />
-            {older.length > 0 && (
-              <details className="captain-pick-details">
-                <summary>
-                  {tr("Details")} <span className="badge">{older.length}</span>
-                </summary>
-                <PickList picks={older} />
-              </details>
-            )}
-          </>
+          <PickList picks={picks} label={tr("Pick history")} />
         ) : (
           <p className="muted small">{tr("No picks published yet.")}</p>
         )}

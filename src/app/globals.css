@@ -5593,6 +5593,9 @@ body:has([data-broadcast]) .site-shell {
 .captain-history {
   flex: 1 1 15rem;
 }
+.captain-draft-overview .captain-history > .draft-room-heading {
+  margin-bottom: 0.375rem;
+}
 .captain-history[data-empty="true"] {
   flex-basis: 100%;
   display: flex;
@@ -5600,7 +5603,7 @@ body:has([data-broadcast]) .site-shell {
   flex-wrap: wrap;
   gap: 0.25rem 1rem;
 }
-.captain-history[data-empty="true"] .draft-room-heading,
+.captain-draft-overview .captain-history[data-empty="true"] > .draft-room-heading,
 .captain-history > p {
   margin: 0;
 }
@@ -5624,13 +5627,18 @@ body:has([data-broadcast]) .site-shell {
   font-size: var(--text-small);
   overflow-wrap: anywhere;
 }
-.captain-roster .avatar,
-.captain-picks .avatar {
+.captain-roster .avatar {
   flex: 0 0 1.5rem;
   font-size: var(--text-label);
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 0.35rem;
+}
+.captain-picks .avatar {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.35rem;
+  font-size: var(--text-label);
 }
 @media (pointer: coarse) {
   .captain-roster li a {
@@ -5645,25 +5653,16 @@ body:has([data-broadcast]) .site-shell {
 }
 .captain-picks {
   border-block-start: 1px solid var(--site-border);
-}
-.captain-pick-details > summary {
-  min-height: 2.75rem;
-  align-content: center;
-  cursor: pointer;
-  color: var(--site-accent);
-  font-size: var(--text-support);
-  font-weight: 650;
-}
-.captain-pick-details > summary .badge {
-  margin-inline-start: 0.2rem;
+  max-height: min(17rem, 50svh);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 .captain-picks li {
   display: grid;
-  grid-template-columns: 1.6rem 1.5rem minmax(0, 1fr);
+  grid-template-columns: 1.4rem 1.25rem minmax(0, 1fr);
   align-items: center;
   gap: 0.45rem;
-  min-height: 3rem;
-  padding: 0.35rem 0.45rem;
+  padding: 0.25rem 0.4rem;
   border-bottom: 1px solid var(--site-border);
 }
 .captain-picks li:last-child {
@@ -5682,6 +5681,8 @@ body:has([data-broadcast]) .site-shell {
 .captain-pick-identity {
   display: grid;
   min-width: 0;
+  font-size: var(--text-small);
+  line-height: 1.2;
   overflow-wrap: anywhere;
 }
 #captain-own-team {

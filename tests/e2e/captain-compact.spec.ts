@@ -192,12 +192,12 @@ test.describe("compact Captain live state", () => {
         ).toBe(true);
         await expect(page.locator(".captain-history")).toBeVisible();
         if (board.picks.length > 6) {
-          const older = page.locator(".captain-pick-details");
-          const earliest = older.getByText("Published pick 1", { exact: true });
-          await expect(earliest).not.toBeVisible();
-          await older.locator("summary").focus();
-          await older.locator("summary").press("Enter");
-          await expect(earliest).toBeVisible();
+          const list = page.locator(".captain-picks");
+          const earliest = list.getByText("Published pick 1", { exact: true });
+          await list.scrollIntoViewIfNeeded();
+          await expect(earliest).not.toBeInViewport();
+          await list.press("End");
+          await expect(earliest).toBeInViewport();
         }
         expect(
           (
