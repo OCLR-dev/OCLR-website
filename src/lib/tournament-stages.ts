@@ -13,10 +13,40 @@ export type PlannedStage = Omit<TournamentStage, "state"> & {
   authoritative?: boolean;
   order?: number;
 };
+type ActiveStage = Omit<TournamentStage, "state" | "id"> & { phaseId?: string };
+
+export function focusedTournamentStage(stages: TournamentStage[]) {
+  const current = stages.findLastIndex((stage) => stage.state === "current");
+  if (current >= 0) return current;
+  const upcoming = stages.findIndex((stage) => stage.state === "upcoming");
+  if (upcoming >= 0) return upcoming;
+  return Math.max(
+    0,
+    stages.findLastIndex((stage) => stage.state === "past"),
+  );
+}
+
+export function tournamentStageView(
+  planned: PlannedStage[],
+  active: ActiveStage | null,
+  now = Date.now(),
+) {
+  let next = Infinity;
+  for (const { at, endAt } of planned) {
+    for (const value of [at, endAt]) {
+      const time = Date.parse(value ?? "");
+      if (time > now && time < next) next = time;
+    }
+  }
+  return {
+    stages: tournamentStages(planned, active, now),
+    nextStageChangeAt: Number.isFinite(next) ? next : undefined,
+  };
+}
 
 export function tournamentStages(
   planned: PlannedStage[],
-  active: (Omit<TournamentStage, "state" | "id"> & { phaseId?: string }) | null,
+  active: ActiveStage | null,
   now = Date.now(),
 ): TournamentStage[] {
   const stages: TournamentStage[] = [...planned]
@@ -39,7 +69,7 @@ export function tournamentStages(
               ? "current"
               : "planned"
         : at && Number.isFinite(Date.parse(at))
-          ? Date.parse(at) < now
+          ? Date.parse(at) <= now
             ? "past"
             : "upcoming"
           : "planned",

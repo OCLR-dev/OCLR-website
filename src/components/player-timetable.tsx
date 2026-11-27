@@ -90,7 +90,7 @@ export function PlayerTimetable({
   const dirty = JSON.stringify(intervals) !== JSON.stringify(saved);
   useUnsavedWorkspace(dirty);
   const disabled = !data.canEdit || busy;
-  const feedback = validation || (failed || !dirty ? message : "");
+  const error = validation || (failed ? message : "");
   const startDate = weekStart(anchor, timeZone);
   const selectedDate = selectableTimetableDate(
     localDateTime(anchor, timeZone).slice(0, 10),
@@ -394,6 +394,12 @@ export function PlayerTimetable({
         </div>
         {data.canEdit && (
           <div className={styles.actions}>
+            <span
+              role="status"
+              className={dirty ? styles.draftMark : "muted small"}
+            >
+              {dirty ? tr("Unsaved changes") : error ? "" : message}
+            </span>
             <button
               type="button"
               className={`secondary ${styles.iconButton}`}
@@ -434,22 +440,10 @@ export function PlayerTimetable({
           </div>
         )}
       </div>
-      {(dirty || feedback) && (
-        <div className={styles.feedback} aria-live="polite">
-          {dirty && (
-            <span className={styles.draftMark}>{tr("Unsaved changes")}</span>
-          )}
-          {feedback && (
-            <p
-              role={validation || failed ? "alert" : "status"}
-              className={
-                validation || failed ? "error-text small" : "muted small"
-              }
-            >
-              {feedback}
-            </p>
-          )}
-        </div>
+      {error && (
+        <p role="alert" className={`error-text small ${styles.error}`}>
+          {error}
+        </p>
       )}
       <div
         ref={viewportRef}

@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { memo, useId, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { etxMods, type EtxMod } from "@/lib/etx-rating-model";
 import type { BroadcastBoard } from "@/lib/draft-types";
@@ -8,6 +8,13 @@ import { accentForColor, accentForColors } from "@/lib/panel-accent";
 import type { ProfileRatings } from "@/lib/profile-ratings-model";
 import { RATING_COLORS } from "@/lib/rating-colors";
 import accentStyles from "./panel-accent.module.css";
+import {
+  broadcastRadarMaximum,
+  radarCenter as center,
+  radarFrame,
+  radarGeometry,
+  radarRadius as radius,
+} from "./broadcast-radar-motion";
 import modStyles from "./player-mod-usage.module.css";
 import styles from "./player-rating-radar.module.css";
 
@@ -18,8 +25,6 @@ const sipMods = [
   ["DT", "Double Time"],
 ] as const;
 
-const center = { x: 160, y: 120 };
-const radius = 91;
 const rings = [0.2, 0.4, 0.6, 0.8, 1];
 
 type Point = { x: number; y: number };
@@ -45,16 +50,22 @@ function RatingPlot({
   locale,
   highlighted,
   onPreview,
+  broadcast,
 }: {
   axes: RatingAxis[];
   locale: string;
   highlighted: string | null;
   onPreview?: (label: string | null) => void;
+  broadcast?: "etx" | "sip";
 }) {
   const gradient = useId();
   const highest = Math.max(10, ...axes.map(({ value }) => value ?? 0));
   const rounded = Math.ceil(highest / rings.length) * rings.length;
-  const maximum = Number.isFinite(rounded) ? rounded : highest;
+  const maximum = broadcast
+    ? broadcastRadarMaximum
+    : Number.isFinite(rounded)
+      ? rounded
+      : highest;
   const ticks = new Intl.NumberFormat(locale, {
     notation: maximum >= 1e4 ? "scientific" : "standard",
     maximumFractionDigits: 1,
@@ -80,6 +91,11 @@ function RatingPlot({
         })
         .join(" ")
         .trim();
+  const values = axes.map(({ value }) =>
+    value === null ? null : Math.min(1, Math.max(0, value / maximum)),
+  );
+  const frame = broadcast ? radarFrame(values) : null;
+  const geometry = frame && radarGeometry(frame);
 
   return (
     <svg className={styles.radar} viewBox="0 0 320 244" aria-hidden="true">
@@ -117,7 +133,65 @@ function RatingPlot({
           </g>
         );
       })}
-      {complete ? (
+      {frame && geometry ? (
+        <>
+          <defs>
+            <linearGradient id={gradient} x2="0" y2="1">
+              <stop className={styles.areaTop} offset="0" />
+              <stop className={styles.areaBottom} offset="1" />
+            </linearGradient>
+            <radialGradient id={`${gradient}-halo`}>
+              <stop
+                offset="0"
+                stopColor="var(--accent-bottom)"
+                stopOpacity="0.22"
+              />
+              <stop
+                offset="1"
+                stopColor="var(--accent-bottom)"
+                stopOpacity="0"
+              />
+            </radialGradient>
+          </defs>
+          <circle
+            cx={center.x}
+            cy={center.y}
+            r={radius}
+            fill={`url(#${gradient}-halo)`}
+            data-radar-glow
+            className={styles.radarGlow}
+          />
+          <g data-motion-radar={broadcast} data-radii={JSON.stringify(values)}>
+            <polygon
+              className={styles.outline}
+              points={geometry.polygon}
+              fill={`url(#${gradient})`}
+              opacity={frame.fill}
+            />
+            <path
+              className={styles.outline}
+              d={geometry.segments}
+              fill="none"
+              opacity={1 - frame.fill}
+            />
+            {geometry.points.map(({ x, y }, index) => (
+              <circle
+                key={axes[index].label}
+                className={styles.marker}
+                cx={x}
+                cy={y}
+                r="4.5"
+                opacity={frame.visibility[index]}
+                fill={
+                  axes[index].mod
+                    ? getModInfo(axes[index].mod).bg
+                    : "var(--accent-bottom)"
+                }
+              />
+            ))}
+          </g>
+        </>
+      ) : complete ? (
         <>
           <defs>
             <linearGradient id={gradient} x2="0" y2="1">
@@ -144,28 +218,29 @@ function RatingPlot({
           {ticks.format(maximum * ring)}
         </text>
       ))}
-      {points.map((point, index) => {
-        const { mod, label } = axes[index];
-        return (
-          point && (
-            <g
-              key={label}
-              data-highlighted={highlighted === label || undefined}
-              onMouseEnter={onPreview ? () => onPreview(label) : undefined}
-              onMouseLeave={onPreview ? () => onPreview(null) : undefined}
-            >
-              <circle cx={point.x} cy={point.y} r="12" fill="transparent" />
-              <circle
-                className={styles.marker}
-                cx={point.x}
-                cy={point.y}
-                r="4.5"
-                fill={mod ? getModInfo(mod).bg : "var(--accent-bottom)"}
-              />
-            </g>
-          )
-        );
-      })}
+      {!broadcast &&
+        points.map((point, index) => {
+          const { mod, label } = axes[index];
+          return (
+            point && (
+              <g
+                key={label}
+                data-highlighted={highlighted === label || undefined}
+                onMouseEnter={onPreview ? () => onPreview(label) : undefined}
+                onMouseLeave={onPreview ? () => onPreview(null) : undefined}
+              >
+                <circle cx={point.x} cy={point.y} r="12" fill="transparent" />
+                <circle
+                  className={styles.marker}
+                  cx={point.x}
+                  cy={point.y}
+                  r="4.5"
+                  fill={mod ? getModInfo(mod).bg : "var(--accent-bottom)"}
+                />
+              </g>
+            )
+          );
+        })}
     </svg>
   );
 }
@@ -328,42 +403,64 @@ export function PlayerRatingRadar({ ratings }: { ratings?: ProfileRatings }) {
   );
 }
 
-export function BroadcastRatingRadars({
-  ratings,
-}: {
-  ratings?: BroadcastBoard["picks"][number]["ratings"];
-}) {
-  const tr = useAppTranslations();
-  const format = new Intl.NumberFormat(tr.locale, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-  const charts: { label: string; title: string; axes: RatingAxis[] }[] = [
-    {
-      label: tr("ETX"),
-      title: tr("Mod ratings"),
-      axes: etxMods.map((mod) => ({
-        label: mod,
-        mod,
-        value: ratings?.etxMods?.[mod] ?? null,
-      })),
-    },
-    {
-      label: tr("SIP"),
-      title: tr("Skillset ratings"),
-      axes: sipSkillsets.map((label) => ({
-        label,
-        value: ratings?.sipSkills[label] ?? null,
-      })),
-    },
-  ];
+type BroadcastRatings = BroadcastBoard["picks"][number]["ratings"];
+
+export function sameBroadcastRadarValues(
+  previous: BroadcastRatings,
+  next: BroadcastRatings,
+) {
   return (
-    <div className={styles.broadcastCharts}>
-      {charts.map(({ label, title, axes }) => (
-        <figure className={styles.broadcastChart} key={label}>
-          {axes.some(({ value }) => value !== null) ? (
-            <>
-              <RatingPlot axes={axes} locale={tr.locale} highlighted={null} />
+    etxMods.every((mod) => previous?.etxMods?.[mod] === next?.etxMods?.[mod]) &&
+    sipSkillsets.every(
+      (skill) => previous?.sipSkills[skill] === next?.sipSkills[skill],
+    )
+  );
+}
+
+export const BroadcastRatingRadars = memo(
+  function BroadcastRatingRadars({ ratings }: { ratings?: BroadcastRatings }) {
+    const tr = useAppTranslations();
+    const format = new Intl.NumberFormat(tr.locale, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    const charts: {
+      id: "etx" | "sip";
+      label: string;
+      title: string;
+      axes: RatingAxis[];
+    }[] = [
+      {
+        id: "etx",
+        label: tr("ETX"),
+        title: tr("Mod ratings"),
+        axes: etxMods.map((mod) => ({
+          label: mod,
+          mod,
+          value: ratings?.etxMods?.[mod] ?? null,
+        })),
+      },
+      {
+        id: "sip",
+        label: tr("SIP"),
+        title: tr("Skillset ratings"),
+        axes: sipSkillsets.map((label) => ({
+          label,
+          value: ratings?.sipSkills[label] ?? null,
+        })),
+      },
+    ];
+    return (
+      <div className={styles.broadcastCharts} data-pick-ratings>
+        {charts.map(({ id, label, title, axes }) => (
+          <figure className={styles.broadcastChart} key={id}>
+            <RatingPlot
+              axes={axes}
+              locale={tr.locale}
+              highlighted={null}
+              broadcast={id}
+            />
+            {axes.some(({ value }) => value !== null) ? (
               <ul className="sr-only">
                 {axes.map(({ label, value }) => (
                   <li key={label}>
@@ -374,16 +471,17 @@ export function BroadcastRatingRadars({
                   </li>
                 ))}
               </ul>
-            </>
-          ) : (
-            <p>{tr("No rating data")}</p>
-          )}
-          <figcaption>
-            <strong>{label}</strong>
-            <span>{title}</span>
-          </figcaption>
-        </figure>
-      ))}
-    </div>
-  );
-}
+            ) : (
+              <p className="sr-only">{tr("No rating data")}</p>
+            )}
+            <figcaption>
+              <strong>{label}</strong>
+              <span>{title}</span>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    );
+  },
+  (previous, next) => sameBroadcastRadarValues(previous.ratings, next.ratings),
+);

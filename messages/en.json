@@ -937,6 +937,7 @@
     "mb6cc77a222e3": "Selections appear here when published.",
     "mf70610942605": "Current published captain turn",
     "m4a098c5b9853": "DRAFT COMPLETE",
+    "md5cf7e9d598f": "Awaiting roster confirmation",
     "m451d500e89c1": "ON HOLD",
     "ma9bffcbcc485": "CURRENT TURN",
     "m89cb5c51a508": "Teams assembled.",
@@ -5325,8 +5326,12 @@
     "mddff837c1980": "Round {round} · Pick {position}",
     "md294fe3976e6": "Recent draft results",
     "mcaccfdee5559": "Draft in progress...",
+    "m8a5aef4e3a0b": "Waiting...",
     "m3f0d549335a3": "Starting soon...",
     "m0b58e3e7f4c2": "Live stream chat",
-    "m8ea5017cc2df": "Force reset draft"
+    "m8ea5017cc2df": "Force reset draft",
+    "m49427e7e0882": "Captain is picking",
+    "m55acd956d0d9": "Draft complete!",
+    "meaada9d32968": "Captains, gather your teams.\nLiru wishes you success in OCLR S11!"
   }
 }
