@@ -5,6 +5,7 @@ import type { staffTeams } from "@/lib/team-reads";
 import type { MappoolWorkspace } from "@/lib/mappool-reads";
 import type { FixtureWorkspace } from "@/lib/fixture-reads";
 import type { StreamingWorkspace } from "@/lib/streaming-workspace";
+import { teamsInPickOrder } from "@/lib/draft-order";
 import { formatDate } from "@/lib/editions";
 import { fixtureSlot } from "@/lib/fixture-views";
 import styles from "./tournament-dashboard-summary.module.css";
@@ -47,6 +48,7 @@ function poolsByStage(workspace: MappoolWorkspace) {
 export function TournamentDashboardSummary({
   base,
   teams,
+  draftOrder,
   pools,
   fixtures,
   streams,
@@ -60,6 +62,7 @@ export function TournamentDashboardSummary({
         "id" | "name"
       >[]
     | null;
+  draftOrder: string[];
   pools: MappoolWorkspace | null;
   fixtures: FixtureWorkspace | null;
   streams: StreamingWorkspace | null;
@@ -152,11 +155,13 @@ export function TournamentDashboardSummary({
           </h2>
           {teams.length ? (
             <ul className={styles.list}>
-              {teams.map((team) => (
-                <li key={team.id}>
-                  <strong>{team.name}</strong>
-                </li>
-              ))}
+              {teamsInPickOrder(teams, draftOrder, (team) => team.id).map(
+                (team) => (
+                  <li key={team.id}>
+                    <strong>{team.name}</strong>
+                  </li>
+                ),
+              )}
             </ul>
           ) : (
             <p className="muted">{tr("No teams yet")}</p>

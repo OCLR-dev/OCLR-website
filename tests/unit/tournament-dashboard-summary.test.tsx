@@ -7,7 +7,7 @@ import type { MappoolWorkspace } from "@/lib/mappool-reads";
 
 afterEach(() => vi.unstubAllGlobals());
 
-it("shows every team and groups every pool in competition round order", () => {
+it("shows every team in draft order and groups pools in competition round order", () => {
   vi.stubGlobal("React", React);
   const teams = Array.from({ length: 12 }, (_, i) => ({
     id: String(i + 1),
@@ -55,6 +55,7 @@ it("shows every team and groups every pool in competition round order", () => {
     <TournamentDashboardSummary
       base="/admin/tournaments/test"
       teams={teams}
+      draftOrder={["12", "3", "12", "1"]}
       pools={{ rounds, pools, entries: [] }}
       fixtures={null}
       streams={null}
@@ -68,7 +69,12 @@ it("shows every team and groups every pool in competition round order", () => {
       (match) => match[1],
     ),
   ).toEqual([
-    ...teams.map((team) => team.name),
+    "Team 12",
+    "Team 3",
+    "Team 1",
+    ...teams
+      .filter(({ id }) => !["12", "3", "1"].includes(id))
+      .map(({ name }) => name),
     "Pool 1",
     "Pool 2",
     "Pool 3",

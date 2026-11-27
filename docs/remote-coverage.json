@@ -423,6 +423,7 @@
       "operations": [
         "mappoolWorkspace",
         "staffAccess",
+        "staffDraft",
         "staffFixtures",
         "staffTeams",
         "streamingWorkspace",
@@ -436,6 +437,7 @@
         "src/lib/tournament-reads.ts#tournamentForAdmin",
         "src/lib/tournament-reads.ts#tournamentList",
         "src/lib/team-reads.ts#staffTeams",
+        "src/lib/draft-reads.ts#staffDraft",
         "src/lib/fixture-reads.ts#staffFixtures",
         "src/lib/mappool-reads.ts#mappoolWorkspace",
         "src/lib/streaming-workspace.ts#streamingWorkspace"
