@@ -57,6 +57,7 @@ import { ArchiveRosterSources } from "./archive-source-records";
 import { Avatar } from "./avatar";
 import { PlayerCard } from "./player-card";
 import { EventSchedule } from "./event-schedule";
+import { DraftRoundResults } from "./draft-round-results";
 import { RulesHandbook } from "./rules-handbook";
 import { RulesSection } from "./rules-section";
 import { PageHeading } from "./ui";
@@ -910,43 +911,19 @@ async function HistoricalArchiveContent({
           )}
         </div>
       ) : (
-        <div className="archive-draft">
-          {[...new Set(a.picks.map((p) => p.round))]
-            .sort((a, b) => a - b)
-            .map((round) => (
-              <section className="archive-draft-round" key={round}>
-                <header>
-                  <h2>{tr("Round {round}", { round })}</h2>
-                  <span className="muted small">{`Tier ${round}`}</span>
-                </header>
-                <ol className="archive-draft-picks">
-                  {a.picks
-                    .filter((p) => p.round === round)
-                    .sort((a, b) => a.pick - b.pick)
-                    .map((pick) => {
-                      const p = player(pick.osuId);
-                      return (
-                        <li key={p.osuId} value={pick.pick}>
-                          <span
-                            className="archive-pick-number"
-                            aria-label={tr("Pick {pick}", { pick: pick.pick })}
-                          >
-                            {String(pick.pick).padStart(2, "0")}
-                          </span>
-                          <Avatar osuId={p.osuId} username={p.username} />
-                          <div>
-                            <strong>{playerLink(p)}</strong>
-                            <span className="small muted">
-                              {teamLink(pick.teamId)}
-                            </span>
-                          </div>
-                        </li>
-                      );
-                    })}
-                </ol>
-              </section>
-            ))}
-        </div>
+        <DraftRoundResults
+          picks={a.picks.map((pick) => {
+            const participant = player(pick.osuId);
+            return {
+              id: `${pick.round}:${pick.pick}:${pick.osuId}`,
+              round: pick.round,
+              position: pick.pick,
+              player: participant,
+              playerLabel: playerLink(participant),
+              teamLabel: teamLink(pick.teamId),
+            };
+          })}
+        />
       );
   } else if (section === "rules") {
     title = tr("Rules");

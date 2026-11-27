@@ -1,6 +1,7 @@
 import { useAppTranslations } from "@/i18n/shared";
-import type { DraftBoard } from "@/lib/draft-types";
+import type { BroadcastBoard } from "@/lib/draft-types";
 import { DraftOverview } from "./draft-overview";
+import { DraftRoundResults } from "./draft-round-results";
 import { OclrLogo } from "./oclr-logo";
 export const draftLabels = {
   setup: "Setup",
@@ -15,7 +16,7 @@ export function DraftBoardView({
   board,
   privateTiers,
 }: {
-  board: DraftBoard;
+  board: BroadcastBoard;
   privateTiers?: ReadonlyMap<number, number>;
 }) {
   const tr = useAppTranslations();
@@ -61,72 +62,45 @@ export function DraftBoardView({
       {privateTiers ? (
         <DraftOverview board={board} tiers={privateTiers} privatePreview />
       ) : (
-        <div className="draft-layout">
-          <section aria-label={tr("Published rosters")}>
-            <div className="section-title">
-              <h2>{tr("Team rosters")}</h2>
-              <span className="muted small">
-                {tr("Published draft progress")}
-              </span>
-            </div>
-            <div className="roster-grid">
-              {board.rosters.map((r) => (
-                <article className="roster-panel" key={r.team.id}>
-                  <h3>{r.team.name}</h3>
-                  <p className="eyebrow">
-                    {tr("Captain: ")}
-                    {r.team.captain.username}
-                  </p>
-                  <ul>
-                    {r.players.map((p) => (
-                      <li key={p.osuId}>
-                        <a
-                          href={`https://osu.ppy.sh/users/${p.osuId}`}
-                          className="text-link"
-                        >
-                          {p.username}
-                        </a>
-                        {p.osuId === r.team.captain.osuId && (
-                          <span className="muted small">{tr("Captain")}</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </article>
-              ))}
-            </div>
-          </section>
+        <>
+          <DraftOverview
+            board={board}
+            tiers={
+              new Map([
+                ...board.rosters.map(
+                  ({ team }) => [team.captain.osuId, 0] as const,
+                ),
+                ...board.picks.flatMap((pick) =>
+                  pick.tier === undefined
+                    ? []
+                    : [[pick.player.osuId, pick.tier] as const],
+                ),
+              ])
+            }
+            rostersOnly
+          />
           <section
-            className="pick-history"
             aria-label={tr("Published pick history")}
+            aria-live="polite"
+            aria-relevant="additions"
           >
             <h2>{tr("Pick history")}</h2>
             {board.picks.length ? (
-              <ol
-                aria-live="polite"
-                aria-relevant="additions"
-                className="draft-picks"
-              >
-                {board.picks.map((p) => (
-                  <li key={p.id}>
-                    <span className="eyebrow">
-                      {String(p.turnIndex + 1).padStart(2, "0")}
-                    </span>
-                    <div>
-                      <strong>{p.player.username}</strong>
-                      <p>
-                        {p.team.name} {tr(" · Captain ")}
-                        {p.team.captain.username}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
+              <DraftRoundResults
+                picks={board.picks.map((pick) => ({
+                  id: pick.id,
+                  round: pick.roundPosition?.round,
+                  position: pick.roundPosition?.position ?? pick.turnIndex + 1,
+                  player: pick.player,
+                  playerLabel: pick.player.username,
+                  teamLabel: pick.team.name,
+                }))}
+              />
             ) : (
               <p className="muted small">{tr("No picks published yet.")}</p>
             )}
           </section>
-        </div>
+        </>
       )}
       {board.pool && (
         <section className="section-space">

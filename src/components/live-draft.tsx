@@ -31,7 +31,7 @@ export function LiveDraft({
     version: number;
     sessionId: string;
   } | null>(null);
-  const endpoint = `/api/tournaments/${slug}/draft${captainId ? "/captain" : ""}`;
+  const endpoint = `/api/tournaments/${slug}/draft${captainId ? "/captain" : "?results=1"}`;
   const {
     value: board,
     connected,

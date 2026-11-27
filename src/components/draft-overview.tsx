@@ -46,19 +46,21 @@ export function DraftOverview({
   ownTeamId,
   tiers,
   privatePreview = false,
+  rostersOnly = false,
 }: {
   board: Pick<DraftBoard, "rosters" | "picks" | "activeTeam">;
   ownTeamId?: string;
   privatePreview?: boolean;
+  rostersOnly?: boolean;
   tiers: ReadonlyMap<number, number>;
 }) {
   const tr = useAppTranslations();
-  const picks = [...board.picks].reverse();
+  const picks = rostersOnly ? [] : [...board.picks].reverse();
   return (
     <div className="captain-draft-overview">
       <section
         className="captain-roster-section"
-        aria-label={tr("Team rosters")}
+        aria-label={rostersOnly ? tr("Published rosters") : tr("Team rosters")}
       >
         <div className="draft-room-heading">
           <h2>{tr("Team rosters")}</h2>
@@ -69,6 +71,11 @@ export function DraftOverview({
           )}
           {privatePreview && (
             <span className="muted small">{tr("Private roster preview")}</span>
+          )}
+          {rostersOnly && (
+            <span className="muted small">
+              {tr("Published draft progress")}
+            </span>
           )}
         </div>
         <div className="captain-rosters">
@@ -106,23 +113,25 @@ export function DraftOverview({
             ))}
         </div>
       </section>
-      <section
-        className="captain-history"
-        data-empty={!picks.length}
-        aria-label={
-          privatePreview ? tr("Pick history") : tr("Published pick history")
-        }
-      >
-        <div className="draft-room-heading">
-          <h2>{tr("Pick history")}</h2>
-          {picks.length > 0 && <span className="badge">{picks.length}</span>}
-        </div>
-        {picks.length ? (
-          <PickList picks={picks} label={tr("Pick history")} />
-        ) : (
-          <p className="muted small">{tr("No picks published yet.")}</p>
-        )}
-      </section>
+      {!rostersOnly && (
+        <section
+          className="captain-history"
+          data-empty={!picks.length}
+          aria-label={
+            privatePreview ? tr("Pick history") : tr("Published pick history")
+          }
+        >
+          <div className="draft-room-heading">
+            <h2>{tr("Pick history")}</h2>
+            {picks.length > 0 && <span className="badge">{picks.length}</span>}
+          </div>
+          {picks.length ? (
+            <PickList picks={picks} label={tr("Pick history")} />
+          ) : (
+            <p className="muted small">{tr("No picks published yet.")}</p>
+          )}
+        </section>
+      )}
     </div>
   );
 }

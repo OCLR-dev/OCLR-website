@@ -5,7 +5,7 @@ import { draftBoardTiers, draftRoundPositions } from "./award-tiers";
 import { getPublicEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { releasedDraftData } from "./draft-reads";
-import type { BroadcastBoard, DraftIdentity } from "./draft-types";
+import type { BroadcastBoard, DraftBoard, DraftIdentity } from "./draft-types";
 import { frontendResource } from "./frontend-resource";
 import { getOsuUserProfile, PROFILE_TTL_MS } from "./osu-profiles";
 import { readListedPlayerRatings } from "./listed-player-ratings";
@@ -53,6 +53,43 @@ async function readFeaturedPlayer(
   });
 }
 
+function withPublishedDraftRounds(
+  snapshot: DraftBoard,
+  turnSequence: string[],
+): BroadcastBoard {
+  const tiers = draftBoardTiers(snapshot, turnSequence);
+  const positions = draftRoundPositions(turnSequence);
+  const activeRound =
+    snapshot.activeTeam &&
+    snapshot.activeTeam.id === turnSequence[snapshot.turnIndex]
+      ? positions.get(snapshot.turnIndex)
+      : undefined;
+  return {
+    ...snapshot,
+    ...(activeRound ? { activeRound } : {}),
+    picks: snapshot.picks.map((pick) => {
+      const tier = tiers.get(pick.player.osuId);
+      const roundPosition = tier ? positions.get(pick.turnIndex) : undefined;
+      return {
+        ...pick,
+        ...(tier ? { tier } : {}),
+        ...(roundPosition ? { roundPosition } : {}),
+      };
+    }),
+  };
+}
+
+export async function publicDraftResults(
+  slug: string,
+): Promise<BroadcastBoard | null> {
+  if (remoteMode()) return publicBroadcastDraft(slug);
+  if (!(await getPublicEdition(slug)) || !process.env.DATABASE_URL) return null;
+  const released = await releasedDraftData(slug, true);
+  return released
+    ? withPublishedDraftRounds(released.snapshot, released.turnSequence)
+    : null;
+}
+
 /** Enrich published identities from saved data. Only the featured player's
  * basic osu! profile may refresh after the response. Ratings stay cache-only. */
 async function databasePublicBroadcastDraft(
@@ -63,34 +100,18 @@ async function databasePublicBroadcastDraft(
   if (!edition || !process.env.DATABASE_URL) return null;
   const released = await releasedDraftData(slug, true);
   if (!released) return null;
-  const { snapshot, turnSequence } = released;
-  const tiers = draftBoardTiers(snapshot, turnSequence);
-  const positions = draftRoundPositions(turnSequence);
-  const activeRound =
-    snapshot.activeTeam &&
-    snapshot.activeTeam.id === turnSequence[snapshot.turnIndex]
-      ? positions.get(snapshot.turnIndex)
-      : undefined;
-  const latest = snapshot.picks.at(-1);
+  const board = withPublishedDraftRounds(
+    released.snapshot,
+    released.turnSequence,
+  );
+  const latest = board.picks.at(-1);
   const featured = latest?.player.osuId;
-  const featuredPlayer =
-    featured === undefined
-      ? {}
-      : await readFeaturedPlayer(featured, edition).catch(() => ({}));
-  const board: BroadcastBoard = {
-    ...snapshot,
-    ...(activeRound ? { activeRound } : {}),
-    picks: snapshot.picks.map((pick) => {
-      const tier = tiers.get(pick.player.osuId);
-      const roundPosition = tier ? positions.get(pick.turnIndex) : undefined;
-      return {
-        ...pick,
-        ...(tier ? { tier } : {}),
-        ...(roundPosition ? { roundPosition } : {}),
-        ...(pick.id === latest?.id ? featuredPlayer : {}),
-      };
-    }),
-  };
+  if (latest && featured !== undefined) {
+    const featuredPlayer = await readFeaturedPlayer(featured, edition).catch(
+      () => ({}),
+    );
+    board.picks[board.picks.length - 1] = { ...latest, ...featuredPlayer };
+  }
   const identities = [
     ...board.picks.map((p) => p.player),
     ...board.rosters.flatMap((r) => [r.team.captain, ...r.players]),

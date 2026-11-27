@@ -2,7 +2,7 @@ import { liveSnapshot } from "@/lib/live-snapshot";
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { after, NextResponse } from "next/server";
 import { publicDraft } from "@/lib/draft-reads";
-import { publicBroadcastDraft } from "@/lib/broadcast";
+import { publicBroadcastDraft, publicDraftResults } from "@/lib/broadcast";
 import { apiError } from "@/lib/http";
 async function readGET(
   request: Request,
@@ -17,7 +17,9 @@ async function readGET(
             edition,
             query.get("live") === "1" ? undefined : after,
           )
-        : await publicDraft(edition);
+        : query.get("results") === "1"
+          ? await publicDraftResults(edition)
+          : await publicDraft(edition);
     return NextResponse.json(board, {
       headers: { "Cache-Control": "no-store" },
     });

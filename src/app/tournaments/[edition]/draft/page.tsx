@@ -5,7 +5,7 @@ import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { assertReadCapability } from "@/lib/auth/staff";
 import { requireUser } from "@/lib/auth/user";
-import { publicDraft } from "@/lib/draft-reads";
+import { publicDraftResults } from "@/lib/broadcast";
 import { remotePage } from "@/lib/remote-page";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
@@ -35,7 +35,7 @@ async function Issue271Page({
       return (
         <LiveDraft
           slug={edition}
-          initial={await publicDraft(edition)}
+          initial={await publicDraftResults(edition)}
           presenter
         />
       );
@@ -56,7 +56,7 @@ async function Issue271Page({
       )}
       <LiveDraft
         slug={edition}
-        initial={await publicDraft(edition)}
+        initial={await publicDraftResults(edition)}
         presenter={presenter}
       />
     </>
