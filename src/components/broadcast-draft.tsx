@@ -292,6 +292,8 @@ export function BroadcastDraft({
     maximumFractionDigits: 2,
   });
   const complete = board?.state === "completed" || board?.state === "finalized";
+  const selecting =
+    connected && board?.state === "live" && board.activeTeam != null;
   return (
     <div
       className={styles.broadcast}
@@ -454,13 +456,22 @@ export function BroadcastDraft({
           data-state={board?.state ?? "waiting"}
           aria-label={tr("Current published captain turn")}
         >
-          <p className={styles.stageLabel}>
-            {complete
-              ? tr("DRAFT COMPLETE")
-              : board?.state === "paused"
-                ? tr("ON HOLD")
-                : tr("Next pick")}
-          </p>
+          <div className={styles.turnHeading}>
+            <p className={styles.stageLabel}>
+              {complete
+                ? tr("DRAFT COMPLETE")
+                : board?.state === "paused"
+                  ? tr("ON HOLD")
+                  : tr("Next pick")}
+            </p>
+            {selecting && (
+              <span
+                className={styles.pickingIndicator}
+                role="img"
+                aria-label={tr("Captain is picking")}
+              />
+            )}
+          </div>
           <h2>
             {board?.activeTeam?.name ??
               (complete

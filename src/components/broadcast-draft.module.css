@@ -296,6 +296,35 @@
   flex-direction: column;
   overflow: hidden;
 }
+.turnHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+.turnHeading .stageLabel {
+  margin-bottom: 0;
+}
+.pickingIndicator {
+  box-sizing: border-box;
+  inline-size: clamp(1rem, 1.4vw, 1.5rem);
+  aspect-ratio: 1;
+  flex: none;
+  border: 2px solid #e9b8fc40;
+  border-top-color: #e9b8fc;
+  border-right-color: #e9b8fc;
+  border-radius: 50%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pickingIndicator {
+    animation: picking 1s linear infinite;
+  }
+}
+@keyframes picking {
+  to {
+    transform: rotate(1turn);
+  }
+}
 .turn h2 {
   font-size: clamp(20px, 1.8vw, 34px);
   margin: 8px 0 18px;
