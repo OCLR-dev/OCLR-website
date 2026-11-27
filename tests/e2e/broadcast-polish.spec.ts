@@ -165,7 +165,10 @@ test.describe("OBS identity and one-time transitions", () => {
       );
       await expect(page.locator("[data-profile-status]")).toContainText("—");
       await fits(page);
-      await expect(page.locator("[data-ratings] figure svg")).toHaveCount(0);
+      await expect(page.locator("[data-ratings] figure svg")).toHaveCount(2);
+      await expect(
+        page.locator("[data-motion-radar] polygon[opacity='0']"),
+      ).toHaveCount(2);
       expect(
         (
           await new AxeBuilder({ page })
@@ -187,19 +190,54 @@ test.describe("OBS identity and one-time transitions", () => {
     test.skip(isMobile);
     test.setTimeout(120000);
     const initial = await seed(page);
+    initial.picks[0].ratings = {
+      otr: null,
+      sip: null,
+      etx: 2,
+      etxMods: { NM: 2, HD: 2, HR: 2, DT: 2, FM: 2 },
+      sipSkills: {},
+    };
     let board: DraftBoard | null = structuredClone(initial);
     let fail = false;
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await page.addInitScript(() => {
       const original = Element.prototype.animate;
-      Object.assign(window, { broadcastAnimations: [] });
+      const clone = Node.prototype.cloneNode;
+      const sceneCopies: string[] = [];
+      const statRolls: {
+        stat: string;
+        text: string;
+        delay: number;
+        duration: number;
+      }[] = [];
+      Object.assign(window, {
+        broadcastAnimations: [],
+        broadcastSceneCopies: sceneCopies,
+        broadcastStatRolls: statRolls,
+      });
+      Node.prototype.cloneNode = function (deep) {
+        if (
+          this instanceof HTMLElement &&
+          this.matches("[data-pick-feature]")
+        ) {
+          sceneCopies.push(this.textContent ?? "");
+        }
+        return clone.call(this, deep);
+      };
       Element.prototype.animate = function (frames, options) {
         const id = typeof options === "object" ? options?.id : undefined;
         if (id?.startsWith("oclr-"))
           (
             window as unknown as { broadcastAnimations: string[] }
           ).broadcastAnimations.push(id);
+        if (id === "oclr-stat-roll" && options && typeof options === "object")
+          statRolls.push({
+            stat: this.getAttribute("data-motion-number")!,
+            text: this.textContent!,
+            delay: Number(options.delay),
+            duration: Number(options.duration),
+          });
         return original.call(this, frames, options);
       };
     });
@@ -215,6 +253,12 @@ test.describe("OBS identity and one-time transitions", () => {
     await page.goto(overlay);
     await page.waitForTimeout(2300);
     expect(await animated()).toEqual([]);
+    const etx = page.locator('[data-pick-feature] [data-motion-number="etx"]');
+    await expect(etx).toHaveText("2.00");
+    const grid = await page
+      .locator("[data-ratings] svg > polygon")
+      .first()
+      .elementHandle();
     function append(id: string, playerId: number) {
       const team = board!.activeTeam!;
       const pick = {
@@ -225,6 +269,13 @@ test.describe("OBS identity and one-time transitions", () => {
           osuId: playerId,
           username: `New public player ${playerId}`,
           profile: initial.picks[0].player.profile,
+        },
+        ratings: {
+          otr: null,
+          sip: 126,
+          etx: 8,
+          etxMods: { NM: 8, HD: 8, HR: 8, DT: 8, FM: 8 },
+          sipSkills: {},
         },
       };
       board = {
@@ -247,16 +298,46 @@ test.describe("OBS identity and one-time transitions", () => {
     expect(await animated()).toEqual(
       expect.arrayContaining([
         "oclr-pick",
-        "oclr-pick-ratings",
+        "oclr-stat-roll",
+        "oclr-sweep",
         "oclr-outgoing-pick",
         "oclr-turn",
         "oclr-history",
       ]),
     );
-    await page.waitForTimeout(1000);
+    const statRolls = await page.evaluate(
+      () =>
+        (window as unknown as { broadcastStatRolls: unknown[] })
+          .broadcastStatRolls,
+    );
+    expect(statRolls).toEqual([
+      { stat: "pp", text: "8,799", delay: 140, duration: 320 },
+      { stat: "rank", text: "#15,066", delay: 170, duration: 320 },
+      { stat: "sip", text: "126", delay: 230, duration: 320 },
+      { stat: "etx", text: "8.00", delay: 260, duration: 320 },
+    ]);
+    await expect(etx).toHaveText("8.00");
+    await expect(
+      page.locator('[data-motion-radar="etx"] circle').first(),
+    ).toHaveAttribute("cy", "47.2");
+    expect(
+      await grid?.evaluate(
+        (node) =>
+          node === document.querySelector("[data-ratings] svg > polygon"),
+      ),
+    ).toBe(true);
     const count = (await animated()).length;
+    const sceneCopies = () =>
+      page.evaluate(
+        () =>
+          (window as unknown as { broadcastSceneCopies: string[] })
+            .broadcastSceneCopies.length,
+      );
+    const copyCount = await sceneCopies();
+    expect(copyCount).toBeGreaterThan(0);
     await page.waitForTimeout(2300);
     expect((await animated()).length).toBe(count);
+    expect(await sceneCopies()).toBe(copyCount);
     await page.reload();
     await page.waitForTimeout(2300);
     expect(await animated()).toEqual([]);
@@ -296,7 +377,6 @@ test.describe("OBS identity and one-time transitions", () => {
     await page.emulateMedia({ reducedMotion: "no-preference" });
     board = { ...board!, version: board!.version + 1, state: "paused" };
     await expect(page.locator("[data-turn-card]")).toContainText("ON HOLD");
-    expect(await animated()).toContain("oclr-turn");
-    expect((await animated()).filter((x) => x === "oclr-pick")).toHaveLength(0);
+    expect(await animated()).toEqual([]);
   });
 });

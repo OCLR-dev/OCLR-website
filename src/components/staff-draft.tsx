@@ -12,17 +12,24 @@ import { DraftPick } from "./draft-pick";
 import { ConfirmMutation } from "./confirm-mutation";
 import { DraftOrderEditor } from "./draft-order-editor";
 import { DraftBoardView, draftLabels } from "./draft-board";
+import styles from "./staff-draft.module.css";
 function Controls({ slug, data }: { slug: string; data: StaffDraft }) {
   const tr = useAppTranslations();
 
   const state = data.session?.state ?? "setup";
   const version = data.session?.version ?? 0;
   const editing = !data.edition?.lockedAt;
+  const canReset =
+    data.canConfigure &&
+    data.session &&
+    state !== "live" &&
+    (state !== "setup" ||
+      data.members.some(({ membership }) => membership.origin === "draft") ||
+      data.picks.some((pick) => !pick.voidedAt));
   const allowed = [
     ...(data.canConfigure && data.edition?.lockedAt && state !== "finalized"
       ? ["unlock"]
       : []),
-    ...(data.canConfigure && data.session && state !== "live" ? ["reset"] : []),
     ...(state === "ready" && data.session?.turnSequence.length
       ? ["start"]
       : []),
@@ -39,7 +46,6 @@ function Controls({ slug, data }: { slug: string; data: StaffDraft }) {
   ];
   const labels: Record<string, string> = {
     unlock: state === "live" ? tr("Pause and edit") : tr("Unlock draft setup"),
-    reset: tr("Reset draft"),
     start: "Start draft",
     pause: "Pause draft",
     resume: "Resume draft",
@@ -52,7 +58,7 @@ function Controls({ slug, data }: { slug: string; data: StaffDraft }) {
     return {
       command: {
         action,
-        ...(["unlock", "reset"].includes(action)
+        ...(["unlock", "force_reset"].includes(action)
           ? { expectedSetupVersion: data.edition?.setupVersion ?? 0 }
           : {}),
       },
@@ -61,39 +67,42 @@ function Controls({ slug, data }: { slug: string; data: StaffDraft }) {
     };
   }
   return (
-    <section className="panel form-stack">
-      <h2>{tr("Staff controls")}</h2>
-
-      <p className="muted small" role="status">
-        {editing
-          ? tr(
-              "Draft setup is editable. Registration availability is unchanged.",
-            )
-          : tr(
-              "Draft structure is locked. Tournament settings remain editable.",
-            )}
-      </p>
+    <section className={`panel ${styles.controls}`}>
+      <header>
+        <h2>{tr("Staff controls")}</h2>
+        <p className="muted small" role="status">
+          {editing
+            ? tr(
+                "Draft setup is editable. Registration availability is unchanged.",
+              )
+            : tr(
+                "Draft structure is locked. Tournament settings remain editable.",
+              )}
+        </p>
+      </header>
       {(state === "setup" || (state === "paused" && editing)) && (
         <DraftOrderEditor slug={slug} data={data} />
       )}
-      <div className="actions">
-        {allowed.map((action) => (
-          <ConfirmMutation
-            loadingFeedback="button"
-            key={action}
-            requireConfirmation={
-              !["start", "pause", "resume", "unlock"].includes(action)
-            }
-            label={labels[action]}
-            title={`${tr(labels[action])}?`}
-            description={
-              action === "publish"
-                ? tr(
-                    "Release the current approved captain/team state and committed picks. Remaining pool is shown only when separately approved. This does not create a pick.",
-                  )
-                : action === "reset"
+      {allowed.length > 0 && (
+        <div className={styles.actions}>
+          {allowed.map((action) => (
+            <ConfirmMutation
+              loadingFeedback="button"
+              key={action}
+              requireConfirmation={
+                !["start", "pause", "resume", "unlock"].includes(action)
+              }
+              label={labels[action]}
+              title={`${tr(labels[action])}?`}
+              className={
+                ["start", "resume", "finalize"].includes(action)
+                  ? ""
+                  : "secondary"
+              }
+              description={
+                action === "publish"
                   ? tr(
-                      "Return to setup and void confirmed picks. Draft assignments and roster finalization are cleared, and the draft board and team rosters are unpublished. Saved order, registration status, fixtures, match evidence, and audit history are preserved.",
+                      "Release the current approved captain/team state and committed picks. Remaining pool is shown only when separately approved. This does not create a pick.",
                     )
                   : action === "undo"
                     ? tr(
@@ -110,12 +119,29 @@ function Controls({ slug, data }: { slug: string; data: StaffDraft }) {
                         : tr(
                             "Reopen draft setup. Review the existing order and rosters before freezing again.",
                           )
-            }
+              }
+              url={`/api/admin/tournaments/${slug}/draft`}
+              payload={actionPayload(action)}
+            />
+          ))}
+        </div>
+      )}
+      {canReset && (
+        <div className={styles.recovery}>
+          <ConfirmMutation
+            loadingFeedback="button"
+            className={`secondary ${styles.reset}`}
+            label={tr("Force reset draft")}
+            title={tr("Force reset draft")}
+            confirmLabel={tr("Force reset draft")}
+            description={tr(
+              "Return to setup and void confirmed picks. Draft assignments and roster finalization are cleared, and the draft board and team rosters are unpublished. Saved order, registration status, fixtures, match evidence, and audit history are preserved.",
+            )}
             url={`/api/admin/tournaments/${slug}/draft`}
-            payload={actionPayload(action)}
+            payload={actionPayload("force_reset")}
           />
-        ))}
-      </div>
+        </div>
+      )}
     </section>
   );
 }

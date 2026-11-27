@@ -1,10 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   acceptBroadcastSnapshot,
+  draftClosingAction,
+  sameBroadcastSnapshot,
   shouldRevealPick,
   newPublishedPicks,
 } from "../../src/components/broadcast-draft";
-import type { DraftBoard } from "../../src/lib/draft-types";
+import { createBroadcastMotion } from "../../src/components/broadcast-pick-transition";
+import type { BroadcastBoard, DraftBoard } from "../../src/lib/draft-types";
 
 function snapshot(
   version: number,
@@ -34,6 +37,83 @@ function snapshot(
   };
 }
 describe("published broadcast reconciliation", () => {
+  it("keeps the last pick on stage until staff finalizes the rosters", () => {
+    const live = snapshot(3, ["a", "b", "c"]);
+    const completed: DraftBoard = {
+      ...snapshot(4, ["a", "b", "c", "d"]),
+      state: "completed",
+      activeTeam: null,
+    };
+    const finalized = { ...completed, state: "finalized" as const, version: 5 };
+    expect(draftClosingAction(live, completed, true)).toBeNull();
+    expect(draftClosingAction(completed, finalized, true)).toBe("curtain");
+    expect(draftClosingAction(live, finalized, true)).toBe("reveal");
+    expect(
+      draftClosingAction(finalized, { ...finalized, version: 6 }, true),
+    ).toBe("direct");
+  });
+
+  it("skips the curtain for initial loads, reconnects, reduced motion and corrections", () => {
+    const live = snapshot(3, ["a", "b", "c"]);
+    const finalized: DraftBoard = {
+      ...snapshot(5, ["a", "b", "c", "d"]),
+      state: "finalized",
+      activeTeam: null,
+    };
+    expect(draftClosingAction(null, finalized, true)).toBe("direct");
+    expect(draftClosingAction(live, finalized, false)).toBe("direct");
+    expect(
+      draftClosingAction(live, { ...finalized, sessionId: "reset" }, true),
+    ).toBe("direct");
+    expect(
+      draftClosingAction(
+        live,
+        { ...finalized, picks: snapshot(5, ["x", "b", "c", "d"]).picks },
+        true,
+      ),
+    ).toBe("direct");
+    expect(
+      draftClosingAction(finalized, { ...live, version: 6 }, true),
+    ).toBeNull();
+  });
+  it("preserves the displayed snapshot across polling and profile timestamp refreshes", () => {
+    const initial = snapshot(3, ["a"]);
+    const board: BroadcastBoard = {
+      ...initial,
+      picks: [
+        {
+          ...initial.picks[0],
+          player: {
+            ...initial.picks[0].player,
+            profile: {
+              status: "fresh",
+              avatarUrl: null,
+              pp: 4000,
+              globalRank: 30000,
+              fetchedAt: null,
+            },
+          },
+          ratings: {
+            etx: 5,
+            etxMods: { NM: 5 },
+            sip: null,
+            sipSkills: {},
+            otr: null,
+          },
+        },
+      ],
+    };
+    const next = structuredClone(board);
+    expect(sameBroadcastSnapshot(board, next)).toBe(true);
+    next.picks[0].player.profile!.fetchedAt = new Date(0).toISOString();
+    expect(sameBroadcastSnapshot(board, next)).toBe(true);
+    next.picks[0].player.profile!.globalRank = 29000;
+    expect(sameBroadcastSnapshot(board, next)).toBe(false);
+    next.picks[0].player.profile!.globalRank = 30000;
+    next.picks[0].ratings!.etxMods!.NM = 6;
+    expect(sameBroadcastSnapshot(board, next)).toBe(false);
+    expect(sameBroadcastSnapshot(board, null)).toBe(false);
+  });
   it("rejects stale revisions but accepts privacy retractions, visibility changes and new sessions", () => {
     expect(acceptBroadcastSnapshot(snapshot(3, ["a"]), snapshot(2))).toBe(
       false,
@@ -69,6 +149,13 @@ describe("published broadcast reconciliation", () => {
     expect(shouldRevealPick(snapshot(3, ["a"]), null)).toBe(false);
   });
   it("rejects corrections, duplicate IDs, aborted drafts and reordered histories", () => {
+    const previous = snapshot(2, ["a"]);
+    const appended = snapshot(3, ["a", "b"]);
+    const corrected = {
+      ...appended,
+      picks: [{ ...appended.picks[0], tier: 2 }, appended.picks[1]],
+    };
+    expect(newPublishedPicks(previous, corrected)).toEqual([]);
     expect(
       newPublishedPicks(snapshot(2, ["a", "b"]), snapshot(3, ["a", "c", "d"])),
     ).toEqual([]);
@@ -87,5 +174,79 @@ describe("published broadcast reconciliation", () => {
         (p) => p.id,
       ),
     ).toEqual(["b", "c"]);
+  });
+});
+
+describe("broadcast reveal timing", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
+  function setupReveal() {
+    vi.useFakeTimers();
+    vi.stubGlobal("window", globalThis);
+    let request = 0;
+    const queued = new Map<number, FrameRequestCallback>();
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+      queued.set(++request, callback);
+      return request;
+    });
+    vi.stubGlobal("cancelAnimationFrame", (id: number) => queued.delete(id));
+    const frame = (now: number) => {
+      const callbacks = Array.from(queued.values());
+      queued.clear();
+      for (const callback of callbacks) callback(now);
+    };
+    const animations = ["border-glow", "star-sweep"].map((part) => ({
+      part,
+      id: `oclr-${part}`,
+      pause: vi.fn(),
+      cancel: vi.fn(),
+      currentTime: null as number | null,
+      startTime: null as number | null,
+    }));
+    const root = {
+      dataset: {},
+      querySelector: (selector: string) => {
+        const animation = animations.find(
+          ({ part }) => selector === `[data-${part}]`,
+        );
+        return animation ? { animate: () => animation } : null;
+      },
+      querySelectorAll: () => [],
+      getAnimations: () =>
+        animations.filter(({ pause }) => pause.mock.calls.length),
+      removeAttribute: vi.fn(),
+    } as unknown as HTMLElement;
+    const motion = createBroadcastMotion();
+    motion.reveal(root, undefined, undefined, true, true);
+    return { animations, frame, motion, root };
+  }
+
+  it("keeps reveal effects on their initial frame until their shared start", () => {
+    const { animations, frame } = setupReveal();
+    frame(16.67);
+    for (const animation of animations) {
+      expect(animation.pause).toHaveBeenCalledOnce();
+      expect(animation.currentTime).toBe(0);
+      expect(animation.startTime).toBeNull();
+    }
+
+    frame(250);
+    expect(animations.map(({ startTime }) => startTime)).toEqual([250, 250]);
+  });
+
+  it("cancels a staged reveal before any effect starts", () => {
+    const { animations, frame, motion, root } = setupReveal();
+    frame(16.67);
+    motion.stop(root);
+    frame(250);
+
+    expect(motion.running).toBe(false);
+    for (const animation of animations) {
+      expect(animation.cancel).toHaveBeenCalledOnce();
+      expect(animation.startTime).toBeNull();
+    }
   });
 });

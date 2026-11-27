@@ -286,13 +286,16 @@ test.describe("editable tournament and explicit draft recovery", () => {
       .getByRole("button", { name: "Pause and edit", exact: true })
       .click();
     await expect(
-      page.getByRole("button", { name: "Reset draft", exact: true }),
+      page.getByRole("button", { name: "Force reset draft", exact: true }),
     ).toBeVisible();
     await page
-      .getByRole("button", { name: "Reset draft", exact: true })
+      .getByRole("button", { name: "Force reset draft", exact: true })
       .click();
-    await expect(page.getByRole("dialog")).toContainText("Picks are voided");
-    await page.getByRole("button", { name: "Confirm", exact: true }).click();
+    const resetDialog = page.getByRole("dialog", { name: "Force reset draft" });
+    await expect(resetDialog).toContainText("void confirmed picks");
+    await resetDialog
+      .getByRole("button", { name: "Force reset draft", exact: true })
+      .click();
     await expect(
       page.getByRole("button", { name: "Start draft", exact: true }),
     ).toBeVisible();
