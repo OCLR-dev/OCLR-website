@@ -69,6 +69,13 @@ describe("published broadcast reconciliation", () => {
     expect(shouldRevealPick(snapshot(3, ["a"]), null)).toBe(false);
   });
   it("rejects corrections, duplicate IDs, aborted drafts and reordered histories", () => {
+    const previous = snapshot(2, ["a"]);
+    const appended = snapshot(3, ["a", "b"]);
+    const corrected = {
+      ...appended,
+      picks: [{ ...appended.picks[0], tier: 2 }, appended.picks[1]],
+    };
+    expect(newPublishedPicks(previous, corrected)).toEqual([]);
     expect(
       newPublishedPicks(snapshot(2, ["a", "b"]), snapshot(3, ["a", "c", "d"])),
     ).toEqual([]);

@@ -105,7 +105,8 @@ export function newPublishedPicks(
         current.turnIndex === pick.turnIndex &&
         current.player.osuId === pick.player.osuId &&
         current.team.id === pick.team.id &&
-        current.tier === pick.tier
+        ("tier" in current ? current.tier : undefined) ===
+          ("tier" in pick ? pick.tier : undefined)
       );
     })
   )
