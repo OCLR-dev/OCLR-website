@@ -312,6 +312,9 @@ export function BroadcastDraft({
       refreshBroadcastProfile: true,
     },
   );
+  const seasonEleven = slug === "s11" || slug === "dev-s11";
+  const complete = board?.state === "completed" || board?.state === "finalized";
+  const showClosing = seasonEleven && complete;
   const previous = useRef(initial);
   const wasConnected = useRef(available);
   const wasReceived = useRef(false);
@@ -361,19 +364,20 @@ export function BroadcastDraft({
     const sameSession = old && board && old.sessionId === board.sessionId;
     if (!sameSession && board) seen.current.clear();
     const additions =
-      continuous && !matchMedia("(prefers-reduced-motion: reduce)").matches
+      !showClosing &&
+      continuous &&
+      !matchMedia("(prefers-reduced-motion: reduce)").matches
         ? newPublishedPicks(old, board).filter(
             (pick) => !seen.current.has(pick.id),
           )
         : [];
     // Read the new layout before stopping or starting any DOM effects.
     const nextScene =
-      board &&
-      (board !== old || !scene.current || sceneLocale.current !== locale)
-        ? captureBroadcastScene(overlay)
-        : board
-          ? scene.current
-          : undefined;
+      showClosing || !board
+        ? undefined
+        : board !== old || !scene.current || sceneLocale.current !== locale
+          ? captureBroadcastScene(overlay)
+          : scene.current;
     if (additions.length && board) {
       const previousPick = old?.picks.at(-1);
       motion.reveal(
@@ -385,6 +389,7 @@ export function BroadcastDraft({
         old?.activeTeam?.id === board.activeTeam?.id,
       );
     } else if (
+      showClosing ||
       !continuous ||
       !sameSession ||
       old.version !== board.version ||
@@ -404,11 +409,11 @@ export function BroadcastDraft({
     wasReceived.current = received;
     if (connected && received && board !== old && !document.hidden)
       suspended.current = false;
-  }, [board, connected, received, locale, motion]);
-  const latest = board?.picks.at(-1);
-  const seasonEleven = slug === "s11" || slug === "dev-s11";
+  }, [board, connected, received, locale, motion, showClosing]);
+  const latest = showClosing ? undefined : board?.picks.at(-1);
   const waitingForFirstPick = !latest && board?.state === "live";
-  const showFirstPickHeadline = seasonEleven && waitingForFirstPick;
+  const showStageHeadline =
+    showClosing || (seasonEleven && waitingForFirstPick);
   const showHeaderLiru =
     seasonEleven &&
     latest !== undefined &&
@@ -421,7 +426,6 @@ export function BroadcastDraft({
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-  const complete = board?.state === "completed" || board?.state === "finalized";
   const order = board?.turnCount
     ? Math.min(board.turnIndex + (complete ? 0 : 1), board.turnCount)
     : null;
@@ -469,8 +473,14 @@ export function BroadcastDraft({
         <section
           className={styles.selection}
           data-featured
-          data-first-pick-waiting={showFirstPickHeadline || undefined}
-          aria-label={tr("Latest published selection")}
+          data-stage-headline={
+            showClosing ? "closing" : showStageHeadline ? "opening" : undefined
+          }
+          aria-label={
+            showClosing
+              ? tr("Draft complete!")
+              : tr("Latest published selection")
+          }
         >
           <span
             className={styles.borderGlow}
@@ -484,7 +494,7 @@ export function BroadcastDraft({
           />
           <div className={styles.featureViewport}>
             <div data-pick-feature>
-              {!showFirstPickHeadline && (
+              {!showStageHeadline && (
                 <div className={styles.selectionHeading}>
                   <p
                     className={styles.stageLabel}
@@ -529,13 +539,15 @@ export function BroadcastDraft({
                   <h2
                     data-feature-part={latest ? "name" : undefined}
                     className={
-                      showFirstPickHeadline ? styles.firstPick : undefined
+                      showStageHeadline ? styles.stageHeadline : undefined
                     }
                   >
                     {latest?.player.username ??
-                      (showFirstPickHeadline
-                        ? tr("Starting soon...")
-                        : tr("No picks published yet."))}
+                      (showClosing
+                        ? tr("Draft complete!")
+                        : showStageHeadline
+                          ? tr("Starting soon...")
+                          : tr("No picks published yet."))}
                   </h2>
                   {latest ? (
                     <>
@@ -641,7 +653,7 @@ export function BroadcastDraft({
               </div>
             </div>
           </div>
-          {showFirstPickHeadline && <LiruRotation position="selection" />}
+          {showStageHeadline && <LiruRotation position="selection" />}
         </section>
         <section
           className={styles.turn}
@@ -722,18 +734,29 @@ export function BroadcastDraft({
         <section
           className={styles.ratings}
           data-ratings
+          data-draft-closing={showClosing || undefined}
           aria-labelledby="broadcast-ratings-heading"
         >
-          <h2 id="broadcast-ratings-heading">{tr("Player ratings")}</h2>
-          {latest ? (
-            <BroadcastRatingRadars ratings={ratings} />
-          ) : (
-            <p className={styles.caption}>
-              {waitingForFirstPick
-                ? tr("Draft in progress...")
-                : tr("No rating data")}
-            </p>
-          )}
+          <h2
+            id="broadcast-ratings-heading"
+            className={showClosing ? styles.closingMessage : undefined}
+          >
+            {showClosing
+              ? tr(
+                  "Captains, gather your teams.\nLiru wishes you success in OCLR S11!",
+                )
+              : tr("Player ratings")}
+          </h2>
+          {!showClosing &&
+            (latest ? (
+              <BroadcastRatingRadars ratings={ratings} />
+            ) : (
+              <p className={styles.caption}>
+                {waitingForFirstPick
+                  ? tr("Draft in progress...")
+                  : tr("No rating data")}
+              </p>
+            ))}
         </section>
         <section
           className={styles.history}
