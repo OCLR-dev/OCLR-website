@@ -6,8 +6,13 @@ import {
 
 const revealEase = "cubic-bezier(0.22, 1, 0.36, 1)";
 const radarEase = [0.22, 1, 0.36, 1] as const;
-const numberDelay = 220;
-const numberDuration = 520;
+const statRollDelay = 140;
+const statRollStagger = 30;
+const statRollDuration = 320;
+const rollIn = [
+  { transform: "translateY(100%)", opacity: 0 },
+  { transform: "translateY(0)", opacity: 1 },
+];
 const radarDelay = { etx: 220, sip: 300 };
 const radarDuration = 680;
 const historyDelay = 140;
@@ -18,7 +23,6 @@ const featureParts = [
   ["heading", 110, 400, "translateY(18px)"],
   ["name", 160, 480, "translateX(36px)"],
   ["appearance", 200, 400, "translateX(24px)"],
-  ["stats", 140, 220, "translateY(12px)"],
   ["team", 240, 460, "translateX(28px)"],
 ] as const;
 
@@ -29,7 +33,6 @@ const savedLayers = [
   "data-turn-digit",
 ] as const;
 
-type NumberFrame = { number: number | null; text: string };
 type Layer = (typeof savedLayers)[number];
 type HistoryRow = { top: number; element: HTMLElement; copy: HTMLElement };
 type Scene = {
@@ -202,26 +205,6 @@ function fraction(elapsed: number, delay: number, duration: number) {
   return Math.min(1, Math.max(0, (elapsed - delay) / duration));
 }
 
-function readNumbers(root: HTMLElement) {
-  return Array.from(
-    root.querySelectorAll<HTMLElement>(
-      "[data-pick-feature] [data-motion-number]",
-    ),
-    (element) => ({
-      element,
-      glow: element.parentElement?.querySelector("[data-number-glow]"),
-      id: element.dataset.motionNumber!,
-      target: {
-        number:
-          element.dataset.value === undefined
-            ? null
-            : Number(element.dataset.value),
-        text: element.dataset.valueText!,
-      },
-    }),
-  );
-}
-
 function readRadars(root: HTMLElement) {
   return Array.from(
     root.querySelectorAll<SVGGElement>("[data-motion-radar]"),
@@ -249,16 +232,7 @@ function roll(
   const outgoing = scene?.layers.get(attribute);
   if (incoming?.textContent === outgoing?.textContent) return;
   // The duration includes the brief overlap, without overlapping the text baselines.
-  animate(
-    incoming,
-    "turn",
-    [
-      { transform: "translateY(100%)", opacity: 0 },
-      { transform: "translateY(0)", opacity: 1 },
-    ],
-    330,
-    350,
-  );
+  animate(incoming, "turn", rollIn, 330, 350);
   if (!outgoing || !incoming?.parentElement) return;
   outgoing.dataset.leavingLayer = attribute;
   incoming.parentElement.append(outgoing);
@@ -285,7 +259,6 @@ export function createBroadcastMotion() {
   let request = 0;
   let deadline = 0;
   let refreshAfterInterpolation = false;
-  const numbers = new Map<string, NumberFrame>();
   const radars = new Map<string, RadarFrame>();
   const isRunning = () => request !== 0 || performance.now() < deadline;
 
@@ -303,13 +276,6 @@ export function createBroadcastMotion() {
   }
 
   function sync(root: HTMLElement) {
-    numbers.clear();
-    for (const { id, element, target } of readNumbers(root)) {
-      if (element.textContent !== target.text)
-        element.textContent = target.text;
-      element.style.removeProperty("opacity");
-      numbers.set(id, target);
-    }
     radars.clear();
     for (const { id, target, paint } of readRadars(root)) {
       paint(target);
@@ -321,7 +287,6 @@ export function createBroadcastMotion() {
     root: HTMLElement,
     scene: Scene | undefined,
     nextScene: Scene | undefined,
-    locale: string,
     sameTier: boolean,
     sameTeam: boolean,
   ) {
@@ -336,19 +301,15 @@ export function createBroadcastMotion() {
           before.top + (interrupted ? currentShift(element) : 0),
         );
     }
+    const previousStats = scene?.layers
+      .get("data-pick-feature")
+      ?.querySelectorAll<HTMLElement>("[data-motion-number]");
     if (interrupted) retainVisibleLayers(root, scene);
 
     const previousFeature = scene?.layers.get("data-pick-feature");
     const visibleFeature = root.querySelector<HTMLElement>(
       "[data-pick-feature]",
     );
-    for (const { id } of readNumbers(root)) {
-      const live = previousFeature?.querySelector(
-        `[data-motion-number="${id}"]`,
-      );
-      const display = numbers.get(id);
-      if (live && display) live.textContent = display.text;
-    }
     stop(root);
 
     if (previousFeature && visibleFeature?.parentElement) {
@@ -534,18 +495,20 @@ export function createBroadcastMotion() {
       700,
     );
 
-    const numberJobs = readNumbers(root).map((job) => ({
-      ...job,
-      from: numbers.get(job.id) ?? { number: null, text: "—" },
-      progress: -1,
-      format: new Intl.NumberFormat(
-        job.id === "pp" || job.id === "rank" ? "en-US" : locale,
-        {
-          minimumFractionDigits: job.id === "etx" ? 2 : 0,
-          maximumFractionDigits: job.id === "pp" || job.id === "rank" ? 0 : 2,
-        },
-      ),
-    }));
+    visibleFeature
+      ?.querySelectorAll<HTMLElement>("[data-motion-number]")
+      .forEach((value, index) => {
+        const previous = previousStats?.[index]?.textContent ?? "—";
+        if (value.textContent === "—" && previous === "—") return;
+        const delay = statRollDelay + index * statRollStagger;
+        animate(value, "stat-roll", rollIn, statRollDuration, delay);
+        value.animate([{ color: "#ffffff" }, { color: "#f4f3fc" }], {
+          id: "oclr-stat-settle",
+          duration: 110,
+          delay: delay + statRollDuration,
+          easing: "ease-out",
+        });
+      });
     const radarJobs = readRadars(root).map((job) => {
       const { target } = job;
       const from =
@@ -561,34 +524,10 @@ export function createBroadcastMotion() {
     });
     const interpolationDuration = Math.max(
       0,
-      ...numberJobs.map(({ from, target }) =>
-        from.number === target.number
-          ? 0
-          : numberDelay +
-            (from.number !== null && target.number !== null
-              ? numberDuration
-              : 155),
-      ),
       ...radarJobs.map(({ changing, delay }) =>
         changing ? delay + radarDuration : 0,
       ),
     );
-    for (const { element, glow, from, target } of numberJobs) {
-      element.style.removeProperty("opacity");
-      if (from.number === target.number) continue;
-      animate(
-        glow,
-        "number-glow",
-        [
-          { opacity: 0 },
-          { opacity: 0.9, offset: 0.17 },
-          { opacity: 0.65, offset: 0.65 },
-          { opacity: 0 },
-        ],
-        numberDuration,
-        numberDelay,
-      );
-    }
     for (const { glow, changing, delay } of radarJobs) {
       if (!changing) continue;
       animate(
@@ -605,47 +544,6 @@ export function createBroadcastMotion() {
       );
     }
     function paint(elapsed: number) {
-      const rolling = fraction(elapsed, numberDelay, numberDuration);
-      const easedNumber = ease(rolling, radarEase);
-      for (const job of numberJobs) {
-        const { id, element, glow, from, target, format } = job;
-        const fromNumber = from.number;
-        const targetNumber = target.number;
-        const numeric = fromNumber !== null && targetNumber !== null;
-        const progress =
-          from.number === target.number
-            ? 1
-            : numeric
-              ? rolling
-              : fraction(elapsed, numberDelay, 155);
-        if (progress === job.progress) continue;
-        job.progress = progress;
-        let frame = target;
-        if (numeric && progress < 1) {
-          const number = interpolate(fromNumber, targetNumber, easedNumber);
-          frame = {
-            number,
-            text: `${id === "rank" ? "#" : ""}${format.format(number)}`,
-          };
-        } else if (
-          from.number !== target.number &&
-          (from.number === null || target.number === null)
-        ) {
-          const switchAt = numberDelay + 60;
-          frame = elapsed < switchAt ? from : target;
-          const fade =
-            elapsed < switchAt
-              ? 1 - fraction(elapsed, numberDelay, 60)
-              : fraction(elapsed, switchAt, 95);
-          element.style.opacity = fade === 1 ? "" : String(fade);
-        }
-        if (element.textContent !== frame.text)
-          element.textContent = frame.text;
-        const highlight = frame.number === null ? "" : frame.text;
-        if (glow && glow.textContent !== highlight)
-          glow.textContent = highlight;
-        numbers.set(id, frame);
-      }
       for (const job of radarJobs) {
         const { id, from, target, paint, delay, changing } = job;
         if (!changing) continue;

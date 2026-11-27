@@ -205,9 +205,16 @@ test.describe("OBS identity and one-time transitions", () => {
       const original = Element.prototype.animate;
       const clone = Node.prototype.cloneNode;
       const sceneCopies: string[] = [];
+      const statRolls: {
+        stat: string;
+        text: string;
+        delay: number;
+        duration: number;
+      }[] = [];
       Object.assign(window, {
         broadcastAnimations: [],
         broadcastSceneCopies: sceneCopies,
+        broadcastStatRolls: statRolls,
       });
       Node.prototype.cloneNode = function (deep) {
         if (
@@ -224,6 +231,13 @@ test.describe("OBS identity and one-time transitions", () => {
           (
             window as unknown as { broadcastAnimations: string[] }
           ).broadcastAnimations.push(id);
+        if (id === "oclr-stat-roll" && options && typeof options === "object")
+          statRolls.push({
+            stat: this.getAttribute("data-motion-number")!,
+            text: this.textContent!,
+            delay: Number(options.delay),
+            duration: Number(options.duration),
+          });
         return original.call(this, frames, options);
       };
     });
@@ -258,7 +272,7 @@ test.describe("OBS identity and one-time transitions", () => {
         },
         ratings: {
           otr: null,
-          sip: null,
+          sip: 126,
           etx: 8,
           etxMods: { NM: 8, HD: 8, HR: 8, DT: 8, FM: 8 },
           sipSkills: {},
@@ -284,12 +298,24 @@ test.describe("OBS identity and one-time transitions", () => {
     expect(await animated()).toEqual(
       expect.arrayContaining([
         "oclr-pick",
+        "oclr-stat-roll",
         "oclr-sweep",
         "oclr-outgoing-pick",
         "oclr-turn",
         "oclr-history",
       ]),
     );
+    const statRolls = await page.evaluate(
+      () =>
+        (window as unknown as { broadcastStatRolls: unknown[] })
+          .broadcastStatRolls,
+    );
+    expect(statRolls).toEqual([
+      { stat: "pp", text: "8,799", delay: 140, duration: 320 },
+      { stat: "rank", text: "#15,066", delay: 170, duration: 320 },
+      { stat: "sip", text: "126", delay: 230, duration: 320 },
+      { stat: "etx", text: "8.00", delay: 260, duration: 320 },
+    ]);
     await expect(etx).toHaveText("8.00");
     await expect(
       page.locator('[data-motion-radar="etx"] circle').first(),

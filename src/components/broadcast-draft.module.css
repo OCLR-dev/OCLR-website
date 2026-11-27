@@ -596,26 +596,15 @@
   line-height: 1.1;
   margin: 0;
 }
-.motionStat {
-  position: relative;
+.statRoll {
+  overflow: hidden;
   white-space: nowrap;
 }
-.statMeasure {
+.statRoll > span {
+  display: block;
+}
+[data-outgoing-pick] .statistics {
   visibility: hidden;
-}
-.motionStat [data-motion-number],
-.numberGlow {
-  position: absolute;
-  inset-inline-start: 0;
-  inset-block-start: 0;
-}
-.numberGlow {
-  color: #f3d9ff;
-  text-shadow:
-    0 0 10px #db96ff,
-    0 0 19px #b962fb;
-  pointer-events: none;
-  opacity: 0;
 }
 .history .smallPortrait {
   width: 34px;

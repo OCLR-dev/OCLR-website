@@ -257,28 +257,10 @@ const format = (value: number | null | undefined) =>
         value,
       );
 
-function MotionNumber({
-  id,
-  value,
-  text,
-}: {
-  id: string;
-  value?: number | null;
-  text: string;
-}) {
+function StatRoll({ id, text }: { id: string; text: string }) {
   return (
-    <dd className={styles.motionStat}>
-      <span className={styles.statMeasure} aria-hidden="true">
-        {text}
-      </span>
-      <span
-        data-motion-number={id}
-        data-value={value ?? undefined}
-        data-value-text={text}
-      >
-        {text}
-      </span>
-      <span className={styles.numberGlow} data-number-glow aria-hidden="true" />
+    <dd className={styles.statRoll}>
+      <span data-motion-number={id}>{text}</span>
     </dd>
   );
 }
@@ -384,7 +366,6 @@ export function BroadcastDraft({
         overlay,
         scene.current,
         nextScene,
-        locale,
         previousPick?.tier === board.picks.at(-1)?.tier,
         old?.activeTeam?.id === board.activeTeam?.id,
       );
@@ -565,16 +546,14 @@ export function BroadcastDraft({
                       )}
                       <dl
                         className={styles.statistics}
-                        data-feature-part="stats"
                         data-profile-status={
                           latest.player.profile?.status ?? "loading"
                         }
                       >
                         <div>
                           <dt>PP</dt>
-                          <MotionNumber
+                          <StatRoll
                             id="pp"
-                            value={latest.player.profile?.pp}
                             text={format(latest.player.profile?.pp)}
                           />
                         </div>
@@ -589,9 +568,8 @@ export function BroadcastDraft({
                               </small>
                             )}
                           </dt>
-                          <MotionNumber
+                          <StatRoll
                             id="rank"
-                            value={latest.player.profile?.globalRank}
                             text={
                               latest.player.profile?.globalRank == null
                                 ? "—"
@@ -601,9 +579,8 @@ export function BroadcastDraft({
                         </div>
                         <div>
                           <dt>o!TR</dt>
-                          <MotionNumber
+                          <StatRoll
                             id="otr"
-                            value={ratings?.otr}
                             text={
                               ratings?.otr == null
                                 ? "—"
@@ -613,9 +590,8 @@ export function BroadcastDraft({
                         </div>
                         <div>
                           <dt>{tr("SIP")}</dt>
-                          <MotionNumber
+                          <StatRoll
                             id="sip"
-                            value={ratings?.sip}
                             text={
                               ratings?.sip == null
                                 ? "—"
@@ -625,9 +601,8 @@ export function BroadcastDraft({
                         </div>
                         <div>
                           <dt>{tr("ETX")}</dt>
-                          <MotionNumber
+                          <StatRoll
                             id="etx"
-                            value={ratings?.etx}
                             text={
                               ratings?.etx == null
                                 ? "—"
