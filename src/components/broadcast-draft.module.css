@@ -463,6 +463,7 @@
   font-size: clamp(1.15rem, 2vw, 2.2rem);
   line-height: 1.4;
   margin: 0;
+  text-align: center;
   white-space: pre-line;
   text-wrap: balance;
 }
