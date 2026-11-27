@@ -172,6 +172,7 @@ export function usePoll<T>(
   initial: T | null,
   options?: {
     accept?: (current: T | null, next: T | null) => boolean;
+    equal?: (current: T | null, next: T | null) => boolean;
     credentials?: RequestCredentials;
     initiallyConnected?: boolean;
     refreshBroadcastProfile?: boolean;
@@ -191,7 +192,10 @@ export function usePoll<T>(
         setAuthorizationLost(false);
         setReceived(true);
         setValue((current) =>
-          options?.accept && !options.accept(current, next) ? current : next,
+          (options?.accept && !options.accept(current, next)) ||
+          options?.equal?.(current, next)
+            ? current
+            : next,
         );
         setConnected(true);
       } else {

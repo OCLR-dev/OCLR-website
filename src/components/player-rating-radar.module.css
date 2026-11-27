@@ -208,6 +208,10 @@
   max-width: 23rem;
   min-height: 0;
 }
+.radarGlow {
+  opacity: 0;
+  pointer-events: none;
+}
 @media (max-width: 1000px), (max-height: 650px) {
   .broadcastChart {
     grid-template-rows: minmax(7rem, auto) auto;
