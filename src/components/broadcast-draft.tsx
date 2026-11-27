@@ -103,7 +103,7 @@ function cancelBroadcastTransitions(overlay: HTMLDivElement | null) {
     if (animation.id.startsWith("oclr-")) animation.cancel();
   }
   overlay
-    ?.querySelectorAll("[data-outgoing-pick]")
+    ?.querySelectorAll("[data-outgoing-pick], [data-pick-wipe]")
     .forEach((layer) => layer.remove());
 }
 
