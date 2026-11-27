@@ -78,6 +78,10 @@
   .starlight::before {
     animation: star-twinkle 8s ease-in-out infinite;
   }
+  .broadcast[data-pick-reveal][data-background="opaque"]::before,
+  .broadcast[data-pick-reveal] .starlight::before {
+    animation-play-state: paused;
+  }
 }
 @keyframes galaxy-drift {
   from {
@@ -206,8 +210,8 @@
   z-index: 2;
 }
 .starSweep {
-  inset: 0 auto 0 -12%;
-  width: 65%;
+  inset: 0 auto 0 -4%;
+  width: 38%;
   background:
     radial-gradient(circle at 48% 19%, #fff8 0 1px, transparent 2.5px),
     radial-gradient(circle at 55% 42%, #edccffb3 0 1px, transparent 3px),

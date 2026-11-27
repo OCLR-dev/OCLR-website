@@ -140,12 +140,28 @@ function RatingPlot({
               <stop className={styles.areaTop} offset="0" />
               <stop className={styles.areaBottom} offset="1" />
             </linearGradient>
+            <radialGradient id={`${gradient}-halo`}>
+              <stop
+                offset="0"
+                stopColor="var(--accent-bottom)"
+                stopOpacity="0.22"
+              />
+              <stop
+                offset="1"
+                stopColor="var(--accent-bottom)"
+                stopOpacity="0"
+              />
+            </radialGradient>
           </defs>
-          <g
-            id={`${gradient}-geometry`}
-            data-motion-radar={broadcast}
-            data-radii={JSON.stringify(values)}
-          >
+          <circle
+            cx={center.x}
+            cy={center.y}
+            r={radius}
+            fill={`url(#${gradient}-halo)`}
+            data-radar-glow
+            className={styles.radarGlow}
+          />
+          <g data-motion-radar={broadcast} data-radii={JSON.stringify(values)}>
             <polygon
               className={styles.outline}
               points={geometry.polygon}
@@ -174,11 +190,6 @@ function RatingPlot({
               />
             ))}
           </g>
-          <use
-            href={`#${gradient}-geometry`}
-            data-radar-glow
-            className={styles.radarGlow}
-          />
         </>
       ) : complete ? (
         <>

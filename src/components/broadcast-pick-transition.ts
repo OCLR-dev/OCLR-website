@@ -343,12 +343,15 @@ function roll(
 export function createBroadcastMotion() {
   let request = 0;
   let deadline = 0;
+  let resumeBackground: number | undefined;
   let refreshAfterInterpolation = false;
   const radars = new Map<string, RadarFrame>();
   const isRunning = () => request !== 0 || performance.now() < deadline;
 
   function stop(root: HTMLElement) {
     cancelAnimationFrame(request);
+    window.clearTimeout(resumeBackground);
+    root.removeAttribute("data-pick-reveal");
     request = 0;
     deadline = 0;
     refreshAfterInterpolation = false;
@@ -454,12 +457,12 @@ export function createBroadcastMotion() {
       "closing-sweep",
       [
         {
-          transform: "translateX(-95%) skewX(-20deg) scaleX(1.18)",
+          transform: "translateX(-115%) skewX(-20deg) scaleX(1.18)",
           opacity: 0,
         },
         { opacity: 0.6, offset: 0.29 },
         {
-          transform: "translateX(150%) skewX(-20deg) scaleX(1.18)",
+          transform: "translateX(295%) skewX(-20deg) scaleX(1.18)",
           opacity: 0,
         },
       ],
@@ -509,6 +512,10 @@ export function createBroadcastMotion() {
       "[data-pick-feature]",
     );
     stop(root);
+    root.dataset.pickReveal = "";
+    resumeBackground = window.setTimeout(() => {
+      root.removeAttribute("data-pick-reveal");
+    }, revealDuration);
 
     if (previousFeature && visibleFeature?.parentElement) {
       if (sameTier)
@@ -571,9 +578,9 @@ export function createBroadcastMotion() {
       root.querySelector("[data-star-sweep]"),
       "sweep",
       [
-        { opacity: 0, transform: "translateX(-95%) skewX(-20deg)" },
+        { opacity: 0, transform: "translateX(-115%) skewX(-20deg)" },
         { opacity: 0.95, offset: 0.26 },
-        { opacity: 0, transform: "translateX(150%) skewX(-20deg)" },
+        { opacity: 0, transform: "translateX(295%) skewX(-20deg)" },
       ],
       580,
       0,

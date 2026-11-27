@@ -211,7 +211,6 @@
 .radarGlow {
   opacity: 0;
   pointer-events: none;
-  filter: drop-shadow(0 0 5px var(--accent-bottom));
 }
 @media (max-width: 1000px), (max-height: 650px) {
   .broadcastChart {

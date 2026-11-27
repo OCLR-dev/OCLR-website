@@ -16,7 +16,10 @@ export function radarFrame(values: (number | null)[]): RadarFrame {
   };
 }
 
-export function radarGeometry({ radii, visibility }: RadarFrame) {
+export function radarGeometry(
+  { radii, visibility }: RadarFrame,
+  drawSegments = true,
+) {
   const points = radii.map((value, index) => {
     const angle = (index / radii.length) * 2 * Math.PI - Math.PI / 2;
     const distance = value * radarRadius;
@@ -28,14 +31,16 @@ export function radarGeometry({ radii, visibility }: RadarFrame) {
   return {
     points,
     polygon: points.map(({ x, y }) => `${x},${y}`).join(" "),
-    segments: points
-      .map((point, index) => {
-        const next = (index + 1) % points.length;
-        return visibility[index] > 0 && visibility[next] > 0
-          ? `M ${point.x} ${point.y} L ${points[next].x} ${points[next].y}`
-          : "";
-      })
-      .join(" "),
+    segments: drawSegments
+      ? points
+          .map((point, index) => {
+            const next = (index + 1) % points.length;
+            return visibility[index] > 0 && visibility[next] > 0
+              ? `M ${point.x} ${point.y} L ${points[next].x} ${points[next].y}`
+              : "";
+          })
+          .join(" ")
+      : "",
   };
 }
 
@@ -43,19 +48,26 @@ export function paintRadar(plot: SVGGElement) {
   const area = plot.querySelector("polygon");
   const outline = plot.querySelector("path");
   const dots = plot.querySelectorAll("circle");
+  const write = (element: SVGElement | null, name: string, value: string) => {
+    if (element && element.getAttribute(name) !== value)
+      element.setAttribute(name, value);
+  };
   return (frame: RadarFrame) => {
-    const { points, polygon, segments } = radarGeometry(frame);
-    area?.setAttribute("points", polygon);
-    area?.setAttribute("opacity", String(frame.fill));
-    outline?.setAttribute("d", segments);
-    outline?.setAttribute(
-      "opacity",
-      String((1 - frame.fill) * Math.max(...frame.visibility)),
+    const outlineOpacity = (1 - frame.fill) * Math.max(...frame.visibility);
+    const { points, polygon, segments } = radarGeometry(
+      frame,
+      outlineOpacity > 0,
     );
+    if (frame.fill > 0) write(area, "points", polygon);
+    write(area, "opacity", String(frame.fill));
+    if (outlineOpacity > 0) write(outline, "d", segments);
+    write(outline, "opacity", String(outlineOpacity));
     dots.forEach((dot, index) => {
-      dot.setAttribute("cx", String(points[index].x));
-      dot.setAttribute("cy", String(points[index].y));
-      dot.setAttribute("opacity", String(frame.visibility[index]));
+      if (frame.visibility[index] > 0) {
+        write(dot, "cx", String(points[index].x));
+        write(dot, "cy", String(points[index].y));
+      }
+      write(dot, "opacity", String(frame.visibility[index]));
     });
   };
 }
