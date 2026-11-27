@@ -1,0 +1,33 @@
+.controls {
+  display: grid;
+  gap: 0.85rem;
+}
+.controls > header h2 {
+  margin: 0 0 0.3rem;
+}
+.controls > header p {
+  margin: 0;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.actions > :global(.notice) {
+  flex-basis: 100%;
+  order: 1;
+  margin: 0;
+}
+.recovery {
+  width: 100%;
+  border-top: 1px solid var(--site-border);
+  padding-top: 0.75rem;
+}
+.controls .reset {
+  color: var(--site-danger);
+  border-color: color-mix(in srgb, var(--site-danger) 40%, var(--site-border));
+}
+.controls .reset:hover {
+  background: color-mix(in srgb, var(--site-danger) 10%, var(--site-surface));
+}
