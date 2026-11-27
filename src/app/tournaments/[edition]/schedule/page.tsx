@@ -32,7 +32,6 @@ async function Issue271Page({
       <EventSchedule
         edition={slug}
         matches={preview.matches}
-        seededPreview
         timeZone="UTC+8"
       />
     );
