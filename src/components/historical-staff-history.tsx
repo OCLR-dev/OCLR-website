@@ -32,7 +32,7 @@ export function HistoricalStaffHistory({
           {tr("Historical staff records are temporarily unavailable.")}
         </p>
       ) : history.length === 0 ? (
-        <p className="panel muted">
+        <p className={`panel muted ${styles.empty}`}>
           {tr("No historical staff duties are recorded yet.")}
         </p>
       ) : (

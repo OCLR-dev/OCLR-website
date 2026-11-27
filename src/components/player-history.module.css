@@ -68,3 +68,6 @@
     padding: 1rem;
   }
 }
+.empty {
+  max-width: none;
+}

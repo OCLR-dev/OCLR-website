@@ -26,7 +26,7 @@ export function PlayerHistory({
           </a>
         </p>
       ) : history.length === 0 ? (
-        <p className="panel muted">
+        <p className={`panel muted ${styles.empty}`}>
           {tr("No historical participation is recorded yet.")}
         </p>
       ) : (

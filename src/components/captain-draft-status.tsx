@@ -62,9 +62,9 @@ export function CaptainDraftStatus({
       </p>
       {"eligiblePool" in board && (
         <div className="captain-draft-turns">
-          <p className="muted small">{tr("Your configured turns:")}</p>
+          <p className="muted small">{tr("Your pick positions")}</p>
           {turns.length ? (
-            <ul aria-label={tr("Your configured turns:")}>
+            <ul aria-label={tr("Your pick positions")}>
               {turns.map((turn) => (
                 <li
                   key={turn}

@@ -291,7 +291,9 @@ test.describe("isolated multi-captain rehearsal", () => {
         .locator("li"),
     ).toHaveCount(2);
     await expect(choose).toHaveCount(0);
-    await expect(spectator.page.locator(".draft-picks > li")).toHaveCount(1);
+    await expect(
+      spectator.page.locator(".archive-draft-picks > li"),
+    ).toHaveCount(1);
     await expect(
       b.page.getByRole("button", {
         name: `Choose ${fixture.players[1].username}`,
@@ -343,12 +345,16 @@ test.describe("isolated multi-captain rehearsal", () => {
       staff.page.getByText(/Pick committed to/).first(),
     ).toBeVisible();
 
-    await expect(spectator.page.locator(".draft-picks > li")).toHaveCount(2);
     await expect(
-      spectator.page.locator(".draft-picks > li").last(),
-    ).toContainText(fixture.b.username);
+      spectator.page.locator(".archive-draft-picks > li"),
+    ).toHaveCount(2);
     await expect(
-      spectator.page.locator(".draft-picks > li").last(),
+      spectator.page.locator(".archive-draft-picks > li").last(),
+    ).toContainText(
+      fixture.teamRows.find((team) => team.id === fixture.sequence[1])!.name,
+    );
+    await expect(
+      spectator.page.locator(".archive-draft-picks > li").last(),
     ).not.toContainText(fixture.staff.username);
     await spectator.context.setOffline(true);
     await expect(
@@ -359,7 +365,9 @@ test.describe("isolated multi-captain rehearsal", () => {
       spectator.page.getByRole("status").filter({ hasText: "Connected" }),
     ).toBeVisible({ timeout: 7000 });
     await spectator.page.reload();
-    await expect(spectator.page.locator(".draft-picks > li")).toHaveCount(2);
+    await expect(
+      spectator.page.locator(".archive-draft-picks > li"),
+    ).toHaveCount(2);
     expect(await db().select().from(draftPicks)).toHaveLength(2);
     await staff.page
       .getByRole("button", { name: "Finalize rosters", exact: true })
@@ -498,7 +506,9 @@ test.describe("isolated multi-captain rehearsal", () => {
     const presenterPage = await staff.context.newPage();
     await presenterPage.goto(`/tournaments/${slug}/draft?presenter=1`);
     await expect(presenterPage.locator(".site-header")).toBeHidden();
-    await expect(presenterPage.locator(".draft-picks > li")).toHaveCount(2);
+    await expect(
+      presenterPage.locator(".archive-draft-picks > li"),
+    ).toHaveCount(2);
     await presenterPage.close();
     const payload = JSON.stringify(
       await (
@@ -527,12 +537,14 @@ test.describe("isolated multi-captain rehearsal", () => {
         exact: true,
       }),
     ).toBeVisible({ timeout: 15000 });
-    await expect(a.page.locator(".draft-picks > li")).toHaveCount(0);
+    await expect(a.page.locator(".archive-draft-picks > li")).toHaveCount(0);
     await expect(staff.page.getByRole("main").getByRole("alert")).toHaveText(
       "Staff access is unavailable. Sign in again or contact the organizer.",
       { timeout: 15000 },
     );
-    await expect(staff.page.locator(".draft-picks > li")).toHaveCount(0);
+    await expect(staff.page.locator(".archive-draft-picks > li")).toHaveCount(
+      0,
+    );
   });
   test("competing UI confirmations commit once and clear stale selections", async ({
     browser,
