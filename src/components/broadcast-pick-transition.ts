@@ -1,12 +1,17 @@
-const featuredLayers = ["data-pick-heading", "data-pick-player"] as const;
-const layers = [...featuredLayers, "data-pick-ratings"] as const;
+const layers = [
+  "data-pick-feature",
+  "data-pick-ratings",
+  "data-pick-turn",
+] as const;
+const timing = { duration: 600, easing: "cubic-bezier(0.45, 0, 0.25, 1)" };
 
 type Layer = (typeof layers)[number];
 type LayerCopies = Map<Layer, HTMLElement>;
 
-export function copyPickLayers(overlay: HTMLElement) {
+export function copyPickLayers(overlay: HTMLElement, hasPick: boolean) {
   const copies: LayerCopies = new Map();
   for (const attribute of layers) {
+    if (!hasPick && attribute !== "data-pick-turn") continue;
     const element = overlay.querySelector<HTMLElement>(`[${attribute}]`);
     if (!element) continue;
     const copy = element.cloneNode(true) as HTMLElement;
@@ -42,38 +47,31 @@ export function transitionPickLayers(
   overlay: HTMLElement,
   previous: LayerCopies | undefined,
 ) {
-  const selection = overlay.querySelector<HTMLElement>("[data-featured]");
-  const wipeDuration = 420;
-  const delay =
-    selection && previous?.has("data-pick-player") ? wipeDuration : 0;
-  if (selection && previous && delay) {
-    wipePreviousPick(selection, previous, wipeDuration);
-  }
-
-  for (const attribute of featuredLayers) {
-    const incoming = overlay.querySelector<HTMLElement>(`[${attribute}]`);
-    incoming?.animate(
-      [
-        { transform: "translateX(100%)", opacity: 0 },
-        { transform: "translateX(0)", opacity: 1 },
-      ],
-      {
-        delay,
-        duration: 500,
-        easing: "ease-out",
-        fill: "backwards",
-        id: "oclr-pick",
-      },
+  const feature = overlay.querySelector<HTMLElement>("[data-pick-feature]");
+  const outgoing = previous?.get("data-pick-feature");
+  if (feature?.parentElement) {
+    // Both clips share the same moving edge, keeping the handoff visible throughout.
+    feature.animate(
+      [{ clipPath: "inset(0 0 0 100%)" }, { clipPath: "inset(0 0 0 0%)" }],
+      { ...timing, id: "oclr-pick" },
     );
+    moveFeatureContents(feature, "2rem", "0");
+    if (outgoing) {
+      feature.parentElement.append(outgoing);
+      moveFeatureContents(outgoing, "0", "-2rem");
+      removeAfterAnimation(
+        outgoing,
+        [{ clipPath: "inset(0 0% 0 0)" }, { clipPath: "inset(0 100% 0 0)" }],
+        { ...timing, fill: "forwards", id: "oclr-outgoing-pick" },
+      );
+    }
   }
 
   const ratings = overlay.querySelector<HTMLElement>("[data-pick-ratings]");
   if (!ratings?.parentElement) return;
   const outgoingRatings = previous?.get("data-pick-ratings");
-  const timing = { delay, duration: 440, easing: "ease-in-out" };
   ratings.animate([{ opacity: outgoingRatings ? 0 : 0.84 }, { opacity: 1 }], {
     ...timing,
-    fill: "backwards",
     id: "oclr-pick-ratings",
   });
   if (!outgoingRatings) return;
@@ -85,45 +83,42 @@ export function transitionPickLayers(
   });
 }
 
-function wipePreviousPick(
-  selection: HTMLElement,
-  previous: LayerCopies,
-  duration: number,
+export function transitionTurnLayer(
+  overlay: HTMLElement,
+  previous: LayerCopies | undefined,
 ) {
-  const outgoing = document.createElement("div");
-  outgoing.setAttribute("data-outgoing-pick", "");
-  outgoing.setAttribute("data-pick-clear", "");
-  outgoing.setAttribute("aria-hidden", "true");
-  for (const attribute of featuredLayers) {
-    const layer = previous.get(attribute);
-    if (layer) outgoing.append(layer);
-  }
-  const sweep = document.createElement("div");
-  sweep.setAttribute("data-pick-wipe", "");
-  sweep.setAttribute("aria-hidden", "true");
-  selection.append(outgoing, sweep);
-
-  // The clip follows the leading edge of the sweep in panel coordinates.
-  const finishClearing = 0.8;
-  const timing = { duration, easing: "ease-in-out", fill: "forwards" } as const;
+  const turn = overlay.querySelector<HTMLElement>("[data-pick-turn]");
+  if (!turn?.parentElement) return;
+  turn.animate(
+    [
+      { transform: "translateY(0.75rem)", opacity: 0 },
+      { transform: "translateY(0)", opacity: 1 },
+    ],
+    { ...timing, id: "oclr-turn" },
+  );
+  const outgoing = previous?.get("data-pick-turn");
+  if (!outgoing) return;
+  turn.parentElement.append(outgoing);
   removeAfterAnimation(
     outgoing,
     [
-      { clipPath: "inset(0 0 0 0)" },
-      { clipPath: "inset(0 100% 0 0)", offset: finishClearing },
-      { clipPath: "inset(0 100% 0 0)" },
+      { transform: "translateY(0)", opacity: 1 },
+      { transform: "translateY(-0.75rem)", opacity: 0 },
     ],
-    { ...timing, id: "oclr-outgoing-pick" },
+    { ...timing, fill: "forwards", id: "oclr-outgoing-turn" },
   );
-  removeAfterAnimation(
-    sweep,
-    [
-      { transform: "translateX(100%)" },
-      { transform: "translateX(0)", offset: finishClearing },
-      { transform: "translateX(calc(-1 * var(--pick-wipe-width)))" },
-    ],
-    { ...timing, id: "oclr-pick-wipe" },
-  );
+}
+
+function moveFeatureContents(layer: HTMLElement, from: string, to: string) {
+  for (const content of layer.children) {
+    content.animate(
+      [
+        { transform: `translateX(${from})` },
+        { transform: `translateX(${to})` },
+      ],
+      { ...timing, id: "oclr-pick-motion" },
+    );
+  }
 }
 
 function removeAfterAnimation(

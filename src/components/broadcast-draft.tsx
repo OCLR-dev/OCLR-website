@@ -12,6 +12,7 @@ import { Avatar } from "./avatar";
 import {
   copyPickLayers,
   transitionPickLayers,
+  transitionTurnLayer,
 } from "./broadcast-pick-transition";
 import { DraftTierBadge } from "./draft-tier-badge";
 import { BroadcastRatingRadars } from "./player-rating-radar";
@@ -103,7 +104,7 @@ function cancelBroadcastTransitions(overlay: HTMLDivElement | null) {
     if (animation.id.startsWith("oclr-")) animation.cancel();
   }
   overlay
-    ?.querySelectorAll("[data-outgoing-pick], [data-pick-wipe]")
+    ?.querySelectorAll("[data-outgoing-pick]")
     .forEach((layer) => layer.remove());
 }
 
@@ -255,11 +256,16 @@ export function BroadcastDraft({
         old.picks.every((p, i) => board.picks[i]?.id === p.id)
       ) {
         if (
-          old.activeTeam?.id !== board.activeTeam?.id ||
-          old.turnIndex !== board.turnIndex ||
-          old.state !== board.state
+          overlay &&
+          (old.activeTeam?.id !== board.activeTeam?.id ||
+            old.activeTeam?.name !== board.activeTeam?.name ||
+            old.activeRound?.round !== board.activeRound?.round ||
+            old.activeRound?.position !== board.activeRound?.position ||
+            old.turnIndex !== board.turnIndex ||
+            old.turnCount !== board.turnCount ||
+            old.state !== board.state)
         )
-          enter(overlay?.querySelector("[data-turn-card]"), "oclr-turn", 0.85);
+          transitionTurnLayer(overlay, pickLayers.current);
       }
     }
     positions.current = new Map(
@@ -268,7 +274,9 @@ export function BroadcastDraft({
       ).map((el) => [el.dataset.historyPick!, el.offsetTop]),
     );
     pickLayers.current =
-      overlay && board?.picks.length ? copyPickLayers(overlay) : undefined;
+      overlay && board
+        ? copyPickLayers(overlay, board.picks.length > 0)
+        : undefined;
     board?.picks.forEach((p) => seen.current.add(p.id));
     previous.current = board;
     wasConnected.current = connected;
@@ -339,113 +347,116 @@ export function BroadcastDraft({
           data-first-pick-waiting={showFirstPickHeadline || undefined}
           aria-label={tr("Latest published selection")}
         >
-          {!showFirstPickHeadline && (
-            <div className={styles.selectionHeading} data-pick-heading>
-              <p className={styles.stageLabel}>
-                {latest
-                  ? latest.roundPosition
-                    ? tr(
-                        "Round {round} · Pick {position} · Overall pick {overall}",
-                        {
-                          ...latest.roundPosition,
+          <div data-pick-feature>
+            {!showFirstPickHeadline && (
+              <div className={styles.selectionHeading}>
+                <p className={styles.stageLabel}>
+                  {latest
+                    ? latest.roundPosition
+                      ? tr(
+                          "Round {round} · Pick {position} · Overall pick {overall}",
+                          {
+                            ...latest.roundPosition,
+                            overall: latest.turnIndex + 1,
+                          },
+                        )
+                      : tr("Overall pick {overall}", {
                           overall: latest.turnIndex + 1,
-                        },
-                      )
-                    : tr("Overall pick {overall}", {
-                        overall: latest.turnIndex + 1,
-                      })
-                  : tr("Latest published selection")}
-              </p>
-              {latest?.tier ? (
-                <DraftTierBadge
-                  tier={latest.tier}
-                  className={styles.featuredTier}
-                />
-              ) : null}
-            </div>
-          )}
-          <div
-            className={styles.featured}
-            data-pick-player
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            {latest && <Portrait player={latest.player} featured />}
-            <div className={styles.identity}>
-              <h2
-                className={showFirstPickHeadline ? styles.firstPick : undefined}
-              >
-                {latest?.player.username ??
-                  (showFirstPickHeadline
-                    ? tr("Starting soon...")
-                    : tr("No picks published yet."))}
-              </h2>
-              {latest ? (
-                <>
-                  {latest.careerAppearance && (
-                    <p className={styles.appearance}>
-                      {latest.careerAppearance === 1
-                        ? tr("First OCLR appearance")
-                        : tr("OCLR appearance {count}", {
-                            count: latest.careerAppearance,
-                          })}
-                    </p>
-                  )}
-                  <dl
-                    className={styles.statistics}
-                    data-profile-status={
-                      latest.player.profile?.status ?? "loading"
-                    }
-                  >
-                    <div>
-                      <dt>PP</dt>
-                      <dd>{format(latest.player.profile?.pp)}</dd>
-                    </div>
-                    <div>
-                      <dt>
-                        {tr("Global rank")}
-                        {latest.player.profile?.status !== "fresh" && (
-                          <small className={styles.profileNotice}>
-                            {latest.player.profile?.status === "unavailable"
-                              ? tr("Unavailable")
-                              : tr("Loading…")}
-                          </small>
-                        )}
-                      </dt>
-                      <dd>
-                        {latest.player.profile?.globalRank != null
-                          ? `#${format(latest.player.profile.globalRank)}`
-                          : "—"}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>o!TR</dt>
-                      <dd>
-                        {ratings?.otr == null
-                          ? "—"
-                          : ratingNumber.format(ratings.otr)}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>{tr("SIP")}</dt>
-                      <dd>
-                        {ratings?.sip == null
-                          ? "—"
-                          : ratingNumber.format(ratings.sip)}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>{tr("ETX")}</dt>
-                      <dd>
-                        {ratings?.etx == null
-                          ? "—"
-                          : etxNumber.format(ratings.etx)}
-                      </dd>
-                    </div>
-                  </dl>
-                  <p className={styles.destination}>{latest.team.name}</p>
-                </>
-              ) : null}
+                        })
+                    : tr("Latest published selection")}
+                </p>
+                {latest?.tier ? (
+                  <DraftTierBadge
+                    tier={latest.tier}
+                    className={styles.featuredTier}
+                  />
+                ) : null}
+              </div>
+            )}
+            <div
+              className={styles.featured}
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {latest && <Portrait player={latest.player} featured />}
+              <div className={styles.identity}>
+                <h2
+                  className={
+                    showFirstPickHeadline ? styles.firstPick : undefined
+                  }
+                >
+                  {latest?.player.username ??
+                    (showFirstPickHeadline
+                      ? tr("Starting soon...")
+                      : tr("No picks published yet."))}
+                </h2>
+                {latest ? (
+                  <>
+                    {latest.careerAppearance && (
+                      <p className={styles.appearance}>
+                        {latest.careerAppearance === 1
+                          ? tr("First OCLR appearance")
+                          : tr("OCLR appearance {count}", {
+                              count: latest.careerAppearance,
+                            })}
+                      </p>
+                    )}
+                    <dl
+                      className={styles.statistics}
+                      data-profile-status={
+                        latest.player.profile?.status ?? "loading"
+                      }
+                    >
+                      <div>
+                        <dt>PP</dt>
+                        <dd>{format(latest.player.profile?.pp)}</dd>
+                      </div>
+                      <div>
+                        <dt>
+                          {tr("Global rank")}
+                          {latest.player.profile?.status !== "fresh" && (
+                            <small className={styles.profileNotice}>
+                              {latest.player.profile?.status === "unavailable"
+                                ? tr("Unavailable")
+                                : tr("Loading…")}
+                            </small>
+                          )}
+                        </dt>
+                        <dd>
+                          {latest.player.profile?.globalRank != null
+                            ? `#${format(latest.player.profile.globalRank)}`
+                            : "—"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>o!TR</dt>
+                        <dd>
+                          {ratings?.otr == null
+                            ? "—"
+                            : ratingNumber.format(ratings.otr)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{tr("SIP")}</dt>
+                        <dd>
+                          {ratings?.sip == null
+                            ? "—"
+                            : ratingNumber.format(ratings.sip)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{tr("ETX")}</dt>
+                        <dd>
+                          {ratings?.etx == null
+                            ? "—"
+                            : etxNumber.format(ratings.etx)}
+                        </dd>
+                      </div>
+                    </dl>
+                    <p className={styles.destination}>{latest.team.name}</p>
+                  </>
+                ) : null}
+              </div>
             </div>
           </div>
           {showFirstPickHeadline && <LiruRotation position="selection" />}
@@ -472,24 +483,26 @@ export function BroadcastDraft({
               />
             )}
           </div>
-          <h2>
-            {board?.activeTeam?.name ??
-              (complete
-                ? tr("Teams assembled.")
-                : tr("Waiting for the next stage."))}
-          </h2>
-          {board?.activeRound && (
-            <p className={styles.round}>
-              {tr("Round {round} · Pick {position}", board.activeRound)}
-            </p>
-          )}
-          <div className={styles.progress}>
-            <span>
-              {board?.turnCount
-                ? `${Math.min(board.turnIndex + (complete ? 0 : 1), board.turnCount)} / ${board.turnCount}`
-                : "—"}
-            </span>
-            <p>{tr("Overall pick order")}</p>
+          <div className={styles.turnContent} data-pick-turn>
+            <h2>
+              {board?.activeTeam?.name ??
+                (complete
+                  ? tr("Teams assembled.")
+                  : tr("Waiting for the next stage."))}
+            </h2>
+            {board?.activeRound && (
+              <p className={styles.round}>
+                {tr("Round {round} · Pick {position}", board.activeRound)}
+              </p>
+            )}
+            <div className={styles.progress}>
+              <span>
+                {board?.turnCount
+                  ? `${Math.min(board.turnIndex + (complete ? 0 : 1), board.turnCount)} / ${board.turnCount}`
+                  : "—"}
+              </span>
+              <p>{tr("Overall pick order")}</p>
+            </div>
           </div>
         </section>
       </div>
