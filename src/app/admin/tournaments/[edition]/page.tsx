@@ -10,6 +10,7 @@ import { tournamentForAdmin, tournamentList } from "@/lib/tournament-reads";
 import Link from "next/link";
 import { TournamentDashboardSummary } from "@/components/tournament-dashboard-summary";
 import { staffTeams } from "@/lib/team-reads";
+import { staffDraft } from "@/lib/draft-reads";
 import { staffFixtures } from "@/lib/fixture-reads";
 import { mappoolWorkspace } from "@/lib/mappool-reads";
 import { streamingWorkspace } from "@/lib/streaming-workspace";
@@ -34,11 +35,15 @@ async function Issue271Page({
     const hasFixtures =
       canRead(grants, "manage_fixtures", slug) ||
       canRead(grants, "record_results", slug);
-    const [data, teams, pools, fixtures, streams] = await Promise.all([
+    const hasTeams = canRead(grants, "manage_teams", slug);
+    const [data, teams, draft, pools, fixtures, streams] = await Promise.all([
       canRead(grants, "configure_tournament", slug)
         ? tournamentForAdmin(actor, slug)
         : null,
-      canRead(grants, "manage_teams", slug) ? staffTeams(actor, slug) : null,
+      hasTeams ? staffTeams(actor, slug) : null,
+      hasTeams && canRead(grants, "manage_draft", slug)
+        ? staffDraft(actor, slug)
+        : null,
       canRead(grants, "view_replays", slug)
         ? mappoolWorkspace(actor, slug)
         : null,
@@ -47,6 +52,10 @@ async function Issue271Page({
         ? streamingWorkspace(actor, slug)
         : null,
     ]);
+    const turnSequence = draft?.session?.turnSequence;
+    const draftOrder = turnSequence?.length
+      ? turnSequence
+      : (draft?.teams.map(({ team }) => team.id) ?? []);
     const primary = data
       ? row.links.find((link) => link.label === "Settings")
       : (row.links.find((link) => link.label === "Mappools") ??
@@ -82,6 +91,7 @@ async function Issue271Page({
         <TournamentDashboardSummary
           base={`/admin/tournaments/${slug}`}
           teams={teams?.teams ?? null}
+          draftOrder={draftOrder}
           pools={pools}
           fixtures={fixtures}
           streams={streams}
