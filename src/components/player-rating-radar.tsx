@@ -141,7 +141,11 @@ function RatingPlot({
               <stop className={styles.areaBottom} offset="1" />
             </linearGradient>
           </defs>
-          <g data-motion-radar={broadcast} data-radii={JSON.stringify(values)}>
+          <g
+            id={`${gradient}-geometry`}
+            data-motion-radar={broadcast}
+            data-radii={JSON.stringify(values)}
+          >
             <polygon
               className={styles.outline}
               points={geometry.polygon}
@@ -170,6 +174,11 @@ function RatingPlot({
               />
             ))}
           </g>
+          <use
+            href={`#${gradient}-geometry`}
+            data-radar-glow
+            className={styles.radarGlow}
+          />
         </>
       ) : complete ? (
         <>

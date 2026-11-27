@@ -170,6 +170,7 @@ function MotionNumber({
       >
         {text}
       </span>
+      <span className={styles.numberGlow} data-number-glow aria-hidden="true" />
     </dd>
   );
 }

@@ -185,7 +185,6 @@
 .featureViewport {
   position: relative;
   min-width: 0;
-  overflow: hidden;
 }
 .borderGlow,
 .starSweep,
@@ -198,10 +197,13 @@
   opacity: 0;
 }
 .borderGlow {
-  inset: 0;
-  border: 1px solid #eac7ff;
+  inset: 2px;
+  border: 2px solid #f0d0ff;
   border-radius: inherit;
-  box-shadow: inset 0 0 18px #c585f383;
+  box-shadow:
+    inset 4px 0 #f0d0ff,
+    inset 0 0 34px #c884ff99,
+    0 0 18px #c884ffba;
   z-index: 2;
 }
 .starSweep {
@@ -214,8 +216,8 @@
     linear-gradient(
       90deg,
       transparent,
-      #e5bbff21 42%,
-      #f2d6ff44 50%,
+      #f7e2ff99 44%,
+      #ffffffcc 50%,
       transparent 76%
     );
   z-index: 2;
@@ -365,7 +367,12 @@
 }
 .turnTeamGlow {
   inset: 0;
-  background: radial-gradient(ellipse at left, #cf90ff38, transparent 68%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #e0a8ffad 45%,
+    transparent 83%
+  );
 }
 .turnHeading {
   display: flex;
@@ -475,7 +482,7 @@
 .historyGlow {
   inset: 0;
   z-index: -1;
-  background: linear-gradient(90deg, #bd80eb45, #bd80eb12);
+  background: linear-gradient(90deg, #c984ff78, #c984ff20);
   border-radius: 0.3rem;
 }
 .history li > div {
@@ -580,10 +587,19 @@
 .statMeasure {
   visibility: hidden;
 }
-.motionStat [data-motion-number] {
+.motionStat [data-motion-number],
+.numberGlow {
   position: absolute;
   inset-inline-start: 0;
   inset-block-start: 0;
+}
+.numberGlow {
+  color: #f3d9ff;
+  text-shadow:
+    0 0 10px #db96ff,
+    0 0 19px #b962fb;
+  pointer-events: none;
+  opacity: 0;
 }
 .history .smallPortrait {
   width: 34px;

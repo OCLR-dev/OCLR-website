@@ -4,15 +4,22 @@ import {
   type RadarFrame,
 } from "./broadcast-radar-motion";
 
-const revealEase = "cubic-bezier(0.16, 1, 0.3, 1)";
+const revealEase = "cubic-bezier(0.22, 1, 0.36, 1)";
 const radarEase = [0.22, 1, 0.36, 1] as const;
+const numberDelay = 220;
+const numberDuration = 520;
+const radarDelay = { etx: 220, sip: 300 };
+const radarDuration = 680;
+const historyDelay = 140;
+const historyGlowDuration = 950;
+const revealDuration = historyDelay + historyGlowDuration;
 const featureParts = [
-  ["portrait", 80, 380, "scale(0.94)"],
-  ["heading", 80, 350, "translateY(8px)"],
-  ["name", 120, 400, "translateY(12px)"],
-  ["appearance", 150, 340, "translateY(8px)"],
-  ["stats", 105, 300, "translateY(6px)"],
-  ["team", 170, 350, "translateY(12px)"],
+  ["portrait", 110, 460, "translateX(28px) scale(0.88)"],
+  ["heading", 110, 400, "translateY(18px)"],
+  ["name", 160, 480, "translateX(36px)"],
+  ["appearance", 200, 400, "translateX(24px)"],
+  ["stats", 140, 220, "translateY(12px)"],
+  ["team", 240, 460, "translateX(28px)"],
 ] as const;
 
 const savedLayers = [
@@ -161,6 +168,7 @@ function readNumbers(root: HTMLElement) {
     ),
     (element) => ({
       element,
+      glow: element.parentElement?.querySelector("[data-number-glow]"),
       id: element.dataset.motionNumber!,
       target: {
         number:
@@ -176,13 +184,18 @@ function readNumbers(root: HTMLElement) {
 function readRadars(root: HTMLElement) {
   return Array.from(
     root.querySelectorAll<SVGGElement>("[data-motion-radar]"),
-    (element) => ({
-      paint: paintRadar(element),
-      id: element.dataset.motionRadar!,
-      target: radarFrame(
-        JSON.parse(element.dataset.radii!) as (number | null)[],
-      ),
-    }),
+    (element) => {
+      const id = element.dataset.motionRadar as keyof typeof radarDelay;
+      return {
+        paint: paintRadar(element),
+        glow: element.parentElement?.querySelector("[data-radar-glow]"),
+        id,
+        delay: radarDelay[id],
+        target: radarFrame(
+          JSON.parse(element.dataset.radii!) as (number | null)[],
+        ),
+      };
+    },
   );
 }
 
@@ -190,7 +203,6 @@ function roll(
   root: HTMLElement,
   scene: Scene | undefined,
   attribute: "data-turn-team" | "data-turn-round" | "data-turn-digit",
-  distance: string,
 ) {
   const incoming = root.querySelector<HTMLElement>(`[${attribute}]`);
   const outgoing = scene?.layers.get(attribute);
@@ -200,7 +212,7 @@ function roll(
     incoming,
     "turn",
     [
-      { transform: `translateY(${distance})`, opacity: 0 },
+      { transform: "translateY(100%)", opacity: 0 },
       { transform: "translateY(0)", opacity: 1 },
     ],
     330,
@@ -219,7 +231,7 @@ function roll(
           transform: outgoing.style.transform || "translateY(0)",
           opacity: Number(outgoing.style.opacity || 1),
         },
-        { transform: `translateY(-${distance})`, opacity: 0 },
+        { transform: "translateY(-100%)", opacity: 0 },
       ],
       155,
       220,
@@ -300,10 +312,13 @@ export function createBroadcastMotion() {
           previousFeature,
           "outgoing-pick",
           [
-            { opacity: Number(previousFeature.style.opacity || 1) },
-            { opacity: 0 },
+            {
+              transform: previousFeature.style.transform || "none",
+              opacity: Number(previousFeature.style.opacity || 1),
+            },
+            { transform: "translateX(-36px) scale(0.985)", opacity: 0 },
           ],
-          120,
+          180,
           0,
           "ease-in",
         ),
@@ -338,8 +353,8 @@ export function createBroadcastMotion() {
     animate(
       root.querySelector("[data-border-glow]"),
       "border",
-      [{ opacity: 0 }, { opacity: 0.9, offset: 0.12 }, { opacity: 0 }],
-      800,
+      [{ opacity: 0.92 }, { opacity: 1, offset: 0.08 }, { opacity: 0 }],
+      900,
       0,
       "ease-out",
     );
@@ -348,16 +363,16 @@ export function createBroadcastMotion() {
       "sweep",
       [
         { opacity: 0, transform: "translateX(-95%) skewX(-20deg)" },
-        { opacity: 0.62, offset: 0.24 },
+        { opacity: 0.95, offset: 0.26 },
         { opacity: 0, transform: "translateX(150%) skewX(-20deg)" },
       ],
-      450,
+      580,
       0,
       "ease-out",
     );
     for (const [part, delay] of [
-      ["portrait", 80],
-      ["team", 170],
+      ["portrait", 110],
+      ["team", 240],
       ["tier", 150],
     ] as const) {
       if (part === "tier" && sameTier) continue;
@@ -381,19 +396,19 @@ export function createBroadcastMotion() {
           row,
           "history",
           [
-            { transform: "translateY(-10px)", opacity: 0 },
+            { transform: "translateY(-26px)", opacity: 0 },
             { transform: "translateY(0)", opacity: 1 },
           ],
           420,
-          140,
+          historyDelay,
           "ease-out",
         );
         animate(
           row.querySelector("[data-history-glow]"),
           "history-glow",
-          [{ opacity: 0.75 }, { opacity: 0 }],
-          660,
-          140,
+          [{ opacity: 1 }, { opacity: 0 }],
+          historyGlowDuration,
+          historyDelay,
           "ease-out",
         );
       } else {
@@ -406,8 +421,8 @@ export function createBroadcastMotion() {
               { transform: `translateY(${delta}px)` },
               { transform: "translateY(0)" },
             ],
-            380,
-            140,
+            460,
+            historyDelay,
             "ease-out",
           );
       }
@@ -425,8 +440,8 @@ export function createBroadcastMotion() {
             { opacity: 1, transform: "translateY(0)" },
             { opacity: 0, transform: "translateY(14px)" },
           ],
-          380,
-          140,
+          460,
+          historyDelay,
           "ease-out",
         ),
       );
@@ -436,13 +451,17 @@ export function createBroadcastMotion() {
       animate(
         root.querySelector("[data-turn-team-glow]"),
         "turn-team-pulse",
-        [{ opacity: 0 }, { opacity: 0.65, offset: 0.25 }, { opacity: 0 }],
-        320,
+        [
+          { opacity: 0, transform: "translateX(-70%)" },
+          { opacity: 0.95, transform: "translateX(0)", offset: 0.4 },
+          { opacity: 0, transform: "translateX(95%)" },
+        ],
+        460,
         220,
       );
-    } else roll(root, scene, "data-turn-team", "14px");
-    roll(root, scene, "data-turn-round", "10px");
-    roll(root, scene, "data-turn-digit", "100%");
+    } else roll(root, scene, "data-turn-team");
+    roll(root, scene, "data-turn-round");
+    roll(root, scene, "data-turn-digit");
     animate(
       root.querySelector("[data-picking-pulse]"),
       "turn-ring",
@@ -460,11 +479,12 @@ export function createBroadcastMotion() {
       "mascot",
       [
         { transform: "translateY(0)" },
-        { transform: "translateY(-4px)", offset: 0.3 },
+        { transform: "translateY(-12px)", offset: 0.32 },
+        { transform: "translateY(2px)", offset: 0.68 },
         { transform: "translateY(0)" },
       ],
-      280,
-      520,
+      380,
+      700,
     );
 
     const numberJobs = readNumbers(root).map((job) => ({
@@ -482,15 +502,51 @@ export function createBroadcastMotion() {
       ...job,
       from: radars.get(job.id) ?? radarFrame(job.target.radii.map(() => null)),
     }));
-    for (const { element } of numberJobs)
+    for (const { element, glow, from, target } of numberJobs) {
       element.style.removeProperty("opacity");
+      if (from.number === target.number) continue;
+      animate(
+        glow,
+        "number-glow",
+        [
+          { opacity: 0 },
+          { opacity: 0.9, offset: 0.17 },
+          { opacity: 0.65, offset: 0.65 },
+          { opacity: 0 },
+        ],
+        numberDuration,
+        numberDelay,
+      );
+    }
+    for (const { glow, from, target, delay } of radarJobs) {
+      if (
+        from.radii.every(
+          (value, index) =>
+            value === target.radii[index] &&
+            from.visibility[index] === target.visibility[index],
+        )
+      )
+        continue;
+      animate(
+        glow,
+        "radar-glow",
+        [
+          { opacity: 0 },
+          { opacity: 0.92, offset: 0.24 },
+          { opacity: 0.55, offset: 0.62 },
+          { opacity: 0 },
+        ],
+        radarDuration,
+        delay,
+      );
+    }
     const start = performance.now();
-    deadline = start + 800;
+    deadline = start + revealDuration;
     function paint(now: number) {
       const elapsed = now - start;
-      for (const { id, element, from, target, format } of numberJobs) {
+      for (const { id, element, glow, from, target, format } of numberJobs) {
         let frame = target;
-        const progress = fraction(elapsed, 130, 380);
+        const progress = fraction(elapsed, numberDelay, numberDuration);
         if (progress < 1 && from.number !== null && target.number !== null) {
           const number = interpolate(
             from.number,
@@ -505,20 +561,24 @@ export function createBroadcastMotion() {
           from.number !== target.number &&
           (from.number === null || target.number === null)
         ) {
-          frame = elapsed < 190 ? from : target;
+          const switchAt = numberDelay + 60;
+          frame = elapsed < switchAt ? from : target;
           const fade =
-            elapsed < 190
-              ? 1 - fraction(elapsed, 130, 60)
-              : fraction(elapsed, 190, 95);
+            elapsed < switchAt
+              ? 1 - fraction(elapsed, numberDelay, 60)
+              : fraction(elapsed, switchAt, 95);
           element.style.opacity = fade === 1 ? "" : String(fade);
         }
         if (element.textContent !== frame.text)
           element.textContent = frame.text;
+        const highlight = frame.number === null ? "" : frame.text;
+        if (glow && glow.textContent !== highlight)
+          glow.textContent = highlight;
         numbers.set(id, frame);
       }
-      for (const { id, from, target, paint } of radarJobs) {
+      for (const { id, from, target, paint, delay } of radarJobs) {
         const progress = ease(
-          fraction(elapsed, id === "etx" ? 100 : 160, 500),
+          fraction(elapsed, delay, radarDuration),
           radarEase,
         );
         const frame = {
@@ -533,7 +593,10 @@ export function createBroadcastMotion() {
         paint(frame);
         radars.set(id, frame);
       }
-      request = elapsed < 660 ? requestAnimationFrame(paint) : 0;
+      request =
+        elapsed < radarDelay.sip + radarDuration
+          ? requestAnimationFrame(paint)
+          : 0;
     }
     paint(start);
   }
