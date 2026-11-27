@@ -41,30 +41,44 @@ export function copyPickLayers(overlay: HTMLElement) {
   return copies;
 }
 
-export function crossfadePickLayers(
+export function transitionPickLayers(
   overlay: HTMLElement,
   previous: LayerCopies | undefined,
 ) {
-  const timing: KeyframeAnimationOptions = {
-    duration: 440,
-    easing: "ease-in-out",
-  };
+  const slideDistance = "clamp(4rem, 12vw, 11rem)";
   for (const [attribute, id] of layers) {
     const incoming = overlay.querySelector<HTMLElement>(`[${attribute}]`);
     if (!incoming?.parentElement) continue;
     const outgoing = previous?.get(attribute);
-    incoming.animate([{ opacity: outgoing ? 0 : 0.84 }, { opacity: 1 }], {
-      ...timing,
-      id,
-    });
+    const slides = attribute !== "data-pick-ratings";
+    const timing: KeyframeAnimationOptions = {
+      duration: slides ? 560 : 440,
+      easing: "ease-in-out",
+    };
+    incoming.animate(
+      slides
+        ? [
+            { transform: `translateX(${slideDistance})`, opacity: 0 },
+            { transform: "translateX(0)", opacity: 1 },
+          ]
+        : [{ opacity: outgoing ? 0 : 0.84 }, { opacity: 1 }],
+      { ...timing, id },
+    );
     if (!outgoing) continue;
     incoming.parentElement.append(outgoing);
-    const fade = outgoing.animate([{ opacity: 1 }, { opacity: 0 }], {
-      ...timing,
-      fill: "forwards",
-      id: "oclr-outgoing-pick",
-    });
+    const exit = outgoing.animate(
+      slides
+        ? [
+            { transform: "translateX(0)", opacity: 1 },
+            {
+              transform: `translateX(calc(-1 * ${slideDistance}))`,
+              opacity: 0,
+            },
+          ]
+        : [{ opacity: 1 }, { opacity: 0 }],
+      { ...timing, fill: "forwards", id: "oclr-outgoing-pick" },
+    );
     const remove = () => outgoing.remove();
-    void fade.finished.then(remove, remove);
+    void exit.finished.then(remove, remove);
   }
 }

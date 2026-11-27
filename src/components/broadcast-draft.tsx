@@ -11,7 +11,7 @@ import type {
 import { Avatar } from "./avatar";
 import {
   copyPickLayers,
-  crossfadePickLayers,
+  transitionPickLayers,
 } from "./broadcast-pick-transition";
 import { DraftTierBadge } from "./draft-tier-badge";
 import { BroadcastRatingRadars } from "./player-rating-radar";
@@ -223,7 +223,7 @@ export function BroadcastDraft({
     }
     if (motion) {
       if (additions.length) {
-        if (overlay) crossfadePickLayers(overlay, pickLayers.current);
+        if (overlay) transitionPickLayers(overlay, pickLayers.current);
         overlay
           ?.querySelectorAll<HTMLElement>("[data-history-pick]")
           .forEach((el) => {
