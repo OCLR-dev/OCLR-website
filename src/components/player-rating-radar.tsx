@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { memo, useId, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { etxMods, type EtxMod } from "@/lib/etx-rating-model";
 import type { BroadcastBoard } from "@/lib/draft-types";
@@ -392,70 +392,85 @@ export function PlayerRatingRadar({ ratings }: { ratings?: ProfileRatings }) {
   );
 }
 
-export function BroadcastRatingRadars({
-  ratings,
-}: {
-  ratings?: BroadcastBoard["picks"][number]["ratings"];
-}) {
-  const tr = useAppTranslations();
-  const format = new Intl.NumberFormat(tr.locale, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-  const charts: {
-    id: "etx" | "sip";
-    label: string;
-    title: string;
-    axes: RatingAxis[];
-  }[] = [
-    {
-      id: "etx",
-      label: tr("ETX"),
-      title: tr("Mod ratings"),
-      axes: etxMods.map((mod) => ({
-        label: mod,
-        mod,
-        value: ratings?.etxMods?.[mod] ?? null,
-      })),
-    },
-    {
-      id: "sip",
-      label: tr("SIP"),
-      title: tr("Skillset ratings"),
-      axes: sipSkillsets.map((label) => ({
-        label,
-        value: ratings?.sipSkills[label] ?? null,
-      })),
-    },
-  ];
+type BroadcastRatings = BroadcastBoard["picks"][number]["ratings"];
+
+export function sameBroadcastRadarValues(
+  previous: BroadcastRatings,
+  next: BroadcastRatings,
+) {
   return (
-    <div className={styles.broadcastCharts} data-pick-ratings>
-      {charts.map(({ id, label, title, axes }) => (
-        <figure className={styles.broadcastChart} key={id}>
-          <RatingPlot
-            axes={axes}
-            locale={tr.locale}
-            highlighted={null}
-            broadcast={id}
-          />
-          {axes.some(({ value }) => value !== null) ? (
-            <ul className="sr-only">
-              {axes.map(({ label, value }) => (
-                <li key={label}>
-                  {label}{" "}
-                  {value === null ? tr("No rating data") : format.format(value)}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="sr-only">{tr("No rating data")}</p>
-          )}
-          <figcaption>
-            <strong>{label}</strong>
-            <span>{title}</span>
-          </figcaption>
-        </figure>
-      ))}
-    </div>
+    etxMods.every((mod) => previous?.etxMods?.[mod] === next?.etxMods?.[mod]) &&
+    sipSkillsets.every(
+      (skill) => previous?.sipSkills[skill] === next?.sipSkills[skill],
+    )
   );
 }
+
+export const BroadcastRatingRadars = memo(
+  function BroadcastRatingRadars({ ratings }: { ratings?: BroadcastRatings }) {
+    const tr = useAppTranslations();
+    const format = new Intl.NumberFormat(tr.locale, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    const charts: {
+      id: "etx" | "sip";
+      label: string;
+      title: string;
+      axes: RatingAxis[];
+    }[] = [
+      {
+        id: "etx",
+        label: tr("ETX"),
+        title: tr("Mod ratings"),
+        axes: etxMods.map((mod) => ({
+          label: mod,
+          mod,
+          value: ratings?.etxMods?.[mod] ?? null,
+        })),
+      },
+      {
+        id: "sip",
+        label: tr("SIP"),
+        title: tr("Skillset ratings"),
+        axes: sipSkillsets.map((label) => ({
+          label,
+          value: ratings?.sipSkills[label] ?? null,
+        })),
+      },
+    ];
+    return (
+      <div className={styles.broadcastCharts} data-pick-ratings>
+        {charts.map(({ id, label, title, axes }) => (
+          <figure className={styles.broadcastChart} key={id}>
+            <RatingPlot
+              axes={axes}
+              locale={tr.locale}
+              highlighted={null}
+              broadcast={id}
+            />
+            {axes.some(({ value }) => value !== null) ? (
+              <ul className="sr-only">
+                {axes.map(({ label, value }) => (
+                  <li key={label}>
+                    {label}{" "}
+                    {value === null
+                      ? tr("No rating data")
+                      : format.format(value)}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="sr-only">{tr("No rating data")}</p>
+            )}
+            <figcaption>
+              <strong>{label}</strong>
+              <span>{title}</span>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    );
+  },
+  (previous, next) => sameBroadcastRadarValues(previous.ratings, next.ratings),
+);

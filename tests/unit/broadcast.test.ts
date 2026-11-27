@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   acceptBroadcastSnapshot,
+  sameBroadcastSnapshot,
   shouldRevealPick,
   newPublishedPicks,
 } from "../../src/components/broadcast-draft";
-import type { DraftBoard } from "../../src/lib/draft-types";
+import type { BroadcastBoard, DraftBoard } from "../../src/lib/draft-types";
 
 function snapshot(
   version: number,
@@ -34,6 +35,44 @@ function snapshot(
   };
 }
 describe("published broadcast reconciliation", () => {
+  it("preserves the displayed snapshot across polling and profile timestamp refreshes", () => {
+    const initial = snapshot(3, ["a"]);
+    const board: BroadcastBoard = {
+      ...initial,
+      picks: [
+        {
+          ...initial.picks[0],
+          player: {
+            ...initial.picks[0].player,
+            profile: {
+              status: "fresh",
+              avatarUrl: null,
+              pp: 4000,
+              globalRank: 30000,
+              fetchedAt: null,
+            },
+          },
+          ratings: {
+            etx: 5,
+            etxMods: { NM: 5 },
+            sip: null,
+            sipSkills: {},
+            otr: null,
+          },
+        },
+      ],
+    };
+    const next = structuredClone(board);
+    expect(sameBroadcastSnapshot(board, next)).toBe(true);
+    next.picks[0].player.profile!.fetchedAt = new Date(0).toISOString();
+    expect(sameBroadcastSnapshot(board, next)).toBe(true);
+    next.picks[0].player.profile!.globalRank = 29000;
+    expect(sameBroadcastSnapshot(board, next)).toBe(false);
+    next.picks[0].player.profile!.globalRank = 30000;
+    next.picks[0].ratings!.etxMods!.NM = 6;
+    expect(sameBroadcastSnapshot(board, next)).toBe(false);
+    expect(sameBroadcastSnapshot(board, null)).toBe(false);
+  });
   it("rejects stale revisions but accepts privacy retractions, visibility changes and new sessions", () => {
     expect(acceptBroadcastSnapshot(snapshot(3, ["a"]), snapshot(2))).toBe(
       false,

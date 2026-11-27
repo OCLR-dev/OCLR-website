@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useAppTranslations } from "@/i18n/shared";
 
 import {
+  memo,
   useContext,
   useEffect,
   useLayoutEffect,
@@ -20,7 +21,10 @@ import {
   createBroadcastMotion,
 } from "./broadcast-pick-transition";
 import { DraftTierBadge } from "./draft-tier-badge";
-import { BroadcastRatingRadars } from "./player-rating-radar";
+import {
+  BroadcastRatingRadars,
+  sameBroadcastRadarValues,
+} from "./player-rating-radar";
 import { RemoteReadOnlyContext } from "./staff-read-only";
 import { usePoll } from "./use-poll";
 import styles from "./broadcast-draft.module.css";
@@ -38,17 +42,55 @@ const liruPoses = [
   "10-bow",
 ];
 
-function LiruRotation({ position }: { position: "header" | "selection" }) {
+const LiruRotation = memo(function LiruRotation({
+  position,
+}: {
+  position: "header" | "selection";
+}) {
+  const [pose, setPose] = useState({ current: 0, advancing: false });
+  const next = (pose.current + 1) % liruPoses.length;
+  useEffect(() => {
+    const preference = matchMedia("(prefers-reduced-motion: reduce)");
+    let interval: number | undefined;
+    let timeout: number | undefined;
+    const promote = () =>
+      setPose((current) =>
+        current.advancing
+          ? {
+              current: (current.current + 1) % liruPoses.length,
+              advancing: false,
+            }
+          : current,
+      );
+    const reset = () => {
+      window.clearInterval(interval);
+      window.clearTimeout(timeout);
+      promote();
+      if (!preference.matches) {
+        interval = window.setInterval(() => {
+          setPose((current) => ({ ...current, advancing: true }));
+          timeout = window.setTimeout(promote, 400);
+        }, 6000);
+      }
+    };
+    reset();
+    preference.addEventListener("change", reset);
+    return () => {
+      window.clearInterval(interval);
+      window.clearTimeout(timeout);
+      preference.removeEventListener("change", reset);
+    };
+  }, []);
   return (
     <div
       className={styles.liruRotation}
       data-liru-position={position}
       aria-hidden="true"
     >
-      {liruPoses.map((pose, index) => (
+      {[pose.current, next].map((index) => (
         <Image
-          key={pose}
-          src={`/mascot/liru/draft/${pose}.png`}
+          key={liruPoses[index]}
+          src={`/mascot/liru/draft/${liruPoses[index]}.png`}
           alt=""
           fill
           sizes={
@@ -57,12 +99,13 @@ function LiruRotation({ position }: { position: "header" | "selection" }) {
               : "(max-width: 600px) 45vw, 30vw"
           }
           unoptimized
-          style={{ animationDelay: `${index * 6 - 0.4}s` }}
+          loading="eager"
+          data-visible={index === (pose.advancing ? next : pose.current)}
         />
       ))}
     </div>
   );
-}
+});
 
 // Retractions always clear the display. A delayed older snapshot must not rewind it.
 export function acceptBroadcastSnapshot(
@@ -74,6 +117,71 @@ export function acceptBroadcastSnapshot(
     !next ||
     current.sessionId !== next.sessionId ||
     next.version >= current.version
+  );
+}
+
+export function sameBroadcastSnapshot(
+  previous: BroadcastBoard | null,
+  next: BroadcastBoard | null,
+) {
+  if (previous === next) return true;
+  if (
+    !previous ||
+    !next ||
+    previous.sessionId !== next.sessionId ||
+    previous.version !== next.version ||
+    previous.state !== next.state ||
+    previous.turnIndex !== next.turnIndex ||
+    previous.turnCount !== next.turnCount ||
+    previous.picks.length !== next.picks.length ||
+    previous.activeTeam?.id !== next.activeTeam?.id ||
+    previous.activeTeam?.name !== next.activeTeam?.name ||
+    previous.activeRound?.round !== next.activeRound?.round ||
+    previous.activeRound?.position !== next.activeRound?.position
+  )
+    return false;
+
+  // Earlier picks still participate in reveal/correction detection.
+  if (
+    !previous.picks.every((pick, index) => {
+      const candidate = next.picks[index];
+      return (
+        pick.id === candidate.id &&
+        pick.turnIndex === candidate.turnIndex &&
+        pick.tier === candidate.tier &&
+        pick.team.id === candidate.team.id &&
+        pick.player.osuId === candidate.player.osuId
+      );
+    })
+  )
+    return false;
+
+  if (
+    !previous.picks.slice(-5).every((pick, index) => {
+      const candidate = next.picks[Math.max(next.picks.length - 5, 0) + index];
+      return (
+        pick.player.username === candidate.player.username &&
+        pick.player.profile?.avatarUrl ===
+          candidate.player.profile?.avatarUrl &&
+        pick.team.name === candidate.team.name
+      );
+    })
+  )
+    return false;
+
+  const before = previous.picks.at(-1);
+  const after = next.picks.at(-1);
+  return (
+    before?.roundPosition?.round === after?.roundPosition?.round &&
+    before?.roundPosition?.position === after?.roundPosition?.position &&
+    before?.careerAppearance === after?.careerAppearance &&
+    before?.player.profile?.status === after?.player.profile?.status &&
+    before?.player.profile?.globalRank === after?.player.profile?.globalRank &&
+    before?.player.profile?.pp === after?.player.profile?.pp &&
+    before?.ratings?.otr === after?.ratings?.otr &&
+    before?.ratings?.sip === after?.ratings?.sip &&
+    before?.ratings?.etx === after?.ratings?.etx &&
+    sameBroadcastRadarValues(before?.ratings, after?.ratings)
   );
 }
 
@@ -198,6 +306,7 @@ export function BroadcastDraft({
     initial,
     {
       accept: acceptBroadcastSnapshot,
+      equal: sameBroadcastSnapshot,
       credentials: remote ? "same-origin" : "omit",
       initiallyConnected: available,
       refreshBroadcastProfile: true,
@@ -209,6 +318,7 @@ export function BroadcastDraft({
   const seen = useRef(new Set(initial?.picks.map((p) => p.id)));
   const root = useRef<HTMLDivElement>(null);
   const scene = useRef<ReturnType<typeof captureBroadcastScene>>(undefined);
+  const sceneLocale = useRef("");
   const [motion] = useState(createBroadcastMotion);
   const suspended = useRef(false);
   const locale = tr.locale;
@@ -256,11 +366,20 @@ export function BroadcastDraft({
             (pick) => !seen.current.has(pick.id),
           )
         : [];
+    // Read the new layout before stopping or starting any DOM effects.
+    const nextScene =
+      board &&
+      (board !== old || !scene.current || sceneLocale.current !== locale)
+        ? captureBroadcastScene(overlay)
+        : board
+          ? scene.current
+          : undefined;
     if (additions.length && board) {
       const previousPick = old?.picks.at(-1);
       motion.reveal(
         overlay,
         scene.current,
+        nextScene,
         locale,
         previousPick?.tier === board.picks.at(-1)?.tier,
         old?.activeTeam?.id === board.activeTeam?.id,
@@ -274,8 +393,11 @@ export function BroadcastDraft({
     ) {
       motion.stop(overlay);
       motion.sync(overlay);
+    } else if (nextScene !== scene.current) {
+      motion.refresh(overlay);
     }
-    scene.current = board ? captureBroadcastScene(overlay) : undefined;
+    scene.current = nextScene;
+    sceneLocale.current = locale;
     board?.picks.forEach((pick) => seen.current.add(pick.id));
     previous.current = board;
     wasConnected.current = connected;

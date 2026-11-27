@@ -31,43 +31,64 @@ const savedLayers = [
 
 type NumberFrame = { number: number | null; text: string };
 type Layer = (typeof savedLayers)[number];
-type HistoryRow = { top: number; copy: HTMLElement };
+type HistoryRow = { top: number; element: HTMLElement; copy: HTMLElement };
 type Scene = {
   layers: Map<Layer, HTMLElement>;
   history: Map<string, HistoryRow>;
 };
 
-function copyLayer(element: HTMLElement) {
+function readLayer(element: HTMLElement) {
+  return {
+    element,
+    top: element.offsetTop,
+    left: element.offsetLeft,
+    width: element.offsetWidth,
+    height: element.offsetHeight,
+  };
+}
+
+function copyLayer({
+  element,
+  top,
+  left,
+  width,
+  height,
+}: ReturnType<typeof readLayer>) {
   const copy = element.cloneNode(true) as HTMLElement;
   copy.setAttribute("data-outgoing-pick", "");
   copy.setAttribute("aria-hidden", "true");
   copy.inert = true;
   Object.assign(copy.style, {
-    top: `${element.offsetTop}px`,
-    left: `${element.offsetLeft}px`,
-    width: `${element.offsetWidth}px`,
-    height: `${element.offsetHeight}px`,
+    top: `${top}px`,
+    left: `${left}px`,
+    width: `${width}px`,
+    height: `${height}px`,
   });
   return copy;
 }
 
 export function captureBroadcastScene(overlay: HTMLElement): Scene {
-  const layers = new Map<Layer, HTMLElement>();
-  for (const attribute of savedLayers) {
+  const measuredLayers = savedLayers.flatMap((attribute) => {
     const element = overlay.querySelector<HTMLElement>(`[${attribute}]`);
-    if (!element) continue;
-    const copy = copyLayer(element);
+    return element ? [[attribute, readLayer(element)] as const] : [];
+  });
+  const measuredRows = Array.from(
+    overlay.querySelectorAll<HTMLElement>("[data-history-pick]"),
+    readLayer,
+  );
+  const layers = new Map<Layer, HTMLElement>();
+  for (const [attribute, measure] of measuredLayers) {
+    const copy = copyLayer(measure);
     copy.removeAttribute(attribute);
     layers.set(attribute, copy);
   }
   const history = new Map<string, HistoryRow>();
-  overlay
-    .querySelectorAll<HTMLElement>("[data-history-pick]")
-    .forEach((row) => {
-      const copy = copyLayer(row);
-      copy.removeAttribute("data-history-pick");
-      history.set(row.dataset.historyPick!, { top: row.offsetTop, copy });
-    });
+  for (const measure of measuredRows) {
+    const { element, top } = measure;
+    const copy = copyLayer(measure);
+    copy.removeAttribute("data-history-pick");
+    history.set(element.dataset.historyPick!, { top, element, copy });
+  }
   return { layers, history };
 }
 
@@ -99,14 +120,22 @@ function currentShift(element: Element) {
   return transform === "none" ? 0 : new DOMMatrixReadOnly(transform).m42;
 }
 
-function freezeLayer(source: HTMLElement, target: HTMLElement) {
-  const style = getComputedStyle(source);
-  target.style.opacity = style.opacity;
-  target.style.transform = style.transform;
+function visibleStyle(source: HTMLElement) {
+  const { opacity, transform } = getComputedStyle(source);
+  return { opacity, transform };
 }
 
 function retainVisibleLayers(root: HTMLElement, scene: Scene | undefined) {
   if (!scene) return;
+  const updates: {
+    target: HTMLElement;
+    style: ReturnType<typeof visibleStyle>;
+  }[] = [];
+  const replacements: {
+    attribute: Layer;
+    source: HTMLElement;
+    style: ReturnType<typeof visibleStyle>;
+  }[] = [];
   for (const attribute of savedLayers) {
     const target = scene.layers.get(attribute);
     const current = root.querySelector<HTMLElement>(`[${attribute}]`);
@@ -114,25 +143,37 @@ function retainVisibleLayers(root: HTMLElement, scene: Scene | undefined) {
     const alreadyLeaving = root.querySelector<HTMLElement>(
       `[data-leaving-layer="${attribute}"]`,
     );
+    const currentStyle = visibleStyle(current);
+    const leavingStyle = alreadyLeaving && visibleStyle(alreadyLeaving);
     if (
       alreadyLeaving &&
-      Number(getComputedStyle(alreadyLeaving).opacity) >
-        Number(getComputedStyle(current).opacity) *
+      leavingStyle &&
+      Number(leavingStyle.opacity) >
+        Number(currentStyle.opacity) *
           (attribute === "data-pick-feature" ? 0.35 : 1)
     ) {
-      const copy = alreadyLeaving.cloneNode(true) as HTMLElement;
-      freezeLayer(alreadyLeaving, copy);
-      scene.layers.set(attribute, copy);
+      replacements.push({
+        attribute,
+        source: alreadyLeaving,
+        style: leavingStyle,
+      });
       continue;
     }
-    freezeLayer(current, target);
+    updates.push({ target, style: currentStyle });
     if (attribute !== "data-pick-feature") continue;
     for (const [part] of featureParts) {
       const selector = `[data-feature-part="${part}"]`;
       const live = current.querySelector<HTMLElement>(selector);
       const copy = target.querySelector<HTMLElement>(selector);
-      if (live && copy) freezeLayer(live, copy);
+      if (live && copy)
+        updates.push({ target: copy, style: visibleStyle(live) });
     }
+  }
+  for (const { target, style } of updates) Object.assign(target.style, style);
+  for (const { attribute, source, style } of replacements) {
+    const copy = source.cloneNode(true) as HTMLElement;
+    Object.assign(copy.style, style);
+    scene.layers.set(attribute, copy);
   }
 }
 
@@ -243,13 +284,16 @@ function roll(
 export function createBroadcastMotion() {
   let request = 0;
   let deadline = 0;
+  let refreshAfterInterpolation = false;
   const numbers = new Map<string, NumberFrame>();
   const radars = new Map<string, RadarFrame>();
+  const isRunning = () => request !== 0 || performance.now() < deadline;
 
   function stop(root: HTMLElement) {
     cancelAnimationFrame(request);
     request = 0;
     deadline = 0;
+    refreshAfterInterpolation = false;
     for (const animation of root.getAnimations({ subtree: true })) {
       if (animation.id.startsWith("oclr-")) animation.cancel();
     }
@@ -276,17 +320,23 @@ export function createBroadcastMotion() {
   function reveal(
     root: HTMLElement,
     scene: Scene | undefined,
+    nextScene: Scene | undefined,
     locale: string,
     sameTier: boolean,
     sameTeam: boolean,
   ) {
-    if (performance.now() < deadline) retainVisibleLayers(root, scene);
+    const currentRows = nextScene?.history;
+    const interrupted = isRunning();
     const historyOffsets = new Map<string, number>();
-    root.querySelectorAll<HTMLElement>("[data-history-pick]").forEach((row) => {
-      const id = row.dataset.historyPick!;
+    for (const [id, { element }] of currentRows ?? []) {
       const before = scene?.history.get(id);
-      if (before) historyOffsets.set(id, before.top + currentShift(row));
-    });
+      if (before)
+        historyOffsets.set(
+          id,
+          before.top + (interrupted ? currentShift(element) : 0),
+        );
+    }
+    if (interrupted) retainVisibleLayers(root, scene);
 
     const previousFeature = scene?.layers.get("data-pick-feature");
     const visibleFeature = root.querySelector<HTMLElement>(
@@ -386,10 +436,7 @@ export function createBroadcastMotion() {
       );
     }
 
-    const currentRows = new Set<string>();
-    root.querySelectorAll<HTMLElement>("[data-history-pick]").forEach((row) => {
-      const id = row.dataset.historyPick!;
-      currentRows.add(id);
+    for (const [id, { element: row, top }] of currentRows ?? []) {
       const before = historyOffsets.get(id);
       if (before === undefined) {
         animate(
@@ -412,7 +459,7 @@ export function createBroadcastMotion() {
           "ease-out",
         );
       } else {
-        const delta = before - row.offsetTop;
+        const delta = before - top;
         if (delta)
           animate(
             row,
@@ -426,10 +473,10 @@ export function createBroadcastMotion() {
             "ease-out",
           );
       }
-    });
+    }
     const list = root.querySelector("[data-history] ol");
     for (const [id, { copy }] of scene?.history ?? []) {
-      if (currentRows.has(id) || !list) continue;
+      if (currentRows?.has(id) || !list) continue;
       list.append(copy);
       removeAfter(
         copy,
@@ -490,6 +537,7 @@ export function createBroadcastMotion() {
     const numberJobs = readNumbers(root).map((job) => ({
       ...job,
       from: numbers.get(job.id) ?? { number: null, text: "—" },
+      progress: -1,
       format: new Intl.NumberFormat(
         job.id === "pp" || job.id === "rank" ? "en-US" : locale,
         {
@@ -498,10 +546,33 @@ export function createBroadcastMotion() {
         },
       ),
     }));
-    const radarJobs = readRadars(root).map((job) => ({
-      ...job,
-      from: radars.get(job.id) ?? radarFrame(job.target.radii.map(() => null)),
-    }));
+    const radarJobs = readRadars(root).map((job) => {
+      const { target } = job;
+      const from =
+        radars.get(job.id) ?? radarFrame(target.radii.map(() => null));
+      const changing =
+        from.fill !== target.fill ||
+        from.radii.some(
+          (value, index) =>
+            value !== target.radii[index] ||
+            from.visibility[index] !== target.visibility[index],
+        );
+      return { ...job, from, changing, progress: -1 };
+    });
+    const interpolationDuration = Math.max(
+      0,
+      ...numberJobs.map(({ from, target }) =>
+        from.number === target.number
+          ? 0
+          : numberDelay +
+            (from.number !== null && target.number !== null
+              ? numberDuration
+              : 155),
+      ),
+      ...radarJobs.map(({ changing, delay }) =>
+        changing ? delay + radarDuration : 0,
+      ),
+    );
     for (const { element, glow, from, target } of numberJobs) {
       element.style.removeProperty("opacity");
       if (from.number === target.number) continue;
@@ -518,15 +589,8 @@ export function createBroadcastMotion() {
         numberDelay,
       );
     }
-    for (const { glow, from, target, delay } of radarJobs) {
-      if (
-        from.radii.every(
-          (value, index) =>
-            value === target.radii[index] &&
-            from.visibility[index] === target.visibility[index],
-        )
-      )
-        continue;
+    for (const { glow, changing, delay } of radarJobs) {
+      if (!changing) continue;
       animate(
         glow,
         "radar-glow",
@@ -540,19 +604,25 @@ export function createBroadcastMotion() {
         delay,
       );
     }
-    const start = performance.now();
-    deadline = start + revealDuration;
-    function paint(now: number) {
-      const elapsed = now - start;
-      for (const { id, element, glow, from, target, format } of numberJobs) {
+    function paint(elapsed: number) {
+      const rolling = fraction(elapsed, numberDelay, numberDuration);
+      const easedNumber = ease(rolling, radarEase);
+      for (const job of numberJobs) {
+        const { id, element, glow, from, target, format } = job;
+        const fromNumber = from.number;
+        const targetNumber = target.number;
+        const numeric = fromNumber !== null && targetNumber !== null;
+        const progress =
+          from.number === target.number
+            ? 1
+            : numeric
+              ? rolling
+              : fraction(elapsed, numberDelay, 155);
+        if (progress === job.progress) continue;
+        job.progress = progress;
         let frame = target;
-        const progress = fraction(elapsed, numberDelay, numberDuration);
-        if (progress < 1 && from.number !== null && target.number !== null) {
-          const number = interpolate(
-            from.number,
-            target.number,
-            ease(progress, radarEase),
-          );
+        if (numeric && progress < 1) {
+          const number = interpolate(fromNumber, targetNumber, easedNumber);
           frame = {
             number,
             text: `${id === "rank" ? "#" : ""}${format.format(number)}`,
@@ -576,11 +646,13 @@ export function createBroadcastMotion() {
           glow.textContent = highlight;
         numbers.set(id, frame);
       }
-      for (const { id, from, target, paint, delay } of radarJobs) {
-        const progress = ease(
-          fraction(elapsed, delay, radarDuration),
-          radarEase,
-        );
+      for (const job of radarJobs) {
+        const { id, from, target, paint, delay, changing } = job;
+        if (!changing) continue;
+        const fractionComplete = fraction(elapsed, delay, radarDuration);
+        if (fractionComplete === job.progress) continue;
+        job.progress = fractionComplete;
+        const progress = ease(fractionComplete, radarEase);
         const frame = {
           radii: target.radii.map((value, axis) =>
             interpolate(from.radii[axis], value, progress),
@@ -593,20 +665,39 @@ export function createBroadcastMotion() {
         paint(frame);
         radars.set(id, frame);
       }
-      request =
-        elapsed < radarDelay.sip + radarDuration
-          ? requestAnimationFrame(paint)
-          : 0;
     }
-    paint(start);
+    paint(0);
+    let start: number | undefined;
+    function tick(now: number) {
+      if (start === undefined) {
+        start = now;
+        deadline = start + revealDuration;
+      }
+      const elapsed = now - start;
+      paint(elapsed);
+      if (elapsed < interpolationDuration) {
+        request = requestAnimationFrame(tick);
+      } else {
+        request = 0;
+        if (refreshAfterInterpolation) {
+          refreshAfterInterpolation = false;
+          sync(root);
+        }
+      }
+    }
+    request = requestAnimationFrame(tick);
   }
 
   return {
     reveal,
     stop,
     sync,
+    refresh(root: HTMLElement) {
+      if (request) refreshAfterInterpolation = true;
+      else sync(root);
+    },
     get running() {
-      return performance.now() < deadline;
+      return isRunning();
     },
   };
 }

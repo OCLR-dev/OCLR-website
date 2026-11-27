@@ -203,7 +203,21 @@ test.describe("OBS identity and one-time transitions", () => {
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await page.addInitScript(() => {
       const original = Element.prototype.animate;
-      Object.assign(window, { broadcastAnimations: [] });
+      const clone = Node.prototype.cloneNode;
+      const sceneCopies: string[] = [];
+      Object.assign(window, {
+        broadcastAnimations: [],
+        broadcastSceneCopies: sceneCopies,
+      });
+      Node.prototype.cloneNode = function (deep) {
+        if (
+          this instanceof HTMLElement &&
+          this.matches("[data-pick-feature]")
+        ) {
+          sceneCopies.push(this.textContent ?? "");
+        }
+        return clone.call(this, deep);
+      };
       Element.prototype.animate = function (frames, options) {
         const id = typeof options === "object" ? options?.id : undefined;
         if (id?.startsWith("oclr-"))
@@ -287,8 +301,17 @@ test.describe("OBS identity and one-time transitions", () => {
       ),
     ).toBe(true);
     const count = (await animated()).length;
+    const sceneCopies = () =>
+      page.evaluate(
+        () =>
+          (window as unknown as { broadcastSceneCopies: string[] })
+            .broadcastSceneCopies.length,
+      );
+    const copyCount = await sceneCopies();
+    expect(copyCount).toBeGreaterThan(0);
     await page.waitForTimeout(2300);
     expect((await animated()).length).toBe(count);
+    expect(await sceneCopies()).toBe(copyCount);
     await page.reload();
     await page.waitForTimeout(2300);
     expect(await animated()).toEqual([]);
