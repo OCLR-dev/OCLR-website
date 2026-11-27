@@ -2,7 +2,13 @@
 import Image from "next/image";
 import { useAppTranslations } from "@/i18n/shared";
 
-import { useContext, useEffect, useLayoutEffect, useRef } from "react";
+import {
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import type {
   BroadcastBoard,
   DraftBoard,
@@ -10,9 +16,8 @@ import type {
 } from "@/lib/draft-types";
 import { Avatar } from "./avatar";
 import {
-  copyPickLayers,
-  transitionPickLayers,
-  transitionTurnLayer,
+  captureBroadcastScene,
+  createBroadcastMotion,
 } from "./broadcast-pick-transition";
 import { DraftTierBadge } from "./draft-tier-badge";
 import { BroadcastRatingRadars } from "./player-rating-radar";
@@ -93,19 +98,19 @@ export function newPublishedPicks(
     next.state === "aborted" ||
     next.picks.length <= previous.picks.length ||
     new Set(next.picks.map((p) => p.id)).size !== next.picks.length ||
-    !previous.picks.every((p, i) => next.picks[i]?.id === p.id)
+    !previous.picks.every((pick, index) => {
+      const current = next.picks[index];
+      return (
+        current?.id === pick.id &&
+        current.turnIndex === pick.turnIndex &&
+        current.player.osuId === pick.player.osuId &&
+        current.team.id === pick.team.id &&
+        current.tier === pick.tier
+      );
+    })
   )
     return [];
   return next.picks.slice(previous.picks.length);
-}
-
-function cancelBroadcastTransitions(overlay: HTMLDivElement | null) {
-  for (const animation of overlay?.getAnimations({ subtree: true }) ?? []) {
-    if (animation.id.startsWith("oclr-")) animation.cancel();
-  }
-  overlay
-    ?.querySelectorAll("[data-outgoing-pick]")
-    .forEach((layer) => layer.remove());
 }
 
 function Portrait({
@@ -116,13 +121,23 @@ function Portrait({
   featured?: boolean;
 }) {
   return (
-    <div className={featured ? styles.portrait : styles.smallPortrait}>
+    <div
+      className={featured ? styles.portrait : styles.smallPortrait}
+      data-feature-part={featured ? "portrait" : undefined}
+    >
       <Avatar
         key={`${player.osuId}:${player.profile?.avatarUrl ?? "default"}`}
         osuId={player.osuId}
         username={player.username}
         avatarUrl={player.profile?.avatarUrl ?? undefined}
       />
+      {featured && (
+        <span
+          className={styles.partGlow}
+          data-part-glow="portrait"
+          aria-hidden="true"
+        />
+      )}
     </div>
   );
 }
@@ -132,6 +147,31 @@ const format = (value: number | null | undefined) =>
     : new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(
         value,
       );
+
+function MotionNumber({
+  id,
+  value,
+  text,
+}: {
+  id: string;
+  value?: number | null;
+  text: string;
+}) {
+  return (
+    <dd className={styles.motionStat}>
+      <span className={styles.statMeasure} aria-hidden="true">
+        {text}
+      </span>
+      <span
+        data-motion-number={id}
+        data-value={value ?? undefined}
+        data-value-text={text}
+      >
+        {text}
+      </span>
+    </dd>
+  );
+}
 
 export function BroadcastDraft({
   slug,
@@ -166,123 +206,81 @@ export function BroadcastDraft({
   const wasReceived = useRef(false);
   const seen = useRef(new Set(initial?.picks.map((p) => p.id)));
   const root = useRef<HTMLDivElement>(null);
-  const pickLayers = useRef<ReturnType<typeof copyPickLayers>>(undefined);
-  const positions = useRef(new Map<string, number>());
+  const scene = useRef<ReturnType<typeof captureBroadcastScene>>(undefined);
+  const [motion] = useState(createBroadcastMotion);
   const suspended = useRef(false);
+  const locale = tr.locale;
   useEffect(() => {
     const overlay = root.current;
+    if (!overlay) return;
     const preference = matchMedia("(prefers-reduced-motion: reduce)");
-    const hide = () => {
+    const settle = () => {
+      motion.stop(overlay);
+      motion.sync(overlay);
+    };
+    const visibility = () => {
       if (document.hidden) {
         suspended.current = true;
-        cancelBroadcastTransitions(overlay);
+        settle();
       }
     };
     const reduce = () => {
-      if (preference.matches) cancelBroadcastTransitions(overlay);
+      if (preference.matches) settle();
     };
-    document.addEventListener("visibilitychange", hide);
+    document.addEventListener("visibilitychange", visibility);
     preference.addEventListener("change", reduce);
     return () => {
-      document.removeEventListener("visibilitychange", hide);
+      document.removeEventListener("visibilitychange", visibility);
       preference.removeEventListener("change", reduce);
-      cancelBroadcastTransitions(overlay);
+      motion.stop(overlay);
     };
-  }, []);
+  }, [motion]);
   useLayoutEffect(() => {
     const overlay = root.current;
+    if (!overlay) return;
     const old = previous.current;
     const continuous =
       connected &&
       wasConnected.current &&
       received &&
       wasReceived.current &&
-      !suspended.current;
+      !suspended.current &&
+      !document.hidden;
     const sameSession = old && board && old.sessionId === board.sessionId;
     if (!sameSession && board) seen.current.clear();
-    const additions = continuous
-      ? newPublishedPicks(old, board).filter((p) => !seen.current.has(p.id))
-      : [];
-    const newRevision = sameSession && board.version > old.version;
-    if (!continuous || !sameSession || newRevision)
-      cancelBroadcastTransitions(overlay);
-    const motion =
-      continuous &&
-      newRevision &&
-      !matchMedia("(prefers-reduced-motion: reduce)").matches &&
-      !document.hidden;
-    function enter(
-      el: Element | null | undefined,
-      id: string,
-      opacity: number,
+    const additions =
+      continuous && !matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? newPublishedPicks(old, board).filter(
+            (pick) => !seen.current.has(pick.id),
+          )
+        : [];
+    if (additions.length && board) {
+      const previousPick = old?.picks.at(-1);
+      motion.reveal(
+        overlay,
+        scene.current,
+        locale,
+        previousPick?.tier === board.picks.at(-1)?.tier,
+        old?.activeTeam?.id === board.activeTeam?.id,
+      );
+    } else if (
+      !continuous ||
+      !sameSession ||
+      old.version !== board.version ||
+      !board ||
+      !motion.running
     ) {
-      el?.animate([{ opacity }, { opacity: 1 }], {
-        id,
-        duration: 360,
-        easing: "ease-out",
-      });
+      motion.stop(overlay);
+      motion.sync(overlay);
     }
-    if (motion) {
-      if (additions.length) {
-        if (overlay) transitionPickLayers(overlay, pickLayers.current);
-        overlay
-          ?.querySelectorAll<HTMLElement>("[data-history-pick]")
-          .forEach((el) => {
-            if (additions.some((p) => p.id === el.dataset.historyPick))
-              enter(el, "oclr-history", 0.4);
-            else {
-              const before = positions.current.get(el.dataset.historyPick!);
-              if (before !== undefined) {
-                const delta = before - el.offsetTop;
-                if (delta)
-                  el.animate(
-                    [
-                      { transform: `translateY(${delta}px)` },
-                      { transform: "translateY(0)" },
-                    ],
-                    {
-                      id: "oclr-history-move",
-                      duration: 400,
-                      easing: "ease-out",
-                    },
-                  );
-              }
-            }
-          });
-      }
-      // Corrections update immediately; ordinary turn transitions settle softly.
-      if (
-        board.picks.length >= old.picks.length &&
-        old.picks.every((p, i) => board.picks[i]?.id === p.id)
-      ) {
-        if (
-          overlay &&
-          (old.activeTeam?.id !== board.activeTeam?.id ||
-            old.activeTeam?.name !== board.activeTeam?.name ||
-            old.activeRound?.round !== board.activeRound?.round ||
-            old.activeRound?.position !== board.activeRound?.position ||
-            old.turnIndex !== board.turnIndex ||
-            old.turnCount !== board.turnCount ||
-            old.state !== board.state)
-        )
-          transitionTurnLayer(overlay, pickLayers.current);
-      }
-    }
-    positions.current = new Map(
-      Array.from(
-        overlay?.querySelectorAll<HTMLElement>("[data-history-pick]") ?? [],
-      ).map((el) => [el.dataset.historyPick!, el.offsetTop]),
-    );
-    pickLayers.current =
-      overlay && board
-        ? copyPickLayers(overlay, board.picks.length > 0)
-        : undefined;
-    board?.picks.forEach((p) => seen.current.add(p.id));
+    scene.current = board ? captureBroadcastScene(overlay) : undefined;
+    board?.picks.forEach((pick) => seen.current.add(pick.id));
     previous.current = board;
     wasConnected.current = connected;
     wasReceived.current = received;
-    if (connected && board !== old) suspended.current = false;
-  }, [board, connected, received]);
+    if (connected && received && board !== old && !document.hidden)
+      suspended.current = false;
+  }, [board, connected, received, locale, motion]);
   const latest = board?.picks.at(-1);
   const seasonEleven = slug === "s11" || slug === "dev-s11";
   const waitingForFirstPick = !latest && board?.state === "live";
@@ -300,6 +298,9 @@ export function BroadcastDraft({
     maximumFractionDigits: 2,
   });
   const complete = board?.state === "completed" || board?.state === "finalized";
+  const order = board?.turnCount
+    ? Math.min(board.turnIndex + (complete ? 0 : 1), board.turnCount)
+    : null;
   const selecting =
     connected && board?.state === "live" && board.activeTeam != null;
   return (
@@ -347,115 +348,172 @@ export function BroadcastDraft({
           data-first-pick-waiting={showFirstPickHeadline || undefined}
           aria-label={tr("Latest published selection")}
         >
-          <div data-pick-feature>
-            {!showFirstPickHeadline && (
-              <div className={styles.selectionHeading}>
-                <p className={styles.stageLabel}>
-                  {latest
-                    ? latest.roundPosition
-                      ? tr(
-                          "Round {round} · Pick {position} · Overall pick {overall}",
-                          {
-                            ...latest.roundPosition,
+          <span
+            className={styles.borderGlow}
+            data-border-glow
+            aria-hidden="true"
+          />
+          <span
+            className={styles.starSweep}
+            data-star-sweep
+            aria-hidden="true"
+          />
+          <div className={styles.featureViewport}>
+            <div data-pick-feature>
+              {!showFirstPickHeadline && (
+                <div className={styles.selectionHeading}>
+                  <p
+                    className={styles.stageLabel}
+                    data-feature-part={latest ? "heading" : undefined}
+                  >
+                    {latest
+                      ? latest.roundPosition
+                        ? tr(
+                            "Round {round} · Pick {position} · Overall pick {overall}",
+                            {
+                              ...latest.roundPosition,
+                              overall: latest.turnIndex + 1,
+                            },
+                          )
+                        : tr("Overall pick {overall}", {
                             overall: latest.turnIndex + 1,
-                          },
-                        )
-                      : tr("Overall pick {overall}", {
-                          overall: latest.turnIndex + 1,
-                        })
-                    : tr("Latest published selection")}
-                </p>
-                {latest?.tier ? (
-                  <DraftTierBadge
-                    tier={latest.tier}
-                    className={styles.featuredTier}
-                  />
-                ) : null}
-              </div>
-            )}
-            <div
-              className={styles.featured}
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              {latest && <Portrait player={latest.player} featured />}
-              <div className={styles.identity}>
-                <h2
-                  className={
-                    showFirstPickHeadline ? styles.firstPick : undefined
-                  }
-                >
-                  {latest?.player.username ??
-                    (showFirstPickHeadline
-                      ? tr("Starting soon...")
-                      : tr("No picks published yet."))}
-                </h2>
-                {latest ? (
-                  <>
-                    {latest.careerAppearance && (
-                      <p className={styles.appearance}>
-                        {latest.careerAppearance === 1
-                          ? tr("First OCLR appearance")
-                          : tr("OCLR appearance {count}", {
-                              count: latest.careerAppearance,
-                            })}
+                          })
+                      : tr("Latest published selection")}
+                  </p>
+                  {latest?.tier ? (
+                    <div className={styles.tierFrame} data-feature-tier>
+                      <DraftTierBadge
+                        tier={latest.tier}
+                        className={styles.featuredTier}
+                      />
+                      <span
+                        className={styles.partGlow}
+                        data-part-glow="tier"
+                        aria-hidden="true"
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              )}
+              <div
+                className={styles.featured}
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {latest && <Portrait player={latest.player} featured />}
+                <div className={styles.identity}>
+                  <h2
+                    data-feature-part={latest ? "name" : undefined}
+                    className={
+                      showFirstPickHeadline ? styles.firstPick : undefined
+                    }
+                  >
+                    {latest?.player.username ??
+                      (showFirstPickHeadline
+                        ? tr("Starting soon...")
+                        : tr("No picks published yet."))}
+                  </h2>
+                  {latest ? (
+                    <>
+                      {latest.careerAppearance && (
+                        <p
+                          className={styles.appearance}
+                          data-feature-part="appearance"
+                        >
+                          {latest.careerAppearance === 1
+                            ? tr("First OCLR appearance")
+                            : tr("OCLR appearance {count}", {
+                                count: latest.careerAppearance,
+                              })}
+                        </p>
+                      )}
+                      <dl
+                        className={styles.statistics}
+                        data-feature-part="stats"
+                        data-profile-status={
+                          latest.player.profile?.status ?? "loading"
+                        }
+                      >
+                        <div>
+                          <dt>PP</dt>
+                          <MotionNumber
+                            id="pp"
+                            value={latest.player.profile?.pp}
+                            text={format(latest.player.profile?.pp)}
+                          />
+                        </div>
+                        <div>
+                          <dt>
+                            {tr("Global rank")}
+                            {latest.player.profile?.status !== "fresh" && (
+                              <small className={styles.profileNotice}>
+                                {latest.player.profile?.status === "unavailable"
+                                  ? tr("Unavailable")
+                                  : tr("Loading…")}
+                              </small>
+                            )}
+                          </dt>
+                          <MotionNumber
+                            id="rank"
+                            value={latest.player.profile?.globalRank}
+                            text={
+                              latest.player.profile?.globalRank == null
+                                ? "—"
+                                : `#${format(latest.player.profile.globalRank)}`
+                            }
+                          />
+                        </div>
+                        <div>
+                          <dt>o!TR</dt>
+                          <MotionNumber
+                            id="otr"
+                            value={ratings?.otr}
+                            text={
+                              ratings?.otr == null
+                                ? "—"
+                                : ratingNumber.format(ratings.otr)
+                            }
+                          />
+                        </div>
+                        <div>
+                          <dt>{tr("SIP")}</dt>
+                          <MotionNumber
+                            id="sip"
+                            value={ratings?.sip}
+                            text={
+                              ratings?.sip == null
+                                ? "—"
+                                : ratingNumber.format(ratings.sip)
+                            }
+                          />
+                        </div>
+                        <div>
+                          <dt>{tr("ETX")}</dt>
+                          <MotionNumber
+                            id="etx"
+                            value={ratings?.etx}
+                            text={
+                              ratings?.etx == null
+                                ? "—"
+                                : etxNumber.format(ratings.etx)
+                            }
+                          />
+                        </div>
+                      </dl>
+                      <p
+                        className={styles.destination}
+                        data-feature-part="team"
+                      >
+                        {latest.team.name}
+                        <span
+                          className={styles.partGlow}
+                          data-part-glow="team"
+                          aria-hidden="true"
+                        />
                       </p>
-                    )}
-                    <dl
-                      className={styles.statistics}
-                      data-profile-status={
-                        latest.player.profile?.status ?? "loading"
-                      }
-                    >
-                      <div>
-                        <dt>PP</dt>
-                        <dd>{format(latest.player.profile?.pp)}</dd>
-                      </div>
-                      <div>
-                        <dt>
-                          {tr("Global rank")}
-                          {latest.player.profile?.status !== "fresh" && (
-                            <small className={styles.profileNotice}>
-                              {latest.player.profile?.status === "unavailable"
-                                ? tr("Unavailable")
-                                : tr("Loading…")}
-                            </small>
-                          )}
-                        </dt>
-                        <dd>
-                          {latest.player.profile?.globalRank != null
-                            ? `#${format(latest.player.profile.globalRank)}`
-                            : "—"}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt>o!TR</dt>
-                        <dd>
-                          {ratings?.otr == null
-                            ? "—"
-                            : ratingNumber.format(ratings.otr)}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt>{tr("SIP")}</dt>
-                        <dd>
-                          {ratings?.sip == null
-                            ? "—"
-                            : ratingNumber.format(ratings.sip)}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt>{tr("ETX")}</dt>
-                        <dd>
-                          {ratings?.etx == null
-                            ? "—"
-                            : etxNumber.format(ratings.etx)}
-                        </dd>
-                      </div>
-                    </dl>
-                    <p className={styles.destination}>{latest.team.name}</p>
-                  </>
-                ) : null}
+                    </>
+                  ) : null}
+                </div>
               </div>
             </div>
           </div>
@@ -477,29 +535,58 @@ export function BroadcastDraft({
             </p>
             {selecting && (
               <span
-                className={styles.pickingIndicator}
+                className={styles.pickingStatus}
                 role="img"
                 aria-label={tr("Captain is picking")}
-              />
+              >
+                <span className={styles.pickingIndicator} aria-hidden="true" />
+                <span
+                  className={styles.pickingPulse}
+                  data-picking-pulse
+                  aria-hidden="true"
+                />
+              </span>
             )}
           </div>
-          <div className={styles.turnContent} data-pick-turn>
-            <h2>
-              {board?.activeTeam?.name ??
-                (complete
-                  ? tr("Teams assembled.")
-                  : tr("Waiting for the next stage."))}
-            </h2>
+          <div className={styles.turnContent}>
+            <div className={styles.turnLine}>
+              <span
+                className={styles.turnTeamGlow}
+                data-turn-team-glow
+                aria-hidden="true"
+              />
+              <h2 data-turn-team>
+                {board?.activeTeam?.name ??
+                  (complete
+                    ? tr("Teams assembled.")
+                    : tr("Waiting for the next stage."))}
+              </h2>
+            </div>
             {board?.activeRound && (
-              <p className={styles.round}>
-                {tr("Round {round} · Pick {position}", board.activeRound)}
-              </p>
+              <div className={styles.turnLine}>
+                <p className={styles.round} data-turn-round>
+                  {tr("Round {round} · Pick {position}", board.activeRound)}
+                </p>
+              </div>
             )}
             <div className={styles.progress}>
-              <span>
-                {board?.turnCount
-                  ? `${Math.min(board.turnIndex + (complete ? 0 : 1), board.turnCount)} / ${board.turnCount}`
-                  : "—"}
+              <span className={styles.turnValue}>
+                {order === null ? (
+                  "—"
+                ) : (
+                  <>
+                    <span
+                      className={styles.turnDigit}
+                      style={{
+                        minInlineSize: `${String(board?.turnCount).length}ch`,
+                      }}
+                    >
+                      <span data-turn-digit>{order}</span>
+                    </span>
+                    {" / "}
+                    {board?.turnCount}
+                  </>
+                )}
               </span>
               <p>{tr("Overall pick order")}</p>
             </div>
@@ -538,6 +625,11 @@ export function BroadcastDraft({
                 .reverse()
                 .map((pick) => (
                   <li key={pick.id} data-history-pick={pick.id}>
+                    <span
+                      className={styles.historyGlow}
+                      data-history-glow
+                      aria-hidden="true"
+                    />
                     <span className={styles.pickNumber}>
                       {String(pick.turnIndex + 1).padStart(2, "0")}
                     </span>

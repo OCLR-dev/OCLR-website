@@ -172,16 +172,75 @@
   padding: clamp(18px, 1.7vw, 32px);
 }
 .selection {
+  position: relative;
   box-shadow: inset 4px 0 #a55bcc;
   display: flex;
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
 }
-.selection,
-.turn,
 .ratings {
   position: relative;
+}
+.featureViewport {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+.borderGlow,
+.starSweep,
+.partGlow,
+.historyGlow,
+.pickingPulse,
+.turnTeamGlow {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+}
+.borderGlow {
+  inset: 0;
+  border: 1px solid #eac7ff;
+  border-radius: inherit;
+  box-shadow: inset 0 0 18px #c585f383;
+  z-index: 2;
+}
+.starSweep {
+  inset: 0 auto 0 -12%;
+  width: 65%;
+  background:
+    radial-gradient(circle at 48% 19%, #fff8 0 1px, transparent 2.5px),
+    radial-gradient(circle at 55% 42%, #edccffb3 0 1px, transparent 3px),
+    radial-gradient(circle at 43% 76%, #edccff9e 0 1px, transparent 2px),
+    linear-gradient(
+      90deg,
+      transparent,
+      #e5bbff21 42%,
+      #f2d6ff44 50%,
+      transparent 76%
+    );
+  z-index: 2;
+}
+.tierFrame {
+  position: relative;
+  justify-self: end;
+}
+.partGlow {
+  inset: -1px;
+  border-radius: inherit;
+  box-shadow:
+    0 0 12px #efd2ff,
+    inset 0 0 10px #f0d6ff55;
+}
+.destination {
+  position: relative;
+  width: fit-content;
+}
+.destination .partGlow {
+  box-shadow: none;
+  background: radial-gradient(ellipse, #c983ff50, transparent 72%);
+}
+.tierFrame .partGlow {
+  border-radius: 0.5rem;
 }
 .broadcast [data-outgoing-pick] {
   position: absolute;
@@ -279,6 +338,35 @@
   flex: 1;
   flex-direction: column;
 }
+.turnLine,
+.turnDigit,
+.pickingStatus {
+  position: relative;
+}
+.turnLine,
+.turnDigit {
+  overflow: hidden;
+}
+.turnDigit {
+  display: inline-block;
+  text-align: end;
+  vertical-align: top;
+}
+.turnDigit > span {
+  display: block;
+}
+.pickingStatus {
+  display: inline-flex;
+}
+.pickingPulse {
+  inset: 0;
+  border: 1px solid #edc4ff;
+  border-radius: 50%;
+}
+.turnTeamGlow {
+  inset: 0;
+  background: radial-gradient(ellipse at left, #cf90ff38, transparent 68%);
+}
 .turnHeading {
   display: flex;
   align-items: center;
@@ -334,11 +422,12 @@
   margin-top: auto;
   padding-top: 12px;
 }
-.progress span {
+.progress .turnValue {
   font-size: clamp(26px, 2.8vw, 54px);
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .progress p {
   color: #bdc2d8;
@@ -365,17 +454,29 @@
   margin-bottom: 8px;
 }
 .history ol {
+  position: relative;
   list-style: none;
   margin: 0;
   padding: 0;
 }
+.history {
+  overflow-anchor: none;
+}
 .history li {
+  position: relative;
+  isolation: isolate;
   align-items: center;
   display: grid;
   grid-template-columns: 1.45em auto minmax(0, 1fr) auto;
   gap: clamp(0.35rem, 0.75vw, 0.75rem);
   border-top: 1px solid #303348;
   padding: 7px 0;
+}
+.historyGlow {
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, #bd80eb45, #bd80eb12);
+  border-radius: 0.3rem;
 }
 .history li > div {
   min-width: 0;
@@ -412,6 +513,7 @@
   flex: 1;
 }
 .portrait {
+  position: relative;
   width: clamp(88px, 10vw, 180px);
   aspect-ratio: 1;
   flex-shrink: 0;
@@ -470,6 +572,18 @@
   font-weight: 700;
   line-height: 1.1;
   margin: 0;
+}
+.motionStat {
+  position: relative;
+  white-space: nowrap;
+}
+.statMeasure {
+  visibility: hidden;
+}
+.motionStat [data-motion-number] {
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0;
 }
 .history .smallPortrait {
   width: 34px;
