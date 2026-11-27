@@ -728,7 +728,7 @@ export function BroadcastDraft({
             ) : (
               <p className={styles.caption}>
                 {waitingForFirstPick
-                  ? tr("Draft in progress...")
+                  ? tr("Waiting...")
                   : tr("No rating data")}
               </p>
             ))}
@@ -767,7 +767,7 @@ export function BroadcastDraft({
           ) : (
             <p className={styles.caption}>
               {waitingForFirstPick
-                ? tr("Draft in progress...")
+                ? tr("Waiting...")
                 : tr("No selections published yet.")}
             </p>
           )}
