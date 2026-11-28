@@ -457,7 +457,7 @@ export const changeMappoolWrite = {
   request: mappoolRequest,
   summary: "Manage rounds and official mappools",
   description:
-    "Requires manage_mappools and explicit confirmation. Existing pool and round edits check their current version. Batch and historical imports also check the resolved slots and source fingerprints. Publication and map edits enforce the current pool and fixture locks. Private suggester attribution uses a current Mappooler or a workbench candidate for the same edition and beatmap. Selection locking and Showcase access require configure_tournament. Grants apply to one eligible Streamer and the confirmed, locked, unpublished pool version. Replay access starts disabled and can be changed on an existing grant.",
+    "Requires manage_mappools and explicit confirmation. Existing pool and round edits check their current version. Batch and historical imports also check the resolved slots and source fingerprints. Publication and map edits enforce the current pool and fixture locks. Exhibition pools can change public visibility even after a completed fixture locks their maps. Private suggester attribution uses a current Mappooler or a workbench candidate for the same edition and beatmap. Selection locking and Showcase access require configure_tournament. Grants apply to one eligible Streamer and the confirmed, locked, unpublished pool version. Replay access starts disabled and can be changed on an existing grant.",
   successDescription: "The current staff mappool workspace.",
   response: { readResource: "mappoolWorkspace" },
   errors: {

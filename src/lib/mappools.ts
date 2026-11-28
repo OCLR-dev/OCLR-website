@@ -585,7 +585,24 @@ export async function mappoolCommand(
         });
         return;
       }
-      if (pool.lockedAt)
+      const [roundConfiguration] = await tx
+        .select({
+          rules: tournamentRounds.scoringRules,
+          stage: tournamentStages.kind,
+        })
+        .from(tournamentRounds)
+        .innerJoin(
+          tournamentStages,
+          eq(tournamentStages.id, tournamentRounds.stageId),
+        )
+        .where(eq(tournamentRounds.id, pool.roundId));
+      if (
+        pool.lockedAt &&
+        !(
+          c.action === "pool_publish" &&
+          roundConfiguration.stage === "exhibition"
+        )
+      )
         throw new HttpError(
           409,
           "A pool used by an approved fixture is immutable; create a new pool instead.",
@@ -657,17 +674,6 @@ export async function mappoolCommand(
       }
 
       const before = { pool, entries };
-      const [roundConfiguration] = await tx
-        .select({
-          rules: tournamentRounds.scoringRules,
-          stage: tournamentStages.kind,
-        })
-        .from(tournamentRounds)
-        .innerJoin(
-          tournamentStages,
-          eq(tournamentStages.id, tournamentRounds.stageId),
-        )
-        .where(eq(tournamentRounds.id, pool.roundId));
       const snapshots = [
         ...(metadata ? [metadata] : []),
         ...Array.from(batchMetadata.values(), (snapshot) => snapshot.metadata),

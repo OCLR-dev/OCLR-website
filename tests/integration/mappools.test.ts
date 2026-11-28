@@ -865,6 +865,15 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
     await expect(
       mappoolCommand(mapper, edition.slug, {
         ...confirm,
+        action: "pool_publish",
+        poolId: pool.id,
+        expectedVersion: 1,
+        published: true,
+      }),
+    ).rejects.toMatchObject({ status: 409 });
+    await expect(
+      mappoolCommand(mapper, edition.slug, {
+        ...confirm,
         action: "entry_remove",
         poolId: pool.id,
         expectedVersion: 1,
@@ -885,6 +894,65 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
         position: 2,
       }),
     ).rejects.toMatchObject({ status: 409 });
+  });
+  it("hides and republishes a locked exhibition pool while preserving its maps", async () => {
+    const pool = await create("exhibition");
+    const added = await mappoolCommand(mapper, edition.slug, add(pool.id, 0));
+    const publish = (published: boolean, expectedVersion: number) => ({
+      ...confirm,
+      action: "pool_publish",
+      poolId: pool.id,
+      expectedVersion,
+      published,
+    });
+    await mappoolCommand(
+      mapper,
+      edition.slug,
+      publish(true, added.pools[0].version),
+    );
+    const [before] = await publicMappools(edition.slug, pool.id);
+    const lockedAt = new Date("2026-10-01T00:00:00Z");
+    await db()
+      .update(mappools)
+      .set({ lockedAt })
+      .where(eq(mappools.id, pool.id));
+    const hidden = await mappoolCommand(
+      mapper,
+      edition.slug,
+      publish(false, 2),
+    );
+    expect(hidden.pools[0]).toMatchObject({
+      version: 3,
+      publishedAt: null,
+      lockedAt,
+    });
+    expect(hidden.entries).toEqual(added.entries);
+    expect(await publicMappools(edition.slug, pool.id)).toEqual([]);
+    await expect(
+      mappoolCommand(mapper, edition.slug, {
+        ...confirm,
+        action: "entry_remove",
+        poolId: pool.id,
+        expectedVersion: 3,
+        entryId: added.entries[0].id,
+      }),
+    ).rejects.toMatchObject({ status: 409 });
+    await expect(
+      mappoolCommand(mapper, edition.slug, publish(true, 2)),
+    ).rejects.toMatchObject({ status: 409 });
+    const restored = await mappoolCommand(
+      mapper,
+      edition.slug,
+      publish(true, 3),
+    );
+    expect(restored.pools[0]).toMatchObject({ version: 4, lockedAt });
+    expect((await publicMappools(edition.slug, pool.id))[0].entries).toEqual(
+      before.entries,
+    );
+    const events = await auditEvents();
+    expect(
+      events.filter((event) => event.action === "pool_publish"),
+    ).toHaveLength(3);
   });
   it("previews mixed formats, conflicts and duplicate entries without changing saved maps", async () => {
     const pool = await create();
