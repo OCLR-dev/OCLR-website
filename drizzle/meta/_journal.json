@@ -890,6 +890,13 @@
       "when": 1795879469151,
       "tag": "0126_public_mappool_replays",
       "breakpoints": true
+    },
+    {
+      "idx": 127,
+      "version": "7",
+      "when": 1795886861475,
+      "tag": "0127_s11_standings_order",
+      "breakpoints": true
     }
   ]
 }

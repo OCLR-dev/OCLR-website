@@ -4,8 +4,6 @@ import {
   exhibitionNotice,
 } from "@/lib/competition-stage";
 
-import { InfoNote } from "@/components/info-note";
-
 import { TeamAvatar } from "./team-avatar";
 import { useAppTranslations } from "@/i18n/shared";
 
@@ -13,6 +11,7 @@ import Link from "./pending-link";
 import { useState } from "react";
 import type { PublicFixture, PublicGroup } from "@/lib/public-competition";
 import { formatDate } from "@/lib/editions";
+import styles from "./public-standings.module.css";
 
 export function MatchCard({
   fixture: f,
@@ -327,23 +326,56 @@ export function GroupStandings({
   slug: string;
 }) {
   const tr = useAppTranslations();
+  const orders = new Map<
+    string,
+    { criteria: NonNullable<PublicGroup["criteria"]>; groups: string[] }
+  >();
+  for (const group of groups) {
+    if (!group.criteria) continue;
+    const key = group.criteria.join(",");
+    const order = orders.get(key) ?? { criteria: group.criteria, groups: [] };
+    order.groups.push(group.name);
+    orders.set(key, order);
+  }
+  const labels = {
+    points: tr("Points"),
+    map_difference: tr("Difference"),
+    maps_won: tr("Maps won"),
+    wins: tr("Wins"),
+  };
 
   return (
     <section
-      className="section-space stack"
+      className={`section-space ${styles.standings}`}
       aria-labelledby="standings-heading"
     >
-      <div>
+      <header className={styles.heading}>
         <p className="eyebrow">{tr("GROUP STAGE")}</p>
         <h2 id="standings-heading">{tr("Standings")}</h2>
-        <InfoNote>
-          <p className="muted">
-            {tr(
-              "Only approved, published match results count. Equal ranks remain tied until the configured criteria resolve them.",
-            )}
-          </p>
-        </InfoNote>
-      </div>
+      </header>
+      {orders.size > 0 && (
+        <div className={styles.order}>
+          <h3>{tr("Ranking order")}</h3>
+          {[...orders].map(([key, order]) => (
+            <div className={styles.orderRow} key={key}>
+              {orders.size > 1 && <strong>{order.groups.join(" · ")}</strong>}
+              <ol className={styles.criteria} role="list">
+                {order.criteria.map((criterion, i) => (
+                  <li key={criterion}>
+                    {i > 0 && <span aria-hidden="true">→</span>}
+                    <strong>{labels[criterion]}</strong>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))}
+        </div>
+      )}
+      <p className={`muted small ${styles.note}`}>
+        {tr(
+          "Only approved, published match results count. Equal ranks remain tied until the configured criteria resolve them.",
+        )}
+      </p>
       {!groups.length && (
         <p className="notice">
           {tr(
@@ -352,7 +384,7 @@ export function GroupStandings({
         </p>
       )}
       {groups.map((g) => (
-        <article className="panel" key={g.key}>
+        <article className={styles.group} key={g.key}>
           <h3>{g.name}</h3>
           {g.rankingPending && (
             <p className="notice">
@@ -362,7 +394,7 @@ export function GroupStandings({
             </p>
           )}
           <div
-            className="table-scroll"
+            className={styles.scroll}
             role="region"
             tabIndex={0}
             aria-label={tr("{value0} standings; scroll horizontally", {
@@ -370,19 +402,19 @@ export function GroupStandings({
             })}
           >
             <table>
-              <caption>{g.name}</caption>
+              <caption className="sr-only">{g.name}</caption>
               <thead>
                 <tr>
                   <th scope="col">{tr("Rank")}</th>
                   <th scope="col">{tr("Team")}</th>
-                  <th scope="col">{tr("Played")}</th>
+                  <th scope="col">{labels.points}</th>
+                  <th scope="col">{labels.map_difference}</th>
+                  <th scope="col">{labels.maps_won}</th>
+                  <th scope="col">{tr("Matches played")}</th>
                   <th scope="col">W</th>
                   <th scope="col">L</th>
                   <th scope="col">D</th>
-                  <th scope="col">{tr("Maps won")}</th>
                   <th scope="col">{tr("Maps lost")}</th>
-                  <th scope="col">{tr("Difference")}</th>
-                  <th scope="col">{tr("Points")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -397,25 +429,19 @@ export function GroupStandings({
                         {r.team.name}
                       </Link>
                     </th>
+                    <td>{r.points ?? "—"}</td>
+                    <td>{r.mapDifference}</td>
+                    <td>{r.mapsWon}</td>
                     <td>{r.played}</td>
                     <td>{r.wins}</td>
                     <td>{r.losses}</td>
                     <td>{r.draws}</td>
-                    <td>{r.mapsWon}</td>
                     <td>{r.mapsLost}</td>
-                    <td>{r.mapDifference}</td>
-                    <td>{r.points ?? "—"}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          {g.criteria && (
-            <p className="muted small">
-              {tr("Approved order:")}{" "}
-              {g.criteria.map((c) => c.replaceAll("_", " ")).join(" → ")}
-            </p>
-          )}
         </article>
       ))}
     </section>
