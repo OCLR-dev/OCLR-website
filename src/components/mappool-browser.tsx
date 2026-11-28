@@ -125,12 +125,10 @@ function MapDetails({
             · {entry.source.slot}
           </p>
         )}
-        {entry.category === "FM" && (
+        {entry.category === "FM" && pool.fmRestrictions.trim() !== "" && (
           <p className="notice">
             {fmPolicyName(pool.fmMode) ?? tr("FM policy not configured")}
-            {pool.fmRestrictions
-              ? `: ${pool.fmRestrictions}`
-              : tr(": Detailed restrictions have not been published.")}
+            {`: ${pool.fmRestrictions}`}
           </p>
         )}
         <div className="actions">
@@ -387,14 +385,13 @@ export function MappoolBrowser({
         )}
         {view === "cards" && (
           <>
-            {pool.entries.some((e) => e.category === "FM") && (
-              <p className="map-values-note muted small">
-                {fmPolicyName(pool.fmMode) ?? tr("FM policy not configured")}
-                {pool.fmRestrictions
-                  ? `: ${pool.fmRestrictions}`
-                  : tr(": Detailed restrictions have not been published.")}
-              </p>
-            )}
+            {pool.fmRestrictions.trim() !== "" &&
+              pool.entries.some((e) => e.category === "FM") && (
+                <p className="map-values-note muted small">
+                  {fmPolicyName(pool.fmMode) ?? tr("FM policy not configured")}
+                  {`: ${pool.fmRestrictions}`}
+                </p>
+              )}
             <div className="map-card-grid">
               {entries.map((e) => {
                 const slot = slotLabel(e.category, e.position);
