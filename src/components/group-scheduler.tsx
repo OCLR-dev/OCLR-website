@@ -97,7 +97,7 @@ export function GroupScheduler({
         )}
         <p className="small muted">
           {tr(
-            "Matches use Saturday and Sunday slots within these dates. Teams can play zero or multiple matches per week. Times use {timeZone}.",
+            "Matches use Saturday and Sunday slots within these dates. Each team can play at most once per day. Times use {timeZone}.",
             { timeZone },
           )}
         </p>

@@ -5363,10 +5363,10 @@
     "m7f910ab5c408": "Save updated group assignments before scheduling.",
     "m5fdeb892dc45": "Choose a round from this Group Stage.",
     "mda46b8b4a9b7": "The fixtures changed. Preview the group schedule again.",
-    "m203036f1a85c": "Matches use Saturday and Sunday slots within these dates. Teams can play zero or multiple matches per week. Times use {timeZone}.",
     "m40f858d33c5c": "Schedule end date",
     "me2337a49cb24": "The end date must be on or after the start date.",
-    "mdf6a8d67d30f": "The date range has too few available weekend slots. Extend it or add match times.",
-    "m20cfc6b9bc48": "Choose a round, start and end dates, and distinct match times."
+    "m20cfc6b9bc48": "Choose a round, start and end dates, and distinct match times.",
+    "m6b9643caae33": "Matches use Saturday and Sunday slots within these dates. Each team can play at most once per day. Times use {timeZone}.",
+    "m715970a864e4": "Could not fit all matches with one match per team per day. Extend the date range or adjust match times."
   }
 }

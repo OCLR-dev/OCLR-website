@@ -1,4 +1,4 @@
-import { zonedInstants } from "./edition-time";
+import { localDateTime, zonedInstants } from "./edition-time";
 import { HttpError } from "./http-error";
 
 export const defaultGroupScheduleTimes = ["20:00", "21:00", "22:00"] as const;
@@ -68,6 +68,7 @@ export function planGroupSchedule({
 
   const covered = new Set<string>();
   const reservedSlots = new Set<number>();
+  const busyTeamsByDate = new Map<string, Set<string>>();
   let position = 0;
   for (const match of existing) {
     if (match.roundId === roundId)
@@ -76,8 +77,18 @@ export function planGroupSchedule({
     const { homeTeamId, awayTeamId, scheduledAt } = match;
     if (groupRoundIds.has(match.roundId) && homeTeamId && awayTeamId)
       covered.add(pairKey(homeTeamId, awayTeamId));
-    if (scheduledAt)
-      reservedSlots.add(Math.floor(scheduledAt.getTime() / 60_000));
+    if (!scheduledAt) continue;
+    reservedSlots.add(Math.floor(scheduledAt.getTime() / 60_000));
+    if (homeTeamId || awayTeamId) {
+      const date = localDateTime(scheduledAt.toISOString(), timeZone).slice(
+        0,
+        10,
+      );
+      const busyTeams = busyTeamsByDate.get(date) ?? new Set<string>();
+      if (homeTeamId) busyTeams.add(homeTeamId);
+      if (awayTeamId) busyTeams.add(awayTeamId);
+      busyTeamsByDate.set(date, busyTeams);
+    }
   }
 
   const roundsByGroup = groups.map(roundRobin);
@@ -105,27 +116,34 @@ export function planGroupSchedule({
   const orderedTimes = [...times].sort();
   for (
     let week = monday(start);
-    week <= end && planned.length < pending.length;
+    week <= end && pending.length;
     week += 7 * dayMs
   ) {
     for (const weekday of weekendDays) {
       const day = week + (weekday - 1) * dayMs;
       if (day < start || day > end) continue;
       const date = new Date(day).toISOString().slice(0, 10);
+      const busyTeams = busyTeamsByDate.get(date) ?? new Set<string>();
       for (const time of orderedTimes) {
-        const match = pending[planned.length];
-        if (!match) return planned;
+        const next = pending.findIndex(
+          ({ homeTeamId, awayTeamId }) =>
+            !busyTeams.has(homeTeamId) && !busyTeams.has(awayTeamId),
+        );
+        if (next < 0) break;
         const [scheduledAt] = zonedInstants(`${date}T${time}`, timeZone);
         if (!scheduledAt || reservedSlots.has(Date.parse(scheduledAt) / 60_000))
           continue;
+        const [match] = pending.splice(next, 1);
+        busyTeams.add(match.homeTeamId);
+        busyTeams.add(match.awayTeamId);
         planned.push({ ...match, scheduledAt, position: ++position });
       }
     }
   }
-  if (planned.length < pending.length)
+  if (pending.length)
     throw new HttpError(
       400,
-      "The date range has too few available weekend slots. Extend it or add match times.",
+      "Could not fit all matches with one match per team per day. Extend the date range or adjust match times.",
     );
   return planned;
 }

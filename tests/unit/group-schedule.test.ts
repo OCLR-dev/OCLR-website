@@ -46,14 +46,25 @@ it("pairs every team with each group opponent once in the inclusive weekend rang
     "2026-12-12T21:00",
     "2026-12-12T22:00",
   ]);
+  const teamDates = new Set<string>();
+  for (const [index, { homeTeamId, awayTeamId }] of matches.entries()) {
+    const date = slots[index].slice(0, 10);
+    for (const teamId of [homeTeamId, awayTeamId]) {
+      const key = `${teamId}:${date}`;
+      expect(teamDates.has(key)).toBe(false);
+      teamDates.add(key);
+    }
+  }
+  expect(teamDates.has("a:2026-12-05")).toBe(true);
+  expect(teamDates.has("a:2026-12-06")).toBe(true);
 });
 
-it("skips covered pairings and occupied slots and permits multiple matches in one week", () => {
+it("skips covered pairings and occupied slots and counts existing matches on the local day", () => {
   const matches = planGroupSchedule({
     ...options,
     groups: [{ name: "A", teamIds: ["a", "b", "c"] }],
     startDate: "2026-12-06",
-    endDate: "2026-12-06",
+    endDate: "2026-12-12",
     existing: [
       {
         roundId: "another-group-round",
@@ -68,6 +79,14 @@ it("skips covered pairings and occupied slots and permits multiple matches in on
         position: 1,
         homeTeamId: "a",
         awayTeamId: "x",
+        status: "scheduled",
+        scheduledAt: new Date("2026-12-05T17:00:00Z"),
+      },
+      {
+        roundId: "knockout",
+        position: 2,
+        homeTeamId: "x",
+        awayTeamId: "y",
         status: "scheduled",
         scheduledAt: new Date("2026-12-06T12:00:45Z"),
       },
@@ -89,22 +108,21 @@ it("skips covered pairings and occupied slots and permits multiple matches in on
     })),
   ).toEqual([
     { pair: "bc", scheduledAt: "2026-12-06T13:00:00.000Z", position: 5 },
-    { pair: "ac", scheduledAt: "2026-12-06T14:00:00.000Z", position: 6 },
+    { pair: "ac", scheduledAt: "2026-12-12T12:00:00.000Z", position: 6 },
   ]);
 });
 
-it("rejects reversed dates and a range that cannot fit all remaining pairings", () => {
+it("rejects reversed dates and a range with enough slots but too few distinct days", () => {
   const request = {
     ...options,
     groups: [{ name: "A", teamIds: ["a", "b", "c"] }],
     existing: [],
     startDate: "2026-12-05",
-    times: ["20:00"],
   };
   expect(() =>
     planGroupSchedule({ ...request, endDate: "2026-12-04" }),
   ).toThrow("The end date must be on or after the start date.");
   expect(() =>
     planGroupSchedule({ ...request, endDate: "2026-12-06" }),
-  ).toThrow("The date range has too few available weekend slots.");
+  ).toThrow("Could not fit all matches with one match per team per day.");
 });

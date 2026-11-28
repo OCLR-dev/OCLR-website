@@ -226,7 +226,7 @@ export const changeFixturesWrite = {
   ]),
   summary: "Manage fixtures, group assignments and round rules",
   description:
-    "Requires manage_fixtures. The group schedule preflight returns new match pairings, Saturday and Sunday times within the inclusive edition-local date range, and a fingerprint. Confirmation creates unpublished fixtures atomically from the same saved group and schedule snapshot. The force-delete preflight returns a versioned fingerprint, counts and any blocker. Force deletion requires that fingerprint, both fixture and assignment revisions, the exact label and explicit test-fixture confirmation. Approved result history, bracket dependents and published statistics are protected.",
+    "Requires manage_fixtures. The group schedule preflight returns new match pairings, Saturday and Sunday times within the inclusive edition-local date range, and a fingerprint. Each team can receive at most one match per edition-local day, including existing non-cancelled fixtures. Confirmation creates unpublished fixtures atomically from the same saved group and schedule snapshot. The force-delete preflight returns a versioned fingerprint, counts and any blocker. Force deletion requires that fingerprint, both fixture and assignment revisions, the exact label and explicit test-fixture confirmation. Approved result history, bracket dependents and published statistics are protected.",
   successDescription:
     "The staff fixture workspace, group schedule preview or force-delete preflight.",
   response: {
