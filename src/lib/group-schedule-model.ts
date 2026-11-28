@@ -1,4 +1,4 @@
-import { localDateTime, zonedInstants } from "./edition-time";
+import { zonedInstants } from "./edition-time";
 import { HttpError } from "./http-error";
 
 export const defaultGroupScheduleTimes = ["20:00", "21:00", "22:00"] as const;
@@ -47,6 +47,7 @@ export function planGroupSchedule({
   groupRoundIds,
   roundId,
   startDate,
+  endDate,
   times,
   timeZone,
 }: {
@@ -55,12 +56,18 @@ export function planGroupSchedule({
   groupRoundIds: ReadonlySet<string>;
   roundId: string;
   startDate: string;
+  endDate: string;
   times: readonly string[];
   timeZone: string;
 }) {
+  if (endDate < startDate)
+    throw new HttpError(
+      400,
+      "The end date must be on or after the start date.",
+    );
+
   const covered = new Set<string>();
   const reservedSlots = new Set<number>();
-  const busyByWeek = new Map<number, Set<string>>();
   let position = 0;
   for (const match of existing) {
     if (match.roundId === roundId)
@@ -69,17 +76,8 @@ export function planGroupSchedule({
     const { homeTeamId, awayTeamId, scheduledAt } = match;
     if (groupRoundIds.has(match.roundId) && homeTeamId && awayTeamId)
       covered.add(pairKey(homeTeamId, awayTeamId));
-    if (!scheduledAt) continue;
-    reservedSlots.add(Math.floor(scheduledAt.getTime() / 60_000));
-    const localDay = localDateTime(scheduledAt.toISOString(), timeZone).slice(
-      0,
-      10,
-    );
-    const week = monday(Date.parse(`${localDay}T00:00:00Z`));
-    const busy = busyByWeek.get(week) ?? new Set<string>();
-    if (homeTeamId) busy.add(homeTeamId);
-    if (awayTeamId) busy.add(awayTeamId);
-    busyByWeek.set(week, busy);
+    if (scheduledAt)
+      reservedSlots.add(Math.floor(scheduledAt.getTime() / 60_000));
   }
 
   const roundsByGroup = groups.map(roundRobin);
@@ -103,36 +101,31 @@ export function planGroupSchedule({
 
   const planned: (Pairing & { scheduledAt: string; position: number })[] = [];
   const start = Date.parse(`${startDate}T00:00:00Z`);
+  const end = Date.parse(`${endDate}T00:00:00Z`);
   const orderedTimes = [...times].sort();
-  // Each non-blocked week can place at least one match. Allow for local clock changes.
-  const maxWeeks = pending.length + busyByWeek.size + 2;
-  for (let weekIndex = 0; pending.length && weekIndex < maxWeeks; weekIndex++) {
-    const week = monday(start) + weekIndex * 7 * dayMs;
-    const busy = busyByWeek.get(week) ?? new Set<string>();
+  for (
+    let week = monday(start);
+    week <= end && planned.length < pending.length;
+    week += 7 * dayMs
+  ) {
     for (const weekday of weekendDays) {
       const day = week + (weekday - 1) * dayMs;
-      if (day < start) continue;
+      if (day < start || day > end) continue;
       const date = new Date(day).toISOString().slice(0, 10);
       for (const time of orderedTimes) {
-        const next = pending.findIndex(
-          ({ homeTeamId, awayTeamId }) =>
-            !busy.has(homeTeamId) && !busy.has(awayTeamId),
-        );
-        if (next < 0) break;
+        const match = pending[planned.length];
+        if (!match) return planned;
         const [scheduledAt] = zonedInstants(`${date}T${time}`, timeZone);
         if (!scheduledAt || reservedSlots.has(Date.parse(scheduledAt) / 60_000))
           continue;
-        const [match] = pending.splice(next, 1);
-        busy.add(match.homeTeamId);
-        busy.add(match.awayTeamId);
         planned.push({ ...match, scheduledAt, position: ++position });
       }
     }
   }
-  if (pending.length)
+  if (planned.length < pending.length)
     throw new HttpError(
       400,
-      "Choose different dates or time slots to fit the group schedule.",
+      "The date range has too few available weekend slots. Extend it or add match times.",
     );
   return planned;
 }
