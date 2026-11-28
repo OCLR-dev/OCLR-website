@@ -192,7 +192,7 @@ export function MappoolReplays({
       }
     }
   }
-  async function changePreference(item: ReplayItem) {
+  async function changePreference(item: ReplayItem, publicPlayback?: boolean) {
     if (pending || !writable) return;
     const failure = tr("Could not update the preferred replay. Try again.");
     setOperation(null);
@@ -207,7 +207,8 @@ export function MappoolReplays({
         body: JSON.stringify({
           expectedVersion: version,
           confirmed: true,
-          preferred: !item.preferred,
+          preferred: publicPlayback === undefined ? !item.preferred : true,
+          publicPlayback,
         }),
       });
       const body: unknown = await response.json();
@@ -224,6 +225,10 @@ export function MappoolReplays({
         current.map((replay) => ({
           ...replay,
           preferred: replay.id === preferredReplayId,
+          publicPlayback:
+            replay.id === preferredReplayId
+              ? (receipt.data.publicPlayback ?? replay.publicPlayback)
+              : false,
         })),
       );
       notifyReplayListChanged(url);
@@ -558,6 +563,9 @@ export function MappoolReplays({
                     {item.preferred && (
                       <p className="small muted">{tr("Preferred replay")}</p>
                     )}
+                    {item.publicPlayback && (
+                      <p className="small muted">{tr("Public playback")}</p>
+                    )}
                     <p className="muted small replay-item-meta">
                       <bdi>{item.uploaderName}</bdi> ·{" "}
                       <time dateTime={new Date(item.createdAt).toISOString()}>
@@ -638,6 +646,23 @@ export function MappoolReplays({
                           : tr("Set as preferred replay")}
                       </button>
                     )}
+                    {writable &&
+                      canManageCache &&
+                      canPlay &&
+                      item.preferred && (
+                        <button
+                          type="button"
+                          className="secondary"
+                          disabled={pending}
+                          onClick={() =>
+                            void changePreference(item, !item.publicPlayback)
+                          }
+                        >
+                          {item.publicPlayback
+                            ? tr("Disable public playback")
+                            : tr("Enable public playback")}
+                        </button>
+                      )}
                     {writable && (
                       <button
                         type="button"

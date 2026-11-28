@@ -9,6 +9,46 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
+test("the published replay opens from its card actions and requests public assets", async ({
+  page,
+}, info) => {
+  const mobile = info.project.name === "mobile";
+  await page.setViewportSize({ width: mobile ? 320 : 1280, height: 800 });
+  const path =
+    "/api/tournaments/synthetic/mappools/pool-1/entries/entry-0-0/replay/public-replay/";
+  await page.route(`**${path}*`, (route) =>
+    route.fulfill({ status: 404, body: "Synthetic missing asset" }),
+  );
+  await page.goto(`/public-mappools?replay&theme=${mobile ? "dark" : "light"}`);
+  const card = page.locator("#map-entry-0-0");
+  const button = card
+    .locator(".beatmap-actions")
+    .getByRole("button", { name: "Open replay player · NM1" });
+  await expect(
+    page.getByRole("button", { name: /^Open replay player/ }),
+  ).toHaveCount(1);
+  await expect(button).toBeVisible();
+  const bounds = (await button.boundingBox())!;
+  const cardBounds = (await card.boundingBox())!;
+  expect(bounds.x + bounds.width).toBeLessThanOrEqual(
+    cardBounds.x + cardBounds.width,
+  );
+  await button.click();
+  const dialog = page.getByRole("dialog", { name: "Replay player for NM1" });
+  await expect(dialog.locator("canvas")).toBeVisible();
+  const requested = ["replay.osr", "beatmap.osz", "skin.osk"].map((asset) =>
+    page.waitForRequest(`**${path}${asset}`),
+  );
+  await dialog
+    .getByRole("button", { name: "Play replay", exact: true })
+    .click();
+  await Promise.all(requested);
+  await expect(dialog.getByRole("alert")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(button).toBeFocused();
+});
+
 test("pool fragments restore the selected public pool across navigation", async ({
   page,
 }) => {

@@ -42,7 +42,10 @@ import {
 } from "./replay-playback-storage";
 type Reader = Pick<ReturnType<typeof db>, "select">;
 type ReplayList = ExplicitReadData<"replayList">;
-export type ReplayItem = ReplayList[number] & { preferred?: boolean };
+export type ReplayItem = ReplayList[number] & {
+  preferred?: boolean;
+  publicPlayback?: boolean;
+};
 function validId(id: string) {
   if (!deleteReplayWrite.parameters.replayId.safeParse(id).success)
     throw new HttpError(404, "Replay target not found.");
@@ -93,6 +96,7 @@ async function databaseReplayList(
       size: mappoolReplays.size,
       description: mappoolReplays.description,
       preferred: mappoolReplays.preferred,
+      publicPlayback: mappoolReplays.publicPlayback,
       uploaderId: mappoolReplays.uploaderId,
       uploaderName: mappoolReplays.uploaderName,
       summary: mappoolReplays.summary,
@@ -102,7 +106,7 @@ async function databaseReplayList(
     .where(eq(mappoolReplays.entryId, entryId))
     .orderBy(mappoolReplays.createdAt, mappoolReplays.id);
   const items: ReplayItem[] = [];
-  for (const { preferred, ...row } of rows) {
+  for (const { preferred, publicPlayback, ...row } of rows) {
     let summary = row.summary;
     if (summary.performance?.maxCombo === undefined) {
       try {
@@ -116,7 +120,7 @@ async function databaseReplayList(
     }
     items.push({
       ...row,
-      ...(includePreference ? { preferred } : {}),
+      ...(includePreference ? { preferred, publicPlayback } : {}),
       summary,
       verification:
         entry.metadata.checksum &&
@@ -384,6 +388,9 @@ export async function setPreferredMappoolReplay(
       400,
       "Confirm the current pool version before changing replays.",
     );
+  const { preferred, publicPlayback, expectedVersion } = parsed.data;
+  if (publicPlayback !== undefined)
+    await assertCapability(actor, "manage_mappools", slug);
   return db().transaction(async (tx) => {
     await tx
       .select()
@@ -391,38 +398,54 @@ export async function setPreferredMappoolReplay(
       .where(eq(editionState.slug, slug))
       .for("update");
     await assertCapability(actor, "manage_replays", slug, tx);
+    if (publicPlayback !== undefined)
+      await assertCapability(actor, "manage_mappools", slug, tx);
     await assertOperationalEdition(slug, tx);
     const { pool, entry } = await target(actor, slug, entryId, tx);
     const replays = await tx
       .select({
         id: mappoolReplays.id,
         preferred: mappoolReplays.preferred,
+        publicPlayback: mappoolReplays.publicPlayback,
         summary: mappoolReplays.summary,
       })
       .from(mappoolReplays)
       .where(eq(mappoolReplays.entryId, entryId));
     const replay = replays.find(({ id }) => id === replayId);
     if (!replay) throw new HttpError(404, "Replay not found.");
-    if (parsed.data.preferred && replay.summary.mode !== "osu")
+    if (preferred && replay.summary.mode !== "osu")
       throw new HttpError(
         422,
         "Replay playback is available for osu!standard.",
       );
-    const previous = replays.find(({ preferred }) => preferred)?.id ?? null;
-    if (parsed.data.preferred === replay.preferred)
-      return { preferredReplayId: previous, version: pool.version };
-    if (pool.version !== parsed.data.expectedVersion)
+    const previous = replays.find((row) => row.preferred);
+    const previousId = previous?.id ?? null;
+    if (publicPlayback !== undefined && (!preferred || !replay.preferred))
+      throw new HttpError(
+        409,
+        "Select a preferred replay before changing public playback.",
+      );
+    const publicChange =
+      publicPlayback !== undefined && publicPlayback !== replay.publicPlayback;
+    const receipt = publicPlayback === undefined ? {} : { publicPlayback };
+    if (preferred === replay.preferred && !publicChange)
+      return {
+        preferredReplayId: previousId,
+        version: pool.version,
+        ...receipt,
+      };
+    if (pool.version !== expectedVersion)
       throw new HttpError(409, "This pool changed. Refresh before confirming.");
-    const preferredReplayId = parsed.data.preferred ? replayId : null;
-    if (previous)
+    const preferredReplayId = preferred ? replayId : null;
+    if (previousId && previousId !== preferredReplayId)
       await tx
         .update(mappoolReplays)
-        .set({ preferred: false })
-        .where(eq(mappoolReplays.id, previous));
+        .set({ preferred: false, publicPlayback: false })
+        .where(eq(mappoolReplays.id, previousId));
     if (preferredReplayId)
       await tx
         .update(mappoolReplays)
-        .set({ preferred: true })
+        .set({ preferred: true, ...receipt })
         .where(eq(mappoolReplays.id, preferredReplayId));
     const version = pool.version + 1;
     await tx
@@ -433,10 +456,19 @@ export async function setPreferredMappoolReplay(
       editionSlug: slug,
       poolId: pool.id,
       actorId: actor.osuId,
-      action: "replay_preference",
-      before: { entryId, preferredReplayId: previous },
-      after: { entryId, beatmapId: entry.beatmapId, preferredReplayId },
+      action: publicChange ? "replay_public_playback" : "replay_preference",
+      before: {
+        entryId,
+        preferredReplayId: previousId,
+        publicPlayback: previous?.publicPlayback ?? false,
+      },
+      after: {
+        entryId,
+        beatmapId: entry.beatmapId,
+        preferredReplayId,
+        publicPlayback: publicPlayback ?? false,
+      },
     });
-    return { preferredReplayId, version };
+    return { preferredReplayId, version, ...receipt };
   });
 }

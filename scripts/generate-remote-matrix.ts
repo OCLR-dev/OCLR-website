@@ -143,6 +143,28 @@ const rows = files.map((file) => {
     };
   }
   if (
+    file ===
+    "src/app/api/tournaments/[edition]/mappools/[poolId]/entries/[entryId]/replay/[replayId]/[asset]/route.ts"
+  ) {
+    return {
+      file,
+      kind: "read-route",
+      authority: "denied",
+      operations: [],
+      commands: "None",
+      metadata: "Published entry scoped",
+      services: ["src/lib/public-mappool-replays.ts"],
+      test: "integration/mappool-replays.test.ts + components/public-mappools.spec.ts",
+      authorization:
+        "Published edition and pool, explicitly public preferred replay and matching cached beatmap",
+      adapter:
+        "Native database and media storage; disabled in remote development",
+      media: "Selected OSR, matched OSZ and installed skin",
+      requiredVerification:
+        "Anonymous playback, publication, preference replacement and revocation",
+    };
+  }
+  if (
     file === "src/app/tournaments/[edition]/chat/page.tsx" ||
     file === "src/components/liru-chat.tsx"
   ) {

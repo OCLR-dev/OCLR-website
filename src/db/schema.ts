@@ -1114,6 +1114,7 @@ export const mappoolReplays = pgTable(
     size: integer("size").notNull(),
     description: text("description").notNull().default(""),
     preferred: boolean("preferred").notNull().default(false),
+    publicPlayback: boolean("public_playback").notNull().default(false),
     uploaderId: bigint("uploader_id", { mode: "number" }).notNull(),
     uploaderName: text("uploader_name").notNull(),
     summary: jsonb("summary")
@@ -1128,6 +1129,10 @@ export const mappoolReplays = pgTable(
     uniqueIndex("replay_entry_preferred_unique")
       .on(t.entryId)
       .where(sql`${t.preferred}`),
+    check(
+      "replay_public_playback_requires_preference",
+      sql`NOT ${t.publicPlayback} OR ${t.preferred}`,
+    ),
   ],
 );
 

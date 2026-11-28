@@ -125,7 +125,7 @@ The combo field shows **replay combo / map maximum** when saved official attribu
 
 Official beatmap responses retain the optional MD5 checksum. A known checksum/ruleset mismatch blocks attachment. Missing official checksums (including older saved metadata) are explicitly **unverified**, never labelled matched; refresh metadata when verification is required. No arbitrary URL is fetched. Attachments reference stable entry IDs, so an attachment follows the same entry during an allowed slot move. An attached entry cannot be removed or replaced without explicit attachment cleanup; a metadata refresh cannot introduce a known checksum conflict. Existing legacy selection locks and completed-fixture locks still protect map identities and structure. Saved `selectionLockedAt` / `showcaseAt` fields and audit history remain available for compatibility; they do not control replay writes. Archived editions remain read-only.
 
-Files stay private even when the pool is published. There is no public replay API or public download URL. The protected endpoints are `/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays` (GET list / POST bounded multipart upload) and its `/[replayId]` resource (GET attachment / DELETE confirmed versioned removal). Reads validate current read grants; writes also enforce same-origin, current write grants, versions and archive protection. A retry of already committed content is idempotent; a different concurrent write with a stale version returns 409. See [deployment and recovery](deployment.md#private-mappool-replay-storage-185) for persistent storage, quotas, Python LZMA, backup and offline cleanup.
+Replay attachments are private by default. The public player can retrieve only the explicitly released preferred replay of a published map. The protected endpoints are `/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays` (GET list / POST bounded multipart upload) and its `/[replayId]` resource (GET attachment / DELETE confirmed versioned removal). Reads validate current read grants; writes also enforce same-origin, current write grants, versions and archive protection. A retry of already committed content is idempotent; a different concurrent write with a stale version returns 409. See [deployment and recovery](deployment.md#private-mappool-replay-storage-185) for persistent storage, quotas, Python LZMA, backup and offline cleanup.
 
 ## Staff replay player (#1224)
 
@@ -140,6 +140,14 @@ download a file from another game mode, upload a replay, or delete an attachment
 Staff with replay management permission can use **Set as preferred replay**
 or **Clear preferred replay** there. Each map has at most one preferred
 osu!standard replay. Showcase replay access provides only the preferred file.
+
+On the preferred replay, staff with both replay and mappool management can choose
+**Enable public playback**. A published pool then shows a play button in the map
+card when its cached beatmap matches the replay. The public player retrieves the
+original replay, matching beatmap package and installed redistributable skin.
+Existing attachments start with public playback off. Choose **Disable public
+playback** to withdraw it. Clearing or changing the preferred replay also
+withdraws the previous public selection.
 
 Playback reads the saved attachment through the edition-scoped route and
 uses the server's cached beatmap package. To provide a local `.osz` for

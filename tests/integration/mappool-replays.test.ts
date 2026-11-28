@@ -40,7 +40,10 @@ import {
   deleteMappoolReplay,
   downloadMappoolReplay,
   loadMappoolReplayPlaybackAsset,
+  setPreferredMappoolReplay,
 } from "../../src/lib/mappool-replays";
+import { publicMappoolReplays } from "../../src/lib/public-mappool-replays";
+import { GET as publicReplayAsset } from "../../src/app/api/tournaments/[edition]/mappools/[poolId]/entries/[entryId]/replay/[replayId]/[asset]/route";
 import { cleanupReplayFiles } from "../../src/lib/replay-storage";
 import {
   changeMappoolBeatmapCache,
@@ -312,6 +315,100 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
     await expect(read(outsider)).rejects.toMatchObject({ status: 403 });
     await db().delete(staffRoles).where(eq(staffRoles.userId, mapper.osuId));
     await expect(read()).rejects.toMatchObject({ status: 403 });
+  });
+
+  it("serves anonymous playback only for an explicitly public preferred replay in a published pool", async () => {
+    const difficulty =
+      "osu file format v14\r\n[General]\r\nAudioFilename: song.wav\r\n[Metadata]\r\nBeatmapID:123\r\n";
+    const checksum = createHash("md5").update(difficulty).digest("hex");
+    const archive = Buffer.from(
+      zipSync({
+        "map.osu": strToU8(difficulty),
+        "song.wav": strToU8("synthetic audio"),
+      }),
+    );
+    await db()
+      .update(mappoolEntries)
+      .set({ metadata: { ...metadata, checksum } })
+      .where(eq(mappoolEntries.id, entryId));
+    const replay = syntheticReplay({ md5: checksum });
+    const { id: replayId } = await upload(tester, replay);
+    const second = await upload(
+      tester,
+      syntheticReplay({ md5: checksum, player: "Another player" }),
+    );
+    await changeMappoolBeatmapCache(
+      mapper,
+      edition.slug,
+      entryId,
+      async () => ({
+        action: "upload",
+        file: new File([new Uint8Array(archive)], "synthetic.osz"),
+        ...(await command()),
+      }),
+      new AbortController().signal,
+    );
+    const skin = Buffer.from("synthetic osk");
+    await mkdir(join(root, "replay-skins"), { recursive: true });
+    await writeFile(join(root, "replay-skins", "default.osk"), skin);
+    const read = (asset: string, id = replayId, selectedPool = poolId) =>
+      publicReplayAsset(new Request(`${origin}/replay/${asset}`), {
+        params: Promise.resolve({
+          edition: edition.slug,
+          poolId: selectedPool,
+          entryId,
+          replayId: id,
+          asset,
+        }),
+      });
+    const edit = async (
+      actor: typeof tester,
+      id: string,
+      publicPlayback?: boolean,
+    ) =>
+      setPreferredMappoolReplay(actor, edition.slug, entryId, id, {
+        ...(await command()),
+        preferred: true,
+        publicPlayback,
+      });
+    await edit(tester, replayId);
+    await expect(edit(tester, replayId, true)).rejects.toMatchObject({
+      status: 403,
+    });
+    expect(await publicMappoolReplays(edition.slug)).toEqual({});
+    await edit(admin, replayId, true);
+    expect((await read("replay.osr")).status).toBe(404);
+    await mappoolCommand(mapper, edition.slug, {
+      action: "pool_publish",
+      published: true,
+      poolId,
+      ...(await command()),
+    });
+    expect(await publicMappoolReplays(edition.slug, poolId)).toEqual({
+      [entryId]: { replayId, beatmapMd5: checksum },
+    });
+    for (const [asset, bytes] of [
+      ["replay.osr", replay],
+      ["beatmap.osz", archive],
+      ["skin.osk", skin],
+    ] as const) {
+      const response = await read(asset);
+      expect(response.status).toBe(200);
+      expect(response.headers.get("cache-control")).toBe("no-store");
+      expect(response.headers.get("content-disposition")).toBe(
+        `attachment; filename="${asset}"`,
+      );
+      expect(Buffer.from(await response.arrayBuffer())).toEqual(bytes);
+      expect((await read(asset, second.id)).status).toBe(404);
+      expect((await read(asset, replayId, randomUUID())).status).toBe(404);
+    }
+    await edit(admin, replayId, false);
+    expect((await read("replay.osr")).status).toBe(404);
+    await edit(admin, replayId, true);
+    await edit(tester, second.id);
+    await edit(tester, replayId);
+    expect(await publicMappoolReplays(edition.slug)).toEqual({});
+    expect((await read("replay.osr")).status).toBe(404);
   });
 
   it("caches one verified OSZ, preserves it on failure or conflict, and serves it only to authorized replay readers", async () => {

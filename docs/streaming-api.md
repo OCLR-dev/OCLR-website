@@ -193,8 +193,9 @@ Both routes recheck the role, edition, non-participant status, selection lock,
 version and grant. The file route also verifies that the attachment belongs to a
 saved entry in that pool, checks the private file's stored size and hash, and
 rechecks access after reading storage. Public pool release ends Showcase access.
-Published pools' replays remain private staff attachments. Each actual upload,
-deletion, or preference change increments the pool version. The Admin must
+Published pools can expose an explicitly released preferred replay through the
+[public player](mappools.md#staff-replay-player-1224). Each actual upload,
+deletion, preference change, or public playback change increments the pool version. The Admin must
 grant Showcase access again for the new version. The Overlay should
 refresh the pool selection on 404 or 409 and clear stale replay data. A duplicate upload or repeated
 deletion of a missing attachment does not change the version.

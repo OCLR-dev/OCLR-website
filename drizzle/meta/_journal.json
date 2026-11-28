@@ -883,6 +883,13 @@
       "when": 1795706996694,
       "tag": "0125_schedule_independent_of_draft",
       "breakpoints": true
+    },
+    {
+      "idx": 126,
+      "version": "7",
+      "when": 1795879469151,
+      "tag": "0126_public_mappool_replays",
+      "breakpoints": true
     }
   ]
 }

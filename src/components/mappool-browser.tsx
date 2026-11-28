@@ -6,6 +6,7 @@ import { mappoolDisplayName } from "@/lib/mappool-label";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import type { publicMappools } from "@/lib/mappool-reads";
+import type { PublicMappoolReplays } from "@/lib/public-mappool-replays";
 import {
   mappoolSlotOrder,
   compareMappoolSlots,
@@ -17,6 +18,7 @@ import { BeatmapActions } from "./beatmap-actions";
 import { BeatmapCover } from "./beatmap-cover";
 import { MapCardBand } from "./map-card-band";
 import { MappoolView } from "./mappool-view";
+import { PublicMappoolReplayButton } from "./public-mappool-replay-button";
 import { WorkspaceTabs } from "./workspace-tabs";
 import styles from "./public-mappools.module.css";
 import {
@@ -171,13 +173,28 @@ function MapDetails({
 export function MappoolBrowser({
   pool,
   slug,
+  replays,
   headingLevel = 2,
 }: {
   pool: Pool;
   slug: string;
+  replays?: PublicMappoolReplays;
   headingLevel?: 2 | 4 | 5;
 }) {
   const tr = useAppTranslations();
+  function replayAction(entry: Entry) {
+    const replay = replays?.[entry.id];
+    if (!replay) return null;
+    return (
+      <PublicMappoolReplayButton
+        assetsUrl={`/api/tournaments/${encodeURIComponent(slug)}/mappools/${pool.id}/entries/${entry.id}/replay/${replay.replayId}`}
+        beatmapMd5={replay.beatmapMd5}
+        slot={slotLabel(entry.category, entry.position)}
+        title={entry.metadata.title}
+        difficulty={entry.metadata.difficulty}
+      />
+    );
+  }
   const tabId = useId();
   const [category, setCategory] = useState("");
   const [search, setSearch] = useState("");
@@ -365,6 +382,7 @@ export function MappoolBrowser({
             showCategoryLinks={false}
             preserveEntryOrder={sort !== "slot"}
             getDifficulty={difficulty}
+            replayAction={replayAction}
           />
         )}
         {view === "cards" && (
@@ -382,9 +400,11 @@ export function MappoolBrowser({
                 const slot = slotLabel(e.category, e.position);
                 const d = difficulty(e),
                   values = d.values;
+                const replay = replayAction(e);
                 return (
                   <MapCardBand
                     key={e.id}
+                    className={replay ? styles.withReplay : undefined}
                     id={`map-${e.id}`}
                     dataCategory={e.category}
                     slot={slot}
@@ -409,6 +429,7 @@ export function MappoolBrowser({
                       value1: e.metadata.title,
                     })}
                     onOpen={() => setSelected(e.id)}
+                    actions={replay}
                     chips={<DifficultyStatus display={d} />}
                     note={
                       e.category === "FM" && (

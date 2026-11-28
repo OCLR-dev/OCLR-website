@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useEffectEvent, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { slotLabel } from "@/lib/mappool-model";
 import type { MappoolWorkspace } from "@/lib/mappool-reads";
 import type { ReplayItem } from "@/lib/mappool-replays";
 import { openReplayListChannel } from "@/lib/replay-list-updates";
 import { MappoolReplayPlayer } from "./mappool-replay-player";
+import { MappoolReplayDialog } from "./mappool-replay-dialog";
 import styles from "./mappool-replay-player.module.css";
 
 export function MappoolReplayViewer({
@@ -21,8 +22,6 @@ export function MappoolReplayViewer({
   onClose: () => void;
 }) {
   const tr = useAppTranslations();
-  const panel = useRef<HTMLDialogElement>(null);
-  const heading = useRef<HTMLHeadingElement>(null);
   const [replays, setListState] = useState<ReplayItem[] | "error" | null>(null);
   const [listRevision, setListRevision] = useState(0);
   const [selectedId, setSelectedId] = useState("");
@@ -40,12 +39,6 @@ export function MappoolReplayViewer({
     if (selected) setSelectedId(selected.id);
     setListState(items);
   });
-
-  useEffect(() => {
-    const dialog = panel.current;
-    if (dialog && !dialog.open) dialog.showModal();
-    heading.current?.focus();
-  }, []);
 
   useEffect(() => {
     const refresh = () => setListRevision((revision) => revision + 1);
@@ -83,32 +76,12 @@ export function MappoolReplayViewer({
   }, [listUrl, listRevision]);
 
   return (
-    <dialog
-      ref={panel}
+    <MappoolReplayDialog
       id={id}
-      className={styles.viewer}
-      aria-labelledby={`${id}-title`}
-      aria-describedby={`${id}-map`}
+      slot={slot}
+      map={`${entry.metadata.title} · ${entry.metadata.difficulty}`}
       onClose={onClose}
     >
-      <header className={styles.header}>
-        <div className={styles.heading}>
-          <h3 ref={heading} tabIndex={-1} id={`${id}-title`}>
-            {tr("Replay player for {value0}", { value0: slot })}
-          </h3>
-          <p id={`${id}-map`}>
-            {entry.metadata.title} · {entry.metadata.difficulty}
-          </p>
-        </div>
-        <button
-          type="button"
-          className="secondary"
-          aria-label={tr("Close player")}
-          onClick={() => panel.current?.close()}
-        >
-          <span aria-hidden="true">×</span>
-        </button>
-      </header>
       {Array.isArray(replays) && replays.length > 1 && (
         <label className={styles.selection}>
           <span className="sr-only">{tr("Replay file")}</span>
@@ -160,6 +133,6 @@ export function MappoolReplayViewer({
           </button>
         </div>
       )}
-    </dialog>
+    </MappoolReplayDialog>
   );
 }
