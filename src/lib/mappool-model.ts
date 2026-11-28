@@ -1,6 +1,6 @@
 export const categories = ["NM", "HD", "DT", "HR", "FM", "TB"] as const;
 export type MappoolCategory = (typeof categories)[number];
-export const mappoolEditorCategories = [
+export const mappoolSlotOrder = [
   "NM",
   "HD",
   "HR",
@@ -8,6 +8,13 @@ export const mappoolEditorCategories = [
   "FM",
   "TB",
 ] as const satisfies readonly MappoolCategory[];
+type MappoolSlot = { category: MappoolCategory; position: number };
+export function compareMappoolSlots(a: MappoolSlot, b: MappoolSlot) {
+  return (
+    mappoolSlotOrder.indexOf(a.category) -
+      mappoolSlotOrder.indexOf(b.category) || a.position - b.position
+  );
+}
 export const mappoolBatchSelectionLimit = 50;
 // osu! mod names are fixed game terminology in every interface locale.
 export const categoryNames = {

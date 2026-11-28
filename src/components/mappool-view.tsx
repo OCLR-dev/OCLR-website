@@ -1,7 +1,7 @@
 import { useAppTranslations } from "@/i18n/shared";
 import type { publicMappools } from "@/lib/mappool-reads";
 import {
-  categories,
+  mappoolSlotOrder,
   categoryNames,
   fmModeNames,
   fmPolicyName,
@@ -196,7 +196,7 @@ export function MappoolView({
 }) {
   const tr = useAppTranslations();
 
-  const populated = categories.filter((category) =>
+  const populated = mappoolSlotOrder.filter((category) =>
     pool.entries.some((entry) => entry.category === category),
   );
   const prefix = `pool-${pool.id}`;

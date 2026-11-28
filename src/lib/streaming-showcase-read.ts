@@ -13,6 +13,7 @@ import { editionOperationState } from "./archive-guard";
 import { beatmapCoverUrl } from "./beatmap-artwork";
 import { DeveloperApiError } from "./developer-api";
 import { readDataResponse } from "./developer-api-http";
+import { compareMappoolSlots } from "./mappool-model";
 import { REPLAY_MAX_BYTES } from "./replay-model";
 import { readReplay } from "./replay-storage";
 import { isShowcaseParticipant } from "./streaming-showcase-access";
@@ -180,8 +181,8 @@ export async function streamingShowcaseResponse(
             metadata: mappoolEntries.metadata,
           })
           .from(mappoolEntries)
-          .where(eq(mappoolEntries.poolId, pool.id))
-          .orderBy(mappoolEntries.category, mappoolEntries.position);
+          .where(eq(mappoolEntries.poolId, pool.id));
+        rows.sort(compareMappoolSlots);
         return {
           data: {
             pool,
@@ -381,8 +382,8 @@ export async function streamingShowcaseReplays(
               eq(mappoolReplays.preferred, true),
             ),
           )
-          .where(eq(mappoolEntries.poolId, poolId))
-          .orderBy(mappoolEntries.category, mappoolEntries.position);
+          .where(eq(mappoolEntries.poolId, poolId));
+        rows.sort(compareMappoolSlots);
         const entries = rows.map(({ entryId, category, position, replay }) => ({
           entryId,
           slot: `${category}${position}`,

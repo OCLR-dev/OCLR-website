@@ -597,6 +597,83 @@ describe.skipIf(!url)("streaming read channel #540", () => {
       confirmed: true,
     });
 
+  it("orders Showcase, replay, public and streaming fixture slots by mod and numeric position", async () => {
+    await configureShowcaseAdmin();
+    const [pool] = await db()
+      .insert(mappools)
+      .values({ editionSlug: slug, roundId, name: "Ordered pool" })
+      .returning();
+    const slots = [
+      ["DT", 1],
+      ["HR", 10],
+      ["TB", 1],
+      ["HD", 1],
+      ["FM", 1],
+      ["HR", 2],
+      ["NM", 1],
+    ] as const;
+    await db()
+      .insert(mappoolEntries)
+      .values(
+        slots.map(([category, position], index) => ({
+          poolId: pool.id,
+          category,
+          position,
+          beatmapId: 9100 + index,
+          metadata: {
+            setId: 0,
+            title: "Synthetic track",
+            difficulty: "Insane",
+            artist: "Synthetic artist",
+            mapper: "Synthetic mapper",
+            stars: 5,
+            bpm: 180,
+            duration: 100,
+          },
+        })),
+      );
+    const expected = ["NM1", "HD1", "HR2", "HR10", "DT1", "FM1", "TB1"];
+    await lock(pool.id, 0);
+    await grant(pool.id, 1);
+
+    const detail = await detailShowcase(pool.id, "?version=1");
+    expect(detail.status).toBe(200);
+    expect(
+      (await detail.json()).data.entries.map(
+        (entry: { slot: string }) => entry.slot,
+      ),
+    ).toEqual(expected);
+    const replays = await listReplays(pool.id, 1);
+    expect(replays.status).toBe(200);
+    expect(
+      (await replays.json()).data.entries.map(
+        (entry: { slot: string }) => entry.slot,
+      ),
+    ).toEqual(expected);
+
+    await db()
+      .update(mappools)
+      .set({ publishedAt: new Date() })
+      .where(eq(mappools.id, pool.id));
+    await db()
+      .update(fixtures)
+      .set({ mappoolId: pool.id })
+      .where(eq(fixtures.id, first));
+    const slot = (entry: { category: string; position: number }) =>
+      `${entry.category}${entry.position}`;
+    const publicResponse = await publicPool(
+      new Request(`${backend}/api/tournaments/${slug}/mappools/${pool.id}`),
+      { params: Promise.resolve({ edition: slug, poolId: pool.id }) },
+    );
+    expect(publicResponse.status).toBe(200);
+    expect((await publicResponse.json()).entries.map(slot)).toEqual(expected);
+    const fixtureResponse = await read();
+    expect(fixtureResponse.status).toBe(200);
+    expect(
+      (await fixtureResponse.json()).data.mappools[0].entries.map(slot),
+    ).toEqual(expected);
+  });
+
   it("lists only locked, unpublished pools granted to this Streamer without any fixture assignment", async () => {
     await configureShowcaseAdmin();
     await db().delete(fixtureStreams);
