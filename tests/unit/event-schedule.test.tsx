@@ -243,9 +243,12 @@ describe("published schedule semantics", () => {
     );
     const html = await render();
     const standings =
-      html.match(/<table><caption>Group A<\/caption>.*?<\/table>/s)?.[0] ?? "";
+      html.match(/<table><caption[^>]*>Group A<\/caption>.*?<\/table>/s)?.[0] ??
+      "";
     expect(standings).toMatch(/>Blue<\/a>.*>Red<\/a>/s);
     expect(standings).toContain(`/tournaments/${edition.slug}/teams/blue`);
+    expect(html.match(/>Ranking order<\/h3>/g)).toHaveLength(1);
+    expect(html.indexOf("Ranking order")).toBeLessThan(html.indexOf(standings));
     expect(html).not.toContain("Ranking pending:");
   });
   it("keeps equal authoritative ranks tied", async () => {

@@ -5367,6 +5367,7 @@
     "me2337a49cb24": "The end date must be on or after the start date.",
     "m20cfc6b9bc48": "Choose a round, start and end dates, and distinct match times.",
     "m6b9643caae33": "Matches use Saturday and Sunday slots within these dates. Each team can play at most once per day. Times use {timeZone}.",
-    "m715970a864e4": "Could not fit all matches with one match per team per day. Extend the date range or adjust match times."
+    "m715970a864e4": "Could not fit all matches with one match per team per day. Extend the date range or adjust match times.",
+    "m46390479cf44": "Ranking order"
   }
 }
