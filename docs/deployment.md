@@ -607,7 +607,7 @@ confirm both slots show as cached.
 
 ### Team images (#99)
 
-Set `OCLR_MEDIA_DIR=/var/lib/oclr/media` in the existing runtime environment. Provision this directory once as root (`install -d -o oclr -g oclr -m 0700 /var/lib/oclr/media`); updates must retain it outside `/opt/oclr/releases`. The app stores only bounded, decoded/re-encoded 512px WebP images under `teams/<UUID>.webp`; original uploads/metadata are discarded. Images are served through a publication/permission checked route, not a public writable directory. Unconfigured/missing storage falls back to the team monogram; uploads fail clearly.
+Set `OCLR_MEDIA_DIR=/var/lib/oclr/media` in the existing runtime environment. Provision this directory once as root (`install -d -o oclr -g oclr -m 0700 /var/lib/oclr/media`) and keep it outside `/opt/oclr/releases`. The app stores square WebP files up to 1 MiB under `teams/<UUID>.webp`. Static images are 512px wide and animations from GIF or WebP are 256px wide. Animation uploads are limited to 120 frames and 16,777,216 decoded pixels in total. Re-encoding discards original uploads and embedded metadata while retaining animation timing and looping. The delivery route checks publication and permissions. Unconfigured or missing storage uses the existing avatar fallback.
 
 Apply additive migration `0020_team_avatars` and `0021_registration_eligibility` through the normal stopped-writes backup/migration workflow. Existing teams and historical applications keep NULL image/verification references. Automatic limits default to disabled on existing editions; no invented eligibility rules or retroactive acknowledgment. On application rollback retain these nullable columns; never reverse applied migration history.
 

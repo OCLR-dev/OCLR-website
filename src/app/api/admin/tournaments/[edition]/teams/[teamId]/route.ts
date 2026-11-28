@@ -7,6 +7,7 @@ import { requireStaff } from "@/lib/auth/staff-request";
 import { staffTeams } from "@/lib/team-reads";
 import { updateTeams } from "@/lib/teams";
 import { storeTeamImage, removeTeamImage } from "@/lib/team-media";
+import { teamImageMimeTypes } from "@/lib/team-image-formats";
 import { editTeamIdentityWrite } from "@/lib/draft-setup-write-contracts";
 import { apiError, HttpError, requireSameOrigin } from "@/lib/http";
 export async function PATCH(
@@ -44,9 +45,12 @@ export async function PATCH(
     if (
       image instanceof File &&
       image.size &&
-      !["image/jpeg", "image/png", "image/webp"].includes(image.type)
+      !teamImageMimeTypes.includes(image.type)
     )
-      throw new HttpError(400, "Choose a JPEG, PNG or WebP image up to 5 MB.");
+      throw new HttpError(
+        400,
+        "Choose a JPEG, PNG, GIF or WebP image up to 5 MB.",
+      );
     if (image instanceof File && image.size)
       uploaded = await storeTeamImage(Buffer.from(await image.arrayBuffer()));
     const data = await updateTeams(

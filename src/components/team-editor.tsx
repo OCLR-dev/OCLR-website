@@ -11,6 +11,7 @@ import { LoadingRegion } from "./loading-region";
 import { PendingButtonLabel } from "./pending-button-label";
 import { useAppTranslations } from "@/i18n/shared";
 import type { staffTeams } from "@/lib/team-reads";
+import { teamImageMimeTypes } from "@/lib/team-image-formats";
 import { TeamAvatar } from "./team-avatar";
 export function TeamEditor({
   slug,
@@ -151,7 +152,7 @@ export function TeamEditor({
                 disabled={pending}
                 ref={imageInput}
                 type="file"
-                accept="image/jpeg,image/png,image/webp"
+                accept={teamImageMimeTypes.join(",")}
                 onChange={(e) => {
                   chooseImage(e.target.files?.[0] ?? null);
                   setRemove(false);
@@ -160,7 +161,9 @@ export function TeamEditor({
             </label>
             <InfoNote>
               <p className="small muted">
-                {tr("JPEG, PNG or WebP · up to 5 MB · saved as a square image")}
+                {tr(
+                  "JPEG, PNG, GIF or WebP up to 5 MB. GIF and WebP animations are preserved.",
+                )}
               </p>
             </InfoNote>
           </ReadOnlyFields>
