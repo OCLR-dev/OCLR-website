@@ -415,12 +415,14 @@ export function FixtureManager({
     id = useId();
   const bracket = fixtureBracket(slug, data);
   const groups = groupedFixtures(data, roundId);
+  const poolNames = new Map(data.pools.map((pool) => [pool.id, pool.name]));
   function open(fixture: Fixture | "new") {
     setEditing(fixture);
     editor.current?.showModal();
   }
   function card(f: Fixture) {
     const round = data.rounds.find((r) => r.round.id === f.roundId);
+    const poolName = f.mappoolId ? poolNames.get(f.mappoolId) : undefined;
     return (
       <>
         <header className="fixture-match-heading">
@@ -470,6 +472,17 @@ export function FixtureManager({
               ? tr(formatDate(f.scheduledAt, f.timeZone, tr.locale))
               : tr("Time TBA")}
           </p>
+          {viewManagement && (
+            <p className="small muted">
+              {poolName ? (
+                <>
+                  {tr("Associated mappool")} · {poolName}
+                </>
+              ) : (
+                tr("No mappool associated")
+              )}
+            </p>
+          )}
           <p className="small">
             <span className="badge">
               {f.publishedAt
