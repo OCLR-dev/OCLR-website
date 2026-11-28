@@ -7,12 +7,13 @@ import {
   type PointerEvent,
 } from "react";
 import { useAppTranslations } from "@/i18n/shared";
-import { maxStageGroups } from "@/lib/competition-model";
+import { maxStageGroups, maxTeamsPerStageGroup } from "@/lib/competition-model";
 import type { FixtureWorkspace } from "@/lib/fixture-reads";
 import { ReadOnlyFields, useStaffReadOnly } from "./staff-read-only";
 import { ConfirmMutation } from "./confirm-mutation";
 import { TeamAvatar } from "./team-avatar";
 import { PublicationSwitch } from "./publication-switch";
+import dialogStyles from "./confirm-mutation.module.css";
 
 type Group = { key?: string; name: string; teamIds: string[] };
 type Team = FixtureWorkspace["teams"][number] & { avatarKey?: string | null };
@@ -21,6 +22,13 @@ function groupLetter(index: number): string {
   return index < 26
     ? String.fromCharCode(65 + index)
     : groupLetter(Math.floor(index / 26) - 1) + groupLetter(index % 26);
+}
+function shuffle<T>(items: T[]): T[] {
+  for (let index = items.length - 1; index > 0; index--) {
+    const swap = Math.floor(Math.random() * (index + 1));
+    [items[index], items[swap]] = [items[swap], items[index]];
+  }
+  return items;
 }
 export function StageGroups({
   slug,
@@ -34,6 +42,7 @@ export function StageGroups({
   const tr = useAppTranslations();
   const readOnly = useStaffReadOnly();
   const id = useId();
+  const randomizeDialog = useRef<HTMLDialogElement>(null);
   const [draftGroups, setGroups] = useState<Group[]>(
     stage.groupConfiguration?.groups ?? [],
   );
@@ -63,13 +72,24 @@ export function StageGroups({
       JSON.stringify(stage.groupConfiguration?.groups ?? []) ||
     published !== Boolean(stage.groupsPublishedAt);
   const unappliedCount = count !== "" && Number(count) !== groups.length;
+  const hasAssignments = groups.some((group) => group.teamIds.length > 0);
+  const exceedsGroupCapacity =
+    groups.length > 0 &&
+    data.teams.length > groups.length * maxTeamsPerStageGroup;
+  const canRandomize =
+    !readOnly &&
+    !unappliedCount &&
+    groups.length > 0 &&
+    groups.length <= maxStageGroups &&
+    data.teams.length > 0 &&
+    !exceedsGroupCapacity;
   const invalid =
     groups.length > maxStageGroups ||
     groups.some(
       (g) =>
         !g.name.trim() ||
         (published && g.teamIds.length < 2) ||
-        g.teamIds.length > 128,
+        g.teamIds.length > maxTeamsPerStageGroup,
     ) ||
     (published && !groups.length);
   const destinationName = (target: Destination) =>
@@ -131,6 +151,26 @@ export function StageGroups({
     const next = Number(count);
     if (groups.slice(next).some((g) => g.teamIds.length)) setPendingCount(next);
     else resize(next);
+  }
+  function randomize() {
+    if (!canRandomize) return;
+    const teamIds = shuffle(data.teams.map((team) => team.id));
+    const nextGroups = groups.map<Group>((group) => ({
+      ...group,
+      teamIds: [],
+    }));
+    // Randomize which groups receive an extra team without moving the cards.
+    const destinations = shuffle([...nextGroups]);
+    teamIds.forEach((teamId, index) => {
+      destinations[index % destinations.length].teamIds.push(teamId);
+    });
+    setGroups(nextGroups);
+    setSelected(null);
+    clearDrag();
+    setNotice(
+      tr("Teams were randomly assigned. Review the draft before saving."),
+    );
+    randomizeDialog.current?.close();
   }
   function pointerStart(
     event: PointerEvent<HTMLButtonElement>,
@@ -278,7 +318,7 @@ export function StageGroups({
         />
         <p id={`${id}-help`} className="small muted">
           {tr(
-            "Choose the number of groups, then drag teams into a group or use its team selector.",
+            "Apply the group count, then use random assignment or move teams by dragging them or using a group’s team selector.",
           )}
         </p>
         <div className="group-count-controls">
@@ -309,10 +349,51 @@ export function StageGroups({
           >
             {groups.length ? tr("Apply group count") : tr("Generate groups")}
           </button>
+          <button
+            type="button"
+            className="secondary"
+            aria-haspopup={hasAssignments ? "dialog" : undefined}
+            disabled={!canRandomize}
+            onClick={() => {
+              if (hasAssignments) randomizeDialog.current?.showModal();
+              else randomize();
+            }}
+          >
+            {tr("Randomize groups")}
+          </button>
           <span className="small muted">
             {changed ? tr("Unsaved changes") : tr("Saved assignments")}
           </span>
         </div>
+        <dialog
+          ref={randomizeDialog}
+          className={dialogStyles.dialog}
+          aria-labelledby={`${id}-randomize-title`}
+          aria-describedby={`${id}-randomize-description`}
+        >
+          <header className={dialogStyles.heading}>
+            <h2 id={`${id}-randomize-title`}>
+              {tr("Randomize group assignments?")}
+            </h2>
+            <p id={`${id}-randomize-description`} className="muted">
+              {tr(
+                "This replaces the current draft assignments and distributes teams as evenly as possible.",
+              )}
+            </p>
+          </header>
+          <footer className={`actions ${dialogStyles.footer}`}>
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => randomizeDialog.current?.close()}
+            >
+              {tr("Cancel")}
+            </button>
+            <button type="button" disabled={!canRandomize} onClick={randomize}>
+              {tr("Randomize groups")}
+            </button>
+          </footer>
+        </dialog>
         {pendingCount !== null && (
           <div className="notice form-stack group-resize-confirm" role="alert">
             <p>
@@ -340,6 +421,13 @@ export function StageGroups({
         {unappliedCount && (
           <p className="small muted">
             {tr("Apply the group count before saving.")}
+          </p>
+        )}
+        {!unappliedCount && exceedsGroupCapacity && (
+          <p className="small muted">
+            {tr(
+              "There are too many teams to randomly assign with the current group count.",
+            )}
           </p>
         )}
         <section

@@ -58,6 +58,7 @@ const groupKeySchema = z
   .regex(/^[a-z0-9][a-z0-9-]*$/)
   .max(60);
 export const maxStageGroups = 4;
+export const maxTeamsPerStageGroup = 128;
 export const groupConfigurationInputSchema = z
   .object({
     version: z.string().trim().min(1).max(80).optional(),
@@ -69,7 +70,7 @@ export const groupConfigurationInputSchema = z
             name: z.string().trim().min(1).max(80),
             teamIds: z
               .array(z.uuid())
-              .max(128)
+              .max(maxTeamsPerStageGroup)
               .refine((ids) => new Set(ids).size === ids.length),
           })
           .strict(),
