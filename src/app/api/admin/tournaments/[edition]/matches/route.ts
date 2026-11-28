@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth/user";
 import { fixtureCommand } from "@/lib/fixtures";
 import { staffFixtures } from "@/lib/fixture-reads";
 import { previewFixtureForceDelete } from "@/lib/fixture-force-delete";
+import { previewGroupSchedule } from "@/lib/group-schedule";
 import { changeFixturesWrite } from "@/lib/fixture-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 async function readGET(
@@ -30,16 +31,20 @@ export async function POST(
     const user = await requireUser();
     const { edition } = await context.params;
     const input = await readJson(request, changeFixturesWrite.maxBodyBytes);
-    if (
-      input &&
-      typeof input === "object" &&
-      "action" in input &&
-      input.action === "preview_force_delete"
-    )
-      return NextResponse.json(
-        await previewFixtureForceDelete(user, edition, input),
-        { headers: { "Cache-Control": "no-store" } },
-      );
+    if (input && typeof input === "object" && "action" in input) {
+      if (input.action === "preview_force_delete")
+        return NextResponse.json(
+          await previewFixtureForceDelete(user, edition, input),
+          { headers: { "Cache-Control": "no-store" } },
+        );
+      if (input.action === "preview_group_schedule")
+        return NextResponse.json(
+          await previewGroupSchedule(user, edition, input),
+          {
+            headers: { "Cache-Control": "no-store" },
+          },
+        );
+    }
     const result = await fixtureCommand(user, edition, input);
     revalidateCommittedPath(`/admin/tournaments/${edition}`, "layout");
     revalidateCommittedPath(`/tournaments/${edition}`, "layout");

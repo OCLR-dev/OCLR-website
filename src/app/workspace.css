@@ -914,6 +914,27 @@
 .group-resize-confirm .actions {
   margin: 0;
 }
+.group-scheduler > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.group-scheduler-body {
+  margin-block-start: 1rem;
+}
+.group-schedule-preview {
+  display: grid;
+  max-block-size: 24rem;
+  overflow: auto;
+  padding-inline-start: 1.5rem;
+}
+.group-schedule-preview li {
+  padding: 0.5rem 0;
+  border-block-end: 1px solid var(--site-border);
+  overflow-wrap: anywhere;
+}
+.group-schedule-preview li > span {
+  display: block;
+}
 @media (max-width: 600px) {
   .group-assignment .group-count-controls {
     align-items: end;

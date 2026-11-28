@@ -28,6 +28,7 @@ import {
   users,
 } from "../../src/db/schema";
 import { assignFixtureReferees, fixtureCommand } from "../../src/lib/fixtures";
+import { previewGroupSchedule } from "../../src/lib/group-schedule";
 import { fixtureForReview, staffFixtures } from "../../src/lib/fixture-reads";
 import {
   chronologicalFixtures,
@@ -750,6 +751,92 @@ describe.skipIf(!url)(
           published: true,
         }),
       ).rejects.toMatchObject({ status: 400 });
+    });
+    it("previews and creates group fixtures once under the edition lock", async () => {
+      const occupied = {
+        ...body(true),
+        homeTeamId: null,
+        awayTeamId: null,
+        scheduledAt: "2026-12-05T12:00:00.000Z",
+      };
+      const initial = await fixtureCommand(admin, "test-cup", occupied);
+      const stage = initial.stages.find((entry) => entry.kind === "group")!;
+      const saved = await fixtureCommand(admin, "test-cup", {
+        ...confirm,
+        action: "stage_groups",
+        stageId: stage.id,
+        expectedVersion: stage.version,
+        configuration: { groups: [{ name: "A", teamIds: [homeId, awayId] }] },
+        published: false,
+      });
+      const fields = {
+        stageId: stage.id,
+        expectedVersion: saved.stages.find((entry) => entry.id === stage.id)!
+          .version,
+        roundId,
+        startDate: "2026-12-05",
+        times: ["20:00", "21:00", "22:00"],
+      };
+      const preview = (actor = admin) =>
+        previewGroupSchedule(actor, "test-cup", {
+          ...fields,
+          action: "preview_group_schedule",
+        });
+      const create = (fingerprint: string) =>
+        fixtureCommand(admin, "test-cup", {
+          ...fields,
+          ...confirm,
+          action: "create_group_schedule",
+          expectedFingerprint: fingerprint,
+        });
+
+      await expect(preview(referee)).rejects.toMatchObject({ status: 403 });
+      const planned = await preview();
+      expect(planned.matches).toMatchObject([
+        { scheduledAt: "2026-12-05T13:00:00.000Z" },
+      ]);
+      expect((await staffFixtures(admin, "test-cup")).fixtures).toHaveLength(1);
+      await fixtureCommand(admin, "test-cup", {
+        ...occupied,
+        scheduledAt: "2026-12-05T13:00:00.000Z",
+        action: "edit",
+        fixtureId: initial.fixtures[0].id,
+        expectedVersion: initial.fixtures[0].version,
+      });
+      await expect(create(planned.fingerprint)).rejects.toMatchObject({
+        status: 409,
+      });
+      const refreshed = await preview();
+      const results = await Promise.allSettled([
+        create(refreshed.fingerprint),
+        create(refreshed.fingerprint),
+      ]);
+      expect(
+        results.filter((result) => result.status === "fulfilled"),
+      ).toHaveLength(1);
+      expect(
+        results.find((result) => result.status === "rejected"),
+      ).toMatchObject({ reason: { status: 409 } });
+      const after = await staffFixtures(admin, "test-cup");
+      expect(after.fixtures).toHaveLength(2);
+      const generated = after.fixtures.find(
+        (entry) => entry.id !== initial.fixtures[0].id,
+      )!;
+      expect(generated).toMatchObject({
+        homeTeamId: homeId,
+        awayTeamId: awayId,
+        scheduledAt: new Date("2026-12-05T12:00:00.000Z"),
+        publishedAt: null,
+      });
+      const [audit] = await db()
+        .select()
+        .from(resultAuditEvents)
+        .where(eq(resultAuditEvents.fixtureId, generated.id));
+      expect(audit).toMatchObject({
+        actorId: admin.osuId,
+        action: "fixture_create",
+      });
+      expect((await preview()).matches).toEqual([]);
     });
     it("generates stable unique group identifiers and rejects stale concurrent additions", async () => {
       const initial = await fixtureCommand(admin, "test-cup", body());

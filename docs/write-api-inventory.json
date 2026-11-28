@@ -552,6 +552,8 @@
         "access": "browser",
         "actions": [
           "preview_force_delete",
+          "preview_group_schedule",
+          "create_group_schedule",
           "force_delete",
           "delete",
           "stage_groups",
@@ -564,6 +566,7 @@
           "src/components/competition-settings.tsx",
           "src/components/fixture-manager.tsx",
           "src/components/force-fixture-delete.tsx",
+          "src/components/group-scheduler.tsx",
           "src/components/stage-groups.tsx"
         ]
       }

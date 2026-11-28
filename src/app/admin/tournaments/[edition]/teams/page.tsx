@@ -102,6 +102,12 @@ async function Issue271Page({
                   slug={edition}
                   stage={stage}
                   data={{ teams: groupTeams }}
+                  scheduling={{
+                    rounds: competition.rounds
+                      .filter(({ round }) => round.stageId === stage.id)
+                      .map(({ round: { id, name } }) => ({ id, name })),
+                    timeZone: competition.timeZone,
+                  }}
                 />
               </StaffReadOnlyContext>
             ))}

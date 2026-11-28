@@ -14,6 +14,7 @@ import { ConfirmMutation } from "./confirm-mutation";
 import { TeamAvatar } from "./team-avatar";
 import { PublicationSwitch } from "./publication-switch";
 import dialogStyles from "./confirm-mutation.module.css";
+import { GroupScheduler } from "./group-scheduler";
 
 type Group = { key?: string; name: string; teamIds: string[] };
 type Team = FixtureWorkspace["teams"][number] & { avatarKey?: string | null };
@@ -34,10 +35,12 @@ export function StageGroups({
   slug,
   data,
   stage,
+  scheduling,
 }: {
   slug: string;
   data: { teams: Team[] };
   stage: FixtureWorkspace["stages"][number];
+  scheduling?: { rounds: { id: string; name: string }[]; timeZone: string };
 }) {
   const tr = useAppTranslations();
   const readOnly = useStaffReadOnly();
@@ -595,6 +598,21 @@ export function StageGroups({
             }}
           />
         </div>
+        {!readOnly &&
+          scheduling &&
+          stage.groupConfiguration?.groups.some(
+            (group) => group.teamIds.length >= 2,
+          ) && (
+            <GroupScheduler
+              slug={slug}
+              stageId={stage.id}
+              version={stage.version}
+              teams={data.teams}
+              rounds={scheduling.rounds}
+              timeZone={scheduling.timeZone}
+              disabled={changed || unappliedCount}
+            />
+          )}
       </section>
     </ReadOnlyFields>
   );

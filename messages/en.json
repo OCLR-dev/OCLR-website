@@ -5344,6 +5344,27 @@
     "md87b51d9b7a4": "Public playback",
     "me2f116e6f5fe": "Disable public playback",
     "ma5b384765dfb": "Enable public playback",
-    "mebb37b6aa544": "Select a preferred replay before changing public playback."
+    "mebb37b6aa544": "Select a preferred replay before changing public playback.",
+    "mf281cd4ac25d": "Automatic group schedule",
+    "m9d6fb19c6729": "Save group assignments before scheduling matches.",
+    "m01dc906ebd59": "Matches are scheduled on Saturdays and Sundays, with at most one match per team each week. Times use {timeZone}.",
+    "m607f15943f9c": "Schedule start date",
+    "m2c68656fe623": "Match time {number}",
+    "m7d1d952eecb5": "Choose distinct match times.",
+    "m5d446659ba65": "Preview group schedule",
+    "m4b1c4ddf27a4": "Create these group matches?",
+    "m08de07539b57": "Create group matches",
+    "mb62a5c0b5b6f": "This creates unpublished fixtures from the preview. Existing matches stay on the schedule.",
+    "mc18ca2c51188": "Group matches created.",
+    "m0f8b042be45a": "Open fixtures",
+    "m7e318cac7fa8": "{count, plural, one {# match to create} other {# matches to create}}",
+    "m9d9cda61d4cb": "All group pairings already have fixtures.",
+    "m003b29ddd856": "Choose a round with enough fixture positions for the group schedule.",
+    "mfab985a7c319": "Choose different dates or time slots to fit the group schedule.",
+    "mf1f582ade444": "Save at least one group with two teams before scheduling.",
+    "m7f910ab5c408": "Save updated group assignments before scheduling.",
+    "m5fdeb892dc45": "Choose a round from this Group Stage.",
+    "mbbd3c4ee0f2e": "Choose a round, start date, and distinct match times.",
+    "mda46b8b4a9b7": "The fixtures changed. Preview the group schedule again."
   }
 }
