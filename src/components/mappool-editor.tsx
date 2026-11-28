@@ -821,7 +821,7 @@ function MappoolEditorContent({
                   }}
                 />
               )}
-              {!pool.lockedAt && (
+              {(!pool.lockedAt || stage === "exhibition") && (
                 <ConfirmMutation
                   loadingFeedback="button"
                   url={change.url}
