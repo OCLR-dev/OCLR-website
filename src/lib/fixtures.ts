@@ -50,6 +50,7 @@ import { HttpError } from "./http-error";
 import { persistRoundRefereePolicy } from "./round-referee-policy";
 import { refereePolicyForWins } from "./referee-series";
 import { refereePolicySchema } from "./referee-model";
+import { createGroupSchedule } from "./group-schedule";
 // Keep stable policy identities on unchanged saves; changed policies get a new
 // release without asking an organizer to invent a technical identifier.
 function policyRelease<T extends { version: string }>(
@@ -228,6 +229,10 @@ export async function fixtureCommand(
         .for("update");
       await assertCapability(actor, "manage_fixtures", slug, tx);
       await assertOperationalEdition(slug, tx);
+      if (c.action === "create_group_schedule") {
+        await createGroupSchedule(tx, actor, slug, c);
+        return;
+      }
       if (c.action === "stage_groups") {
         const [stage] = await tx
           .select()

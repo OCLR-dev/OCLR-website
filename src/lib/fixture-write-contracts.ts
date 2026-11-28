@@ -18,6 +18,36 @@ import type { WriteApiOperation } from "./write-api-contract";
 const confirmation = {
   confirmed: z.literal(true),
 };
+const groupScheduleFields = {
+  stageId: z.uuid(),
+  expectedVersion: z.number().int().nonnegative(),
+  roundId: z.uuid(),
+  startDate: z.iso.date(),
+  times: z
+    .array(z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/))
+    .min(1)
+    .max(3)
+    .refine((times) => new Set(times).size === times.length)
+    .describe("Local edition start times in HH:mm."),
+};
+export const groupSchedulePreviewInput = z.strictObject({
+  ...groupScheduleFields,
+  action: z.literal("preview_group_schedule"),
+});
+export const groupSchedulePreviewResponse = z.object({
+  fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
+  timeZone: z.string(),
+  matches: z.array(
+    z.object({
+      group: z.string(),
+      homeTeamId: z.uuid(),
+      awayTeamId: z.uuid(),
+      scheduledAt: z.iso.datetime(),
+      position: z.number().int(),
+    }),
+  ),
+});
+export type GroupSchedulePreview = z.infer<typeof groupSchedulePreviewResponse>;
 const fixtureFields = {
   label: z.string().trim().min(1).max(100),
   roundId: z.uuid(),
@@ -39,6 +69,12 @@ const refereeIdsSchema = z
   .max(50)
   .refine((ids) => new Set(ids).size === ids.length);
 export const fixtureCommandInput = z.discriminatedUnion("action", [
+  z.strictObject({
+    ...confirmation,
+    ...groupScheduleFields,
+    action: z.literal("create_group_schedule"),
+    expectedFingerprint: groupSchedulePreviewResponse.shape.fingerprint,
+  }),
   z
     .object({
       ...confirmation,
@@ -176,13 +212,22 @@ export const changeFixturesWrite = {
   id: "changeFixtures",
   path: `${base}/matches`,
   method: "POST",
-  request: z.union([forceDeletePreviewInput, fixtureCommandInput]),
+  request: z.union([
+    forceDeletePreviewInput,
+    groupSchedulePreviewInput,
+    fixtureCommandInput,
+  ]),
   summary: "Manage fixtures, group assignments and round rules",
   description:
-    "Requires manage_fixtures. Normal changes return the staff fixture workspace. The force-delete preflight returns a versioned fingerprint, counts and any blocker. Force deletion requires that fingerprint, both fixture and assignment revisions, the exact label and explicit test-fixture confirmation. Approved result history, bracket dependents and published statistics are protected.",
-  successDescription: "The staff fixture workspace or force-delete preflight.",
+    "Requires manage_fixtures. The group schedule preflight returns new match pairings, Saturday and Sunday times, and a fingerprint. Each team can receive at most one match per edition-local calendar week. Confirmation creates unpublished fixtures atomically from the same saved group and schedule snapshot. The force-delete preflight returns a versioned fingerprint, counts and any blocker. Force deletion requires that fingerprint, both fixture and assignment revisions, the exact label and explicit test-fixture confirmation. Approved result history, bracket dependents and published statistics are protected.",
+  successDescription:
+    "The staff fixture workspace, group schedule preview or force-delete preflight.",
   response: {
-    anyOf: [forceDeletePreviewResponse, { readResource: "staffFixtures" }],
+    anyOf: [
+      forceDeletePreviewResponse,
+      groupSchedulePreviewResponse,
+      { readResource: "staffFixtures" },
+    ],
   },
   errors: {
     ...commonErrors,
@@ -193,6 +238,7 @@ export const changeFixturesWrite = {
     "src/components/competition-settings.tsx",
     "src/components/fixture-manager.tsx",
     "src/components/force-fixture-delete.tsx",
+    "src/components/group-scheduler.tsx",
     "src/components/stage-groups.tsx",
   ],
 } as const satisfies WriteApiOperation;

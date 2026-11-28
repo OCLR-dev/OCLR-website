@@ -378,6 +378,76 @@ test("keeps the publication switch at the top and applies changes only after sav
     expect(writes).toHaveLength(initiallyPublished ? 2 : 1);
   }
 });
+test("previews the default evening schedule before submitting the confirmed fixtures", async ({
+  page,
+}) => {
+  const requests: Record<string, unknown>[] = [];
+  const fingerprint = "a".repeat(64);
+  await page.route(
+    "**/api/admin/tournaments/synthetic/matches",
+    async (route) => {
+      const request = route.request().postDataJSON();
+      requests.push(request);
+      await route.fulfill({
+        json:
+          request.action === "preview_group_schedule"
+            ? {
+                fingerprint,
+                timeZone: "Asia/Taipei",
+                matches: [
+                  {
+                    group: "Alpha",
+                    homeTeamId: teamId(1),
+                    awayTeamId: teamId(2),
+                    scheduledAt: "2026-12-05T12:00:00.000Z",
+                    position: 1,
+                  },
+                ],
+              }
+            : {},
+      });
+    },
+  );
+  await page.goto("/stage-groups?saved&schedule");
+  await page.getByText("Automatic group schedule", { exact: true }).click();
+  for (const [index, time] of ["20:00", "21:00", "22:00"].entries()) {
+    await expect(
+      page.getByLabel(`Match time ${index + 1}`, { exact: true }),
+    ).toHaveValue(time);
+  }
+  const generate = page.getByRole("button", {
+    name: "Preview group schedule",
+    exact: true,
+  });
+  await expect(generate).toBeDisabled();
+  await page
+    .getByLabel("Schedule start date", { exact: true })
+    .fill("2026-12-02");
+  await generate.click();
+  await expect(page.getByText("Atlas · Birch", { exact: true })).toBeVisible();
+  expect(requests).toHaveLength(1);
+  expect(requests[0]).toMatchObject({
+    action: "preview_group_schedule",
+    expectedVersion: 7,
+    times: ["20:00", "21:00", "22:00"],
+  });
+  await page
+    .getByRole("button", { name: "Create group matches", exact: true })
+    .click();
+  expect(requests).toHaveLength(1);
+  await page
+    .getByRole("dialog", { name: "Create these group matches?" })
+    .getByRole("button", { name: "Confirm", exact: true })
+    .click();
+  await expect(
+    page.getByText("Group matches created.", { exact: false }),
+  ).toBeVisible();
+  expect(requests[1]).toMatchObject({
+    action: "create_group_schedule",
+    expectedFingerprint: fingerprint,
+    confirmed: true,
+  });
+});
 test("supports native card dragging", async ({ page, isMobile }) => {
   test.skip(isMobile, "Pointer handle and picker cover touch devices");
   await page.setViewportSize({ width: 1280, height: 1100 });

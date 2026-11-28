@@ -70,7 +70,24 @@ createRoot(document.getElementById("root")!).render(
           <main className="container">
             <h1>Group assignment</h1>
             <section className={styles.groups}>
-              <StageGroups slug="synthetic" stage={stage} data={{ teams }} />
+              <StageGroups
+                slug="synthetic"
+                stage={stage}
+                data={{ teams }}
+                scheduling={
+                  params.has("schedule")
+                    ? {
+                        rounds: [
+                          {
+                            id: "00000000-0000-4000-8000-000000000020",
+                            name: "Group matches",
+                          },
+                        ],
+                        timeZone: "Asia/Taipei",
+                      }
+                    : undefined
+                }
+              />
             </section>
           </main>
         </div>

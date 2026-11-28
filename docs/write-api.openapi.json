@@ -25804,7 +25804,7 @@
       "post": {
         "operationId": "changeFixtures",
         "summary": "Manage fixtures, group assignments and round rules",
-        "description": "Requires manage_fixtures. Normal changes return the staff fixture workspace. The force-delete preflight returns a versioned fingerprint, counts and any blocker. Force deletion requires that fingerprint, both fixture and assignment revisions, the exact label and explicit test-fixture confirmation. Approved result history, bracket dependents and published statistics are protected.",
+        "description": "Requires manage_fixtures. The group schedule preflight returns new match pairings, Saturday and Sunday times, and a fingerprint. Each team can receive at most one match per edition-local calendar week. Confirmation creates unpublished fixtures atomically from the same saved group and schedule snapshot. The force-delete preflight returns a versioned fingerprint, counts and any blocker. Force deletion requires that fingerprint, both fixture and assignment revisions, the exact label and explicit test-fixture confirmation. Approved result history, bracket dependents and published statistics are protected.",
         "security": [
           {
             "browserSession": []
@@ -25859,7 +25859,113 @@
                     "additionalProperties": false
                   },
                   {
+                    "type": "object",
+                    "properties": {
+                      "stageId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "roundId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "startDate": {
+                        "type": "string",
+                        "format": "date",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                      },
+                      "times": {
+                        "minItems": 1,
+                        "maxItems": 3,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                        },
+                        "description": "Local edition start times in HH:mm."
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "preview_group_schedule"
+                      }
+                    },
+                    "required": [
+                      "stageId",
+                      "expectedVersion",
+                      "roundId",
+                      "startDate",
+                      "times",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
                     "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "confirmed": {
+                            "type": "boolean",
+                            "const": true
+                          },
+                          "stageId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "expectedVersion": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "roundId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "startDate": {
+                            "type": "string",
+                            "format": "date",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                          },
+                          "times": {
+                            "minItems": 1,
+                            "maxItems": 3,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                            },
+                            "description": "Local edition start times in HH:mm."
+                          },
+                          "action": {
+                            "type": "string",
+                            "const": "create_group_schedule"
+                          },
+                          "expectedFingerprint": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                          }
+                        },
+                        "required": [
+                          "confirmed",
+                          "stageId",
+                          "expectedVersion",
+                          "roundId",
+                          "startDate",
+                          "times",
+                          "action",
+                          "expectedFingerprint"
+                        ],
+                        "additionalProperties": false
+                      },
                       {
                         "type": "object",
                         "properties": {
@@ -26715,7 +26821,7 @@
         },
         "responses": {
           "200": {
-            "description": "The staff fixture workspace or force-delete preflight.",
+            "description": "The staff fixture workspace, group schedule preview or force-delete preflight.",
             "content": {
               "application/json": {
                 "schema": {
@@ -26810,6 +26916,63 @@
                         "fingerprint",
                         "blocker",
                         "counts"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "fingerprint": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "timeZone": {
+                          "type": "string"
+                        },
+                        "matches": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "group": {
+                                "type": "string"
+                              },
+                              "homeTeamId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "awayTeamId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "scheduledAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                              },
+                              "position": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "group",
+                              "homeTeamId",
+                              "awayTeamId",
+                              "scheduledAt",
+                              "position"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "fingerprint",
+                        "timeZone",
+                        "matches"
                       ],
                       "additionalProperties": false
                     },
