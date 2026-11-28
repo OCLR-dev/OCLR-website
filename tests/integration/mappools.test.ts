@@ -1087,7 +1087,7 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
     });
     expect(p.rows[0].error).toContain("exists");
   });
-  it("rechecks the selection lock after batch lookup and still allows explicit publication", async () => {
+  it("rechecks a selection lock after lookup and permits settings updates once published", async () => {
     const pool = await create();
     const saved = await mappoolCommand(mapper, edition.slug, add(pool.id, 0));
     const payload = await batch(pool.id, 1, "HD1 456");
@@ -1115,17 +1115,51 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
     expect(await auditEvents()).toEqual(before);
     expect(await publicMappools(edition.slug, pool.id)).toEqual([]);
 
-    await mappoolCommand(mapper, edition.slug, {
+    const settings = {
+      ...confirm,
+      action: "pool_settings",
+      poolId: pool.id,
+      expectedVersion: 1,
+      name: "Synthetic published settings",
+      fmMode: "free_mod",
+      fmRestrictions: "Synthetic FM restrictions",
+    };
+    await expect(
+      mappoolCommand(mapper, edition.slug, settings),
+    ).rejects.toMatchObject({ status: 409 });
+    const released = await mappoolCommand(mapper, edition.slug, {
       ...confirm,
       action: "pool_publish",
       poolId: pool.id,
       expectedVersion: 1,
       published: true,
     });
+    const updated = await mappoolCommand(mapper, edition.slug, {
+      ...settings,
+      expectedVersion: released.pools[0].version,
+    });
     const [published] = await publicMappools(edition.slug, pool.id);
+    expect(published).toMatchObject({
+      name: settings.name,
+      fmMode: settings.fmMode,
+      fmRestrictions: settings.fmRestrictions,
+    });
+    expect(updated.pools[0]).toMatchObject({
+      publishedAt: released.pools[0].publishedAt,
+      selectionLockedAt,
+    });
     expect(published.entries.map((entry) => entry.id)).toEqual(
       saved.entries.map((entry) => entry.id),
     );
+    await expect(
+      mappoolCommand(mapper, edition.slug, {
+        ...confirm,
+        action: "entry_remove",
+        poolId: pool.id,
+        expectedVersion: updated.pools[0].version,
+        entryId: saved.entries[0].id,
+      }),
+    ).rejects.toMatchObject({ status: 409 });
   });
   it("resolves plain imports on the server, rejects forged slots before lookup and protects stale previews", async () => {
     const pool = await create();

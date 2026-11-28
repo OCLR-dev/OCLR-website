@@ -607,7 +607,11 @@ export async function mappoolCommand(
           409,
           "A pool used by an approved fixture is immutable; create a new pool instead.",
         );
-      if (pool.selectionLockedAt && c.action !== "pool_publish")
+      if (
+        pool.selectionLockedAt &&
+        c.action !== "pool_publish" &&
+        !(c.action === "pool_settings" && pool.publishedAt)
+      )
         throw new HttpError(
           409,
           "Map selection is locked. Create a new pool to change maps.",

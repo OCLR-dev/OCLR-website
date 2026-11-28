@@ -622,7 +622,10 @@ function MappoolEditorContent({
   const poolEntries = data.entries.filter((e) => e.poolId === pool?.id);
   const change = { url: `/api/admin/tournaments/${slug}/mappools` };
   const editable = Boolean(pool && !pool.lockedAt && !pool.selectionLockedAt);
-  const activeTask = editable ? task : "maps";
+  const settingsAvailable =
+    editable || Boolean(pool?.publishedAt && !pool.lockedAt);
+  const activeTask =
+    editable || (task === "settings" && settingsAvailable) ? task : "maps";
   const selectedCategory = category;
   const replayEntry = replayTarget
     ? poolEntries.find(
@@ -884,16 +887,18 @@ function MappoolEditorContent({
               setReplayTarget(null);
               setFeedback("");
             }}
-            items={
-              editable
+            items={[
+              { value: "maps", label: "Maps" },
+              ...(editable
                 ? [
-                    { value: "maps", label: "Maps" },
                     { value: "import", label: "Bulk import" },
                     { value: "batch", label: "Batch edit" },
-                    { value: "settings", label: "Pool settings" },
                   ]
-                : [{ value: "maps", label: "Maps" }]
-            }
+                : []),
+              ...(settingsAvailable
+                ? [{ value: "settings", label: "Pool settings" }]
+                : []),
+            ]}
           />
           <div
             className="mappool-task"
