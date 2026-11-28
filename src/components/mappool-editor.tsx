@@ -626,6 +626,16 @@ function MappoolEditorContent({
     editable || Boolean(pool?.publishedAt && !pool.lockedAt);
   const activeTask =
     editable || (task === "settings" && settingsAvailable) ? task : "maps";
+  const taskTabs: { value: Task; label: string }[] = [
+    { value: "maps", label: "Maps" },
+  ];
+  if (editable)
+    taskTabs.push(
+      { value: "import", label: "Bulk import" },
+      { value: "batch", label: "Batch edit" },
+    );
+  if (settingsAvailable)
+    taskTabs.push({ value: "settings", label: "Pool settings" });
   const selectedCategory = category;
   const replayEntry = replayTarget
     ? poolEntries.find(
@@ -887,18 +897,7 @@ function MappoolEditorContent({
               setReplayTarget(null);
               setFeedback("");
             }}
-            items={[
-              { value: "maps", label: "Maps" },
-              ...(editable
-                ? [
-                    { value: "import", label: "Bulk import" },
-                    { value: "batch", label: "Batch edit" },
-                  ]
-                : []),
-              ...(settingsAvailable
-                ? [{ value: "settings", label: "Pool settings" }]
-                : []),
-            ]}
+            items={taskTabs}
           />
           <div
             className="mappool-task"
