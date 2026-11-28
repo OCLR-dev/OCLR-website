@@ -1,8 +1,10 @@
+import { DraftTierBadge } from "@/components/draft-tier-badge";
 import { historicalPage } from "@/components/historical-archive";
 import { PublicPlayerIdentity } from "@/components/public-player-identity";
 import { TeamAvatar } from "@/components/team-avatar";
 import { EmptyState, PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
+import { publicDraftResults } from "@/lib/broadcast";
 import { remotePage } from "@/lib/remote-page";
 import { publishedTeams } from "@/lib/team-reads";
 import Link from "next/link";
@@ -19,6 +21,10 @@ async function Issue271Page({
   if (archivePage) return archivePage;
   const team = (await publishedTeams(edition)).find((t) => t.id === teamId);
   if (!team) notFound();
+  const draft = team.members?.length ? await publicDraftResults(edition) : null;
+  const tiers = new Map(
+    draft?.picks.map(({ player, tier }) => [player.osuId, tier] as const),
+  );
   return (
     <>
       <Link className="context-link" href={`/tournaments/${edition}/teams`}>
@@ -30,14 +36,16 @@ async function Issue271Page({
         <section aria-labelledby="roster-heading">
           <h2 id="roster-heading">{tr("Published roster")}</h2>
           <ul className="public-roster-grid">
-            {team.members.map((m) => (
-              <li className="panel" key={m.osuId}>
-                <PublicPlayerIdentity {...m} edition={edition} />
-                {m.osuId === team.captainId && (
-                  <span className="badge">{tr("Captain")}</span>
-                )}
-              </li>
-            ))}
+            {team.members.map((member) => {
+              const tier =
+                member.osuId === team.captainId ? 0 : tiers.get(member.osuId);
+              return (
+                <li className="panel" key={member.osuId}>
+                  <PublicPlayerIdentity {...member} edition={edition} />
+                  {tier !== undefined && <DraftTierBadge tier={tier} />}
+                </li>
+              );
+            })}
           </ul>
         </section>
       ) : (
