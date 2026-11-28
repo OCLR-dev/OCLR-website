@@ -5,41 +5,69 @@ import { join } from "node:path";
 import sharp from "sharp";
 import { HttpError } from "./http-error";
 import { TEAM_IMAGE_MAX_BYTES } from "./request-body-limits";
+import { teamImageMimeTypes } from "./team-image-formats";
 export { TEAM_IMAGE_MAX_BYTES } from "./request-body-limits";
 const directory = () => mediaDirectory("teams");
+const maxFrameDimension = 4096;
+const maxDecodedPixels = maxFrameDimension ** 2;
+const maxFrames = 120;
+const maxStoredBytes = 1024 * 1024;
+
 export async function normalizeTeamImage(bytes: Buffer) {
   if (!bytes.length || bytes.length > TEAM_IMAGE_MAX_BYTES)
-    throw new HttpError(400, "Choose a JPEG, PNG or WebP image up to 5 MB.");
-  try {
-    const image = sharp(bytes, {
-      limitInputPixels: 16777216,
-      failOn: "warning",
-      animated: false,
-    });
-    const metadata = await image.metadata();
-    if (
-      !metadata.format ||
-      !["jpeg", "png", "webp"].includes(metadata.format) ||
-      !metadata.width ||
-      !metadata.height ||
-      metadata.width > 4096 ||
-      metadata.height > 4096 ||
-      (metadata.pages ?? 1) !== 1
-    )
-      throw new Error();
-    const output = await image
-      .rotate()
-      .resize(512, 512, { fit: "cover" })
-      .webp({ quality: 85 })
-      .toBuffer();
-    if (output.length > 1024 * 1024) throw new Error();
-    return output;
-  } catch {
     throw new HttpError(
       400,
-      "Choose a valid static JPEG, PNG or WebP image with dimensions up to 4096 × 4096.",
+      "Choose a JPEG, PNG, GIF or WebP image up to 5 MB.",
+    );
+  let output: Buffer;
+  try {
+    const image = sharp(bytes, {
+      limitInputPixels: maxDecodedPixels,
+      failOn: "warning",
+      animated: true,
+    });
+    const {
+      mediaType,
+      width,
+      height,
+      pageHeight,
+      pages = 1,
+    } = await image.metadata();
+    const frameHeight = pageHeight ?? height;
+    if (
+      !mediaType ||
+      !teamImageMimeTypes.includes(mediaType) ||
+      !width ||
+      !frameHeight ||
+      width > maxFrameDimension ||
+      frameHeight > maxFrameDimension
+    )
+      throw new Error();
+    if (pages > maxFrames || width * frameHeight * pages > maxDecodedPixels)
+      throw new HttpError(
+        400,
+        "Choose a shorter animation or reduce its resolution. Animations support up to 120 frames.",
+      );
+    const animated = pages > 1;
+    if (!animated) image.autoOrient();
+    const size = animated ? 256 : 512;
+    output = await image
+      .resize(size, size, { fit: "cover" })
+      .webp({ quality: animated ? 80 : 85 })
+      .toBuffer();
+  } catch (error) {
+    if (error instanceof HttpError) throw error;
+    throw new HttpError(
+      400,
+      "Choose a valid JPEG, PNG, GIF or WebP image with dimensions up to 4096 × 4096 per frame.",
     );
   }
+  if (output.length > maxStoredBytes)
+    throw new HttpError(
+      400,
+      "The processed team image is too large. Choose a smaller image or a shorter animation.",
+    );
+  return output;
 }
 export async function storeTeamImage(bytes: Buffer) {
   const normalized = await normalizeTeamImage(bytes);
@@ -79,7 +107,7 @@ export async function removeTeamImage(key: string) {
 export async function readTeamImage(key: string) {
   const path = await file(key),
     stat = await lstat(path);
-  if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 1024 * 1024)
+  if (!stat.isFile() || stat.isSymbolicLink() || stat.size > maxStoredBytes)
     throw new HttpError(404, "Team image not found.");
   return readFile(path);
 }

@@ -3,6 +3,7 @@ import { mkdtemp, rm, realpath } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import sharp from "sharp";
+import { animatedTeamImage } from "../fixtures/team-image";
 import {
   normalizeTeamImage,
   storeTeamImage,
@@ -46,6 +47,31 @@ describe("bounded persistent team image storage", () => {
       .toBuffer();
     await expect(normalizeTeamImage(bomb)).rejects.toMatchObject({
       status: 400,
+    });
+  });
+  it.each(["gif", "webp"] as const)(
+    "preserves %s frames and playback settings in a cropped square WebP",
+    async (format) => {
+      const bytes = await animatedTeamImage(format);
+      const result = await normalizeTeamImage(bytes);
+      const image = sharp(result, { animated: true });
+      expect(await image.metadata()).toMatchObject({
+        format: "webp",
+        width: 256,
+        pageHeight: 256,
+        pages: 2,
+        delay: [110, 160],
+        loop: 3,
+      });
+      const pixels = await image.raw().toBuffer();
+      expect(pixels[0]).toBeLessThan(pixels[pixels.length / 2]);
+    },
+  );
+  it("rejects animations above the frame limit", async () => {
+    const bytes = await animatedTeamImage("gif", 121);
+    await expect(normalizeTeamImage(bytes)).rejects.toMatchObject({
+      status: 400,
+      message: expect.stringContaining("120 frames"),
     });
   });
   it("retains the same opaque reference across release changes and safely removes replaced files", async () => {

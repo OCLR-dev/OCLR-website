@@ -15,10 +15,12 @@ import { sql, eq } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import { editionEvents, teams } from "../../src/db/schema";
 import { prepareDraft } from "../fixtures/draft";
+import { animatedTeamImage } from "../fixtures/team-image";
 import { staffTeams } from "../../src/lib/team-reads";
 import { editTeamIdentityWrite } from "../../src/lib/draft-setup-write-contracts";
 import { extendedSchemas } from "../../src/lib/extended-read-resources";
 import { assertTestDatabase } from "../database";
+import { readTeamImage } from "../../src/lib/team-media";
 vi.mock("../../src/lib/auth/staff-request", () => ({ requireStaff: vi.fn() }));
 import { requireStaff } from "../../src/lib/auth/staff-request";
 import { PATCH } from "../../src/app/api/admin/tournaments/[edition]/teams/[teamId]/route";
@@ -61,7 +63,12 @@ describe.skipIf(!url)(
       await rm(root, { recursive: true, force: true });
       vi.unstubAllEnvs();
     });
-    async function request(image = bytes, expected = version, edition = slug) {
+    async function request(
+      image = bytes,
+      expected = version,
+      edition = slug,
+      type = "image/png",
+    ) {
       const form = new FormData();
       form.set("name", "Synthetic API brand");
       form.set("capacity", "");
@@ -69,7 +76,7 @@ describe.skipIf(!url)(
       form.set(
         "image",
         new File([new Uint8Array(image)], "../../untrusted.png", {
-          type: "image/png",
+          type,
         }),
       );
       return PATCH(
@@ -146,7 +153,9 @@ describe.skipIf(!url)(
       expect(await files()).toHaveLength(0);
     });
     it("commits only one concurrent upload, removes loser files and rejects malformed/oversized/cross-scope requests", async () => {
-      const responses = await Promise.all([request(), request()]);
+      const gif = await animatedTeamImage("gif");
+      const upload = () => request(gif, version, slug, "image/gif");
+      const responses = await Promise.all([upload(), upload()]);
       expect(responses.map((r) => r.status).sort()).toEqual([200, 409]);
       const data = await responses.find((r) => r.ok)!.json();
       expect(
@@ -160,6 +169,11 @@ describe.skipIf(!url)(
         .from(teams)
         .where(eq(teams.id, teamId));
       expect(await files()).toEqual([`${team.avatarKey}.webp`]);
+      expect(
+        await sharp(await readTeamImage(team.avatarKey!), {
+          animated: true,
+        }).metadata(),
+      ).toMatchObject({ format: "webp", pages: 2, delay: [110, 160] });
       const [event] = await db()
         .select()
         .from(editionEvents)

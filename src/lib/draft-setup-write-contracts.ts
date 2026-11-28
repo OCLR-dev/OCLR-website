@@ -236,7 +236,7 @@ export const editTeamIdentityWrite = {
       .max(TEAM_IMAGE_MAX_BYTES)
       .optional()
       .describe(
-        "Optional static JPEG, PNG or WebP up to 5 MiB and 4096 × 4096 pixels. An empty file is ignored.",
+        "Optional JPEG, PNG, GIF or WebP up to 5 MiB and 4096 × 4096 pixels per frame. GIF and WebP animations may contain up to 120 frames and 16,777,216 total pixels. Saved as a square WebP up to 1 MiB. An empty file is ignored.",
       ),
   }),
   urlencodedRequest: teamIdentityFields,
