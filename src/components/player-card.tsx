@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { useAppTranslations } from "@/i18n/shared";
 import { Avatar } from "./avatar";
+import { DraftTierBadge } from "./draft-tier-badge";
 import { PlayerIdBadge } from "./player-id-badge";
 import { Badge } from "./ui";
 
@@ -12,6 +13,7 @@ export function PlayerCard({
   profileHref,
   roleLabel,
   roleCode,
+  draftTier,
   team,
   prefetch = false,
 }: {
@@ -20,6 +22,7 @@ export function PlayerCard({
   profileHref: string;
   roleLabel?: string;
   roleCode?: string;
+  draftTier?: number;
   team?: ReactNode;
   prefetch?: false;
 }) {
@@ -53,6 +56,7 @@ export function PlayerCard({
           <a href={`https://osu.ppy.sh/users/${osuId}/osu`} rel="noreferrer">
             {username}
           </a>
+          {draftTier !== undefined && <DraftTierBadge tier={draftTier} />}
           {roleLabel && <Badge>{roleLabel}</Badge>}
         </div>
         {team && <span className="archive-player-team">{team}</span>}

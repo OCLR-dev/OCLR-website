@@ -10,14 +10,17 @@ import { GroupStandings } from "./public-matches";
 import { TeamAvatar } from "./team-avatar";
 
 type PublishedTeam = Awaited<ReturnType<typeof publishedTeams>>[number];
+type PublishedTiers = Partial<Record<number, number>>;
 
 function TeamSection({
   team,
+  tiers,
   slug,
   groupName,
   position,
 }: {
   team: PublishedTeam;
+  tiers: PublishedTiers;
   slug: string;
   groupName?: string;
   position: number;
@@ -43,7 +46,6 @@ function TeamSection({
         {Array.from(players.values(), (person) => {
           const isCaptain = person.osuId === team.captainId;
           const isCoach = coachIds.has(person.osuId);
-          const roles = [isCaptain && "Captain", isCoach && tr("Coach")];
           return (
             <PlayerCard
               key={person.osuId}
@@ -51,7 +53,8 @@ function TeamSection({
               username={person.username}
               profileHref={`/players/${person.osuId}?edition=${slug}`}
               roleCode={isCaptain ? "captain" : isCoach ? "coach" : "player"}
-              roleLabel={roles.filter(Boolean).join(" · ")}
+              draftTier={isCaptain ? 0 : tiers[person.osuId]}
+              roleLabel={isCoach ? tr("Coach") : undefined}
             />
           );
         })}
@@ -89,10 +92,12 @@ function TeamSection({
 
 export function PublicTeams({
   teams,
+  tiers,
   groups,
   slug,
 }: {
   teams: PublishedTeam[];
+  tiers: PublishedTiers;
   groups: PublicGroup[];
   slug: string;
 }) {
@@ -167,6 +172,7 @@ export function PublicTeams({
             <TeamSection
               key={team.id}
               team={team}
+              tiers={tiers}
               position={position}
               slug={slug}
               groupName={
