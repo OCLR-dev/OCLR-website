@@ -10,8 +10,8 @@
  * the board; the sticky header was also checked over black and white content.
  * Translucency is enabled only with backdrop-filter support; otherwise, and for
  * prefers-reduced-transparency, every pane falls back to a solid surface.
- * Only the header, board and footer blur; tiles, tables and repeated rows never
- * do. Scoped to ordinary pages: OBS output has no .themed-site. System fonts.
+ * Blur is reserved for sticky navigation, the board and the footer. Scoped to
+ * ordinary pages: OBS output has no .themed-site. System fonts.
  */
 html[data-appearance="glassmorphism"]:not(:has(.broadcast-site)),
 html[data-appearance="glassmorphism"]:not(:has(.broadcast-site)) body {
@@ -239,6 +239,12 @@ html[data-appearance="glassmorphism"] .themed-site :focus-visible {
   outline: 3px solid var(--site-focus);
   outline-offset: 4px;
 }
+html[data-appearance="glassmorphism"]
+  .themed-site
+  .workspace-tabs
+  button:focus-visible {
+  outline-offset: -4px;
+}
 html[data-appearance="glassmorphism"] .themed-site ::selection {
   background: var(--site-selection);
   color: var(--site-foreground);
@@ -264,6 +270,15 @@ html[data-appearance="glassmorphism"] .themed-site .site-header {
     inset 0 -1px 0 var(--glass-edge),
     0 12px 28px -20px var(--site-panel-shadow);
 }
+html[data-appearance="glassmorphism"] .themed-site .event-context {
+  padding-inline: 0.75rem;
+  border: 1px solid;
+  border-color: var(--glass-rim-top) var(--glass-rim-side)
+    var(--glass-rim-bottom);
+  border-radius: var(--radius-panel);
+  background: var(--glass-bar);
+  box-shadow: var(--glass-flat-shadow);
+}
 html[data-appearance="glassmorphism"] .themed-site .site-footer {
   margin-block: 28px;
   padding-inline: 1.25rem;
@@ -286,7 +301,11 @@ html[data-appearance="glassmorphism"][data-theme="dark"] {
     inset 0 1px 0 #ffffff80, inset 0 -3px 6px #a0105240,
     0 8px 20px -10px #ff6faeb3;
 }
-html[data-appearance="glassmorphism"] .themed-site :is(button, .button) {
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(button, .button):where(
+    :not(.workspace-tabs[data-appearance="line"] button)
+  ) {
   border-color: var(--glass-primary-edge);
   font-weight: 600;
   transition:
@@ -475,7 +494,7 @@ html[data-appearance="glassmorphism"]
   .themed-site
   :is(
     .tournament-navigation nav,
-    .workspace-tabs,
+    .workspace-tabs:where(:not([data-appearance="line"])),
     .mappool-mods,
     .event-pills,
     .bracket-tabs,
@@ -490,7 +509,7 @@ html[data-appearance="glassmorphism"]
   .themed-site
   :is(
     .tournament-navigation nav a,
-    .workspace-tabs :is(button, .button),
+    .workspace-tabs:where(:not([data-appearance="line"])) :is(button, .button),
     .mappool-mods :is(button, .button),
     .event-pills :is(button, .button),
     .bracket-tabs :is(button, .button),
@@ -506,7 +525,7 @@ html[data-appearance="glassmorphism"]
   .themed-site
   :is(
     .tournament-navigation nav a,
-    .workspace-tabs :is(button, .button),
+    .workspace-tabs:where(:not([data-appearance="line"])) :is(button, .button),
     .mappool-mods :is(button, .button),
     .event-pills :is(button, .button),
     .bracket-tabs :is(button, .button),
@@ -519,7 +538,8 @@ html[data-appearance="glassmorphism"]
   .themed-site
   :is(
     .tournament-navigation nav a[aria-current],
-    .workspace-tabs :is(button, .button)[aria-selected="true"],
+    .workspace-tabs:where(:not([data-appearance="line"]))
+      :is(button, .button)[aria-selected="true"],
     .mappool-mods :is(button, .button)[aria-pressed="true"],
     .event-pills :is(button, .button)[aria-pressed="true"],
     .bracket-tabs :is(button, .button)[aria-pressed="true"],
@@ -733,7 +753,7 @@ html[data-appearance="glassmorphism"] .themed-site progress::-moz-progress-bar {
   }
   html[data-appearance="glassmorphism"]
     .themed-site
-    :is(.site-header, .site-footer) {
+    :is(.site-header, .event-context, .site-footer) {
     -webkit-backdrop-filter: var(--glass-bar-blur);
     backdrop-filter: var(--glass-bar-blur);
   }
@@ -750,7 +770,7 @@ html[data-appearance="glassmorphism"] .themed-site progress::-moz-progress-bar {
   }
   html[data-appearance="glassmorphism"]
     .themed-site
-    :is(main, .site-header, .site-footer) {
+    :is(main, .site-header, .event-context, .site-footer) {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
   }
