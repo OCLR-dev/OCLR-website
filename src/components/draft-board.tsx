@@ -1,5 +1,7 @@
 import { useAppTranslations } from "@/i18n/shared";
 import type { BroadcastBoard } from "@/lib/draft-types";
+import Link from "next/link";
+import { Avatar } from "./avatar";
 import { DraftOverview } from "./draft-overview";
 import { DraftRoundResults } from "./draft-round-results";
 import { OclrLogo } from "./oclr-logo";
@@ -14,12 +16,15 @@ export const draftLabels = {
 };
 export function DraftBoardView({
   board,
+  slug,
   privateTiers,
 }: {
   board: BroadcastBoard;
+  slug: string;
   privateTiers?: ReadonlyMap<number, number>;
 }) {
   const tr = useAppTranslations();
+  const playerHref = (osuId: number) => `/players/${osuId}?edition=${slug}`;
 
   return (
     <>
@@ -92,7 +97,15 @@ export function DraftBoardView({
                   round: pick.roundPosition?.round,
                   position: pick.roundPosition?.position ?? pick.turnIndex + 1,
                   player: pick.player,
-                  playerLabel: pick.player.username,
+                  playerLabel: (
+                    <Link
+                      className="text-link"
+                      href={playerHref(pick.player.osuId)}
+                      prefetch={false}
+                    >
+                      {pick.player.username}
+                    </Link>
+                  ),
                   teamLabel: pick.team.name,
                 }))}
               />
@@ -105,9 +118,18 @@ export function DraftBoardView({
       {board.pool && (
         <section className="section-space">
           <h2>{tr("Remaining published pool")}</h2>
-          <ul className="public-pool">
+          <ul className="public-pool" role="list">
             {board.pool.map((p) => (
-              <li key={p.osuId}>{p.username}</li>
+              <li key={p.osuId}>
+                <Avatar osuId={p.osuId} username={p.username} />
+                <Link
+                  className="text-link"
+                  href={playerHref(p.osuId)}
+                  prefetch={false}
+                >
+                  {p.username}
+                </Link>
+              </li>
             ))}
           </ul>
         </section>
