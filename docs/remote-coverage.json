@@ -2401,6 +2401,7 @@
       "operations": [
         "captainDraft",
         "getApiIdentity",
+        "publicBroadcastDraft",
         "publicDraft",
         "publicEnrollment"
       ],
@@ -2410,7 +2411,8 @@
         "src/lib/frontend-read-models.ts#publicEnrollment",
         "src/lib/draft-reads.ts#publicDraft",
         "src/lib/draft-reads.ts#captainDraft",
-        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)"
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/broadcast.ts#publicBroadcastDraft"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Existing publication/subject boundaries",
@@ -2804,6 +2806,7 @@
       "authority": "saved-read",
       "operations": [
         "getTeamAvatar",
+        "publicBroadcastDraft",
         "publicCompetition",
         "publicEnrollment",
         "publishedTeams"
@@ -2813,6 +2816,7 @@
       "services": [
         "src/lib/frontend-read-models.ts#publicEnrollment",
         "src/lib/public-read-models.ts / frontend-data.ts (getTeamAvatar)",
+        "src/lib/broadcast.ts#publicBroadcastDraft",
         "src/lib/public-competition.ts#publicCompetition",
         "src/lib/team-reads.ts#publishedTeams"
       ],

@@ -26,6 +26,7 @@ for (const [fn, id] of Object.entries({
   requireStaff: "staffAccess",
   getPublicEditions: "listPublicTournaments",
   getPublicEdition: "publicEnrollment",
+  publicDraftResults: "publicBroadcastDraft",
   getEdition: "privateSavedTournament",
   readTournament: "privateSavedTournament",
   getEditionChoices: "listStaffTournaments",

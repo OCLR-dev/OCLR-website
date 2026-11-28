@@ -2,6 +2,7 @@ import { historicalPage } from "@/components/historical-archive";
 import { PublicTeams } from "@/components/public-teams";
 import { EmptyState, PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
+import { publicDraftResults } from "@/lib/broadcast";
 import { publicCompetition } from "@/lib/public-competition";
 import { remotePage } from "@/lib/remote-page";
 import { publishedTeams } from "@/lib/team-reads";
@@ -20,16 +21,28 @@ async function Issue271Page({
   const { edition } = await params;
   const archivePage = await historicalPage(edition, "teams");
   if (archivePage) return archivePage;
-  const [teams, competition] = await Promise.all([
+  const [teams, competition, draft] = await Promise.all([
     publishedTeams(edition),
     publicCompetition(edition),
+    publicDraftResults(edition),
   ]);
+  const publishedMembers = new Set(
+    teams.flatMap((team) => team.members?.map(({ osuId }) => osuId) ?? []),
+  );
+  const tiers = Object.fromEntries(
+    (draft?.picks ?? []).flatMap(({ player, tier }) =>
+      tier !== undefined && publishedMembers.has(player.osuId)
+        ? [[player.osuId, tier] as const]
+        : [],
+    ),
+  );
   return (
     <>
       <PageHeading title={tr("Teams")} />
       {teams.length ? (
         <PublicTeams
           teams={teams}
+          tiers={tiers}
           groups={competition?.groups ?? []}
           slug={edition}
         />
