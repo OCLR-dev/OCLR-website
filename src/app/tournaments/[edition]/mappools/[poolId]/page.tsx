@@ -4,6 +4,7 @@ import { MappoolBrowser } from "@/components/mappool-browser";
 import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { publicMappools } from "@/lib/mappool-reads";
+import { publicMappoolReplays } from "@/lib/public-mappool-replays";
 import { remotePage } from "@/lib/remote-page";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -24,6 +25,7 @@ async function Issue271Page({
   if (archivePage) return archivePage;
   const [pool] = await publicMappools(edition, poolId);
   if (!pool) notFound();
+  const replays = await publicMappoolReplays(edition, pool.id);
   return (
     <>
       <Link className="context-link" href={`/tournaments/${edition}/mappools`}>
@@ -36,7 +38,7 @@ async function Issue271Page({
         {tr("Published · Last updated ")}
         {pool.updatedAt.toISOString()}
       </PageHeading>
-      <MappoolBrowser slug={edition} pool={pool} />
+      <MappoolBrowser slug={edition} pool={pool} replays={replays} />
     </>
   );
 }

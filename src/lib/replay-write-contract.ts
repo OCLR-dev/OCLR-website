@@ -94,13 +94,22 @@ export const preferredReplayWrite = {
   method: "PATCH",
   parameters: deleteReplayWrite.parameters,
   maxBodyBytes: deleteReplayWrite.maxBodyBytes,
-  request: replayWriteCommand.extend({ preferred: z.boolean() }).strict(),
-  summary: "Set or clear a mappool entry's preferred replay",
+  request: replayWriteCommand
+    .extend({
+      preferred: z.boolean(),
+      publicPlayback: z.boolean().optional(),
+    })
+    .strict(),
+  summary: "Set a preferred replay or change its public playback setting",
   description:
-    "Requires edition replay management permission. Only stable osu!standard replays can be preferred. Setting a new preference replaces the previous one. Confirm the current pool version. A repeated request with no change returns the current preference and version.",
+    "Requires edition replay management permission. Public playback changes additionally require mappool management permission and an already preferred osu!standard replay. Clearing or replacing a preference revokes its public playback. Confirm the current pool version. Repeated requests with no change return the current state.",
   successDescription:
     "The entry's preferred replay ID and current pool version.",
-  response: z.object({ preferredReplayId: z.uuid().nullable(), version }),
+  response: z.object({
+    preferredReplayId: z.uuid().nullable(),
+    publicPlayback: z.boolean().optional(),
+    version,
+  }),
   errors: {
     ...errors,
     400: "Missing or invalid confirmation, version, or preference.",

@@ -3,6 +3,7 @@ import { PublicMappools } from "@/components/public-mappools";
 import { EmptyState, PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { publicMappools } from "@/lib/mappool-reads";
+import { publicMappoolReplays } from "@/lib/public-mappool-replays";
 import { remotePage } from "@/lib/remote-page";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
@@ -17,12 +18,15 @@ async function Issue271Page({
   const { edition } = await params;
   const archivePage = await historicalPage(edition, "mappools");
   if (archivePage) return archivePage;
-  const pools = await publicMappools(edition);
+  const [pools, replays] = await Promise.all([
+    publicMappools(edition),
+    publicMappoolReplays(edition),
+  ]);
   return (
     <>
       <PageHeading title={tr("Mappools")} />
       {pools.length ? (
-        <PublicMappools pools={pools} slug={edition} />
+        <PublicMappools pools={pools} slug={edition} replays={replays} />
       ) : (
         <EmptyState title={tr("No mappools published")}>
           {tr("Organizers will release the approved maps here.")}

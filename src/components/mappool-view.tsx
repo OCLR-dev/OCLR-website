@@ -1,4 +1,5 @@
 import { useAppTranslations } from "@/i18n/shared";
+import type { ReactNode } from "react";
 import type { publicMappools } from "@/lib/mappool-reads";
 import {
   mappoolSlotOrder,
@@ -28,11 +29,13 @@ function MappoolRow({
   fmMode,
   onSelect,
   display,
+  actions,
 }: {
   entry: Pool["entries"][number];
   fmMode: Pool["fmMode"];
   onSelect?: (id: string) => void;
   display?: DifficultyDisplay;
+  actions?: ReactNode;
 }) {
   const tr = useAppTranslations();
 
@@ -174,6 +177,7 @@ function MappoolRow({
           searchTitle={m.title}
           compact
           name={slotLabel(e.category, e.position)}
+          extra={actions}
         />
       </td>
     </tr>
@@ -186,6 +190,7 @@ export function MappoolView({
   showCategoryLinks = true,
   preserveEntryOrder = false,
   getDifficulty,
+  replayAction,
 }: {
   pool: Pool;
   headingLevel?: 2 | 4 | 5;
@@ -193,6 +198,7 @@ export function MappoolView({
   showCategoryLinks?: boolean;
   preserveEntryOrder?: boolean;
   getDifficulty?: (entry: Pool["entries"][number]) => DifficultyDisplay;
+  replayAction?: (entry: Pool["entries"][number]) => ReactNode;
 }) {
   const tr = useAppTranslations();
 
@@ -316,6 +322,7 @@ export function MappoolView({
                     <MappoolRow
                       key={entry.id}
                       entry={entry}
+                      actions={replayAction?.(entry)}
                       fmMode={pool.fmMode}
                       onSelect={onSelect}
                       display={getDifficulty?.(entry)}

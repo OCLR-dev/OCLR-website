@@ -1,0 +1,2 @@
+ALTER TABLE "mappool_replays" ADD COLUMN "public_playback" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "mappool_replays" ADD CONSTRAINT "replay_public_playback_requires_preference" CHECK (NOT "mappool_replays"."public_playback" OR "mappool_replays"."preferred");

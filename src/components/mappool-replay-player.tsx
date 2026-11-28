@@ -82,10 +82,12 @@ function mediaTime(ms: number) {
 
 export function MappoolReplayPlayer({
   replayUrl,
+  assetsUrl = `${replayUrl}/playback`,
   beatmapMd5,
   filename,
 }: {
   replayUrl: string;
+  assetsUrl?: string;
   beatmapMd5: string;
   filename: string;
 }) {
@@ -166,13 +168,13 @@ export function MappoolReplayPlayer({
           import("@/lib/replay-playback-archive"),
           fetchAsset(replayUrl, signal, REPLAY_MAX_BYTES, "replay"),
           fetchAsset(
-            `${replayUrl}/playback/beatmap.osz`,
+            `${assetsUrl}/beatmap.osz`,
             signal,
             REPLAY_BEATMAP_MAX_BYTES,
             "beatmap",
           ),
           fetchAsset(
-            `${replayUrl}/playback/skin.osk`,
+            `${assetsUrl}/skin.osk`,
             signal,
             REPLAY_SKIN_MAX_BYTES,
             "skin",

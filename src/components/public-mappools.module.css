@@ -192,3 +192,8 @@
     display: none;
   }
 }
+@media (min-width: 641px) {
+  .withReplay :global(.map-card-title-row) {
+    padding-inline-end: 13.5rem;
+  }
+}

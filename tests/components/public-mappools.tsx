@@ -139,6 +139,9 @@ const pools = params.has("difficulty")
       : syntheticPublicPools;
 const translated = (english: string) =>
   english === "Mappools" ? (locale === "en" ? "Mappools" : "圖池") : english;
+const replays = params.has("replay")
+  ? { "entry-0-0": { replayId: "public-replay", beatmapMd5: "a".repeat(32) } }
+  : undefined;
 
 createRoot(document.getElementById("root")!).render(
   <NextIntlClientProvider locale={locale} messages={messages} timeZone="UTC">
@@ -215,9 +218,9 @@ createRoot(document.getElementById("root")!).render(
           />
         </div>
       ) : params.has("detail") ? (
-        <MappoolBrowser slug="synthetic" pool={pools[0]} />
+        <MappoolBrowser slug="synthetic" pool={pools[0]} replays={replays} />
       ) : (
-        <PublicMappools slug="synthetic" pools={pools} />
+        <PublicMappools slug="synthetic" pools={pools} replays={replays} />
       )}
     </main>
   </NextIntlClientProvider>,

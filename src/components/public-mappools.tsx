@@ -6,6 +6,7 @@ import { useId } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { competitionStageLabel } from "@/lib/competition-stage";
 import type { publicMappools } from "@/lib/mappool-reads";
+import type { PublicMappoolReplays } from "@/lib/public-mappool-replays";
 import { MappoolBrowser } from "./mappool-browser";
 import { WorkspaceTabs } from "./workspace-tabs";
 import styles from "./public-mappools.module.css";
@@ -20,9 +21,11 @@ function poolFragment(poolId: string) {
 export function PublicMappools({
   pools: published,
   slug,
+  replays,
 }: {
   pools: Pool[];
   slug: string;
+  replays?: PublicMappoolReplays;
 }) {
   const tr = useAppTranslations();
   const id = useId();
@@ -113,7 +116,12 @@ export function PublicMappools({
         role={pools.length > 1 ? "tabpanel" : undefined}
         aria-labelledby={pools.length > 1 ? `${id}-${active.id}` : `${id}-name`}
       >
-        <MappoolBrowser key={active.id} slug={slug} pool={active} />
+        <MappoolBrowser
+          key={active.id}
+          slug={slug}
+          pool={active}
+          replays={replays}
+        />
       </section>
     </div>
   );

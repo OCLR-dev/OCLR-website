@@ -12386,8 +12386,8 @@
       },
       "patch": {
         "operationId": "setPreferredMappoolReplay",
-        "summary": "Set or clear a mappool entry's preferred replay",
-        "description": "Requires edition replay management permission. Only stable osu!standard replays can be preferred. Setting a new preference replaces the previous one. Confirm the current pool version. A repeated request with no change returns the current preference and version.",
+        "summary": "Set a preferred replay or change its public playback setting",
+        "description": "Requires edition replay management permission. Public playback changes additionally require mappool management permission and an already preferred osu!standard replay. Clearing or replacing a preference revokes its public playback. Confirm the current pool version. Repeated requests with no change return the current state.",
         "security": [
           {
             "browserSession": []
@@ -12454,6 +12454,9 @@
                   },
                   "preferred": {
                     "type": "boolean"
+                  },
+                  "publicPlayback": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -12485,6 +12488,9 @@
                           "type": "null"
                         }
                       ]
+                    },
+                    "publicPlayback": {
+                      "type": "boolean"
                     },
                     "version": {
                       "type": "integer",

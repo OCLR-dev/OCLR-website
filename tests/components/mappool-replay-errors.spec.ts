@@ -40,22 +40,33 @@ test("saved replays can set and clear the preferred replay", async ({
     filename: "Second.osr",
   };
   let preferredReplayId: string | null = null;
+  let publicPlayback = false;
   let version = 7;
-  await page.route("**/api/osu-images/{cover,list}/*", (route) => route.abort());
+  await page.route("**/api/osu-images/{cover,list}/*", (route) =>
+    route.abort(),
+  );
   await page.route("**/entries/entry-1/replays", (route) =>
     route.fulfill({
       json: [first, second].map((item) => ({
         ...item,
         preferred: item.id === preferredReplayId,
+        publicPlayback: item.id === preferredReplayId && publicPlayback,
       })),
     }),
   );
   await page.route(`**/replays/${second.id}`, (route) => {
-    const { preferred, ...confirmation } = route.request().postDataJSON();
+    const {
+      preferred,
+      publicPlayback: release,
+      ...confirmation
+    } = route.request().postDataJSON();
     expect(route.request().method()).toBe("PATCH");
     expect(confirmation).toEqual({ confirmed: true, expectedVersion: version });
     preferredReplayId = preferred ? second.id : null;
-    return route.fulfill({ json: { preferredReplayId, version: ++version } });
+    publicPlayback = preferred ? (release ?? publicPlayback) : false;
+    return route.fulfill({
+      json: { preferredReplayId, publicPlayback, version: ++version },
+    });
   });
   await page.goto("/mappool-actions?manage=1&playback=1");
   await page.getByRole("button", { name: "Saved replays (2)" }).click();
@@ -64,6 +75,12 @@ test("saved replays can set and clear the preferred replay", async ({
   const badge = row.getByText("Preferred replay", { exact: true });
   await row.getByRole("button", { name: "Set as preferred replay" }).click();
   await expect(badge).toBeVisible();
+  await row.getByRole("button", { name: "Enable public playback" }).click();
+  await expect(row.getByText("Public playback", { exact: true })).toBeVisible();
+  await row.getByRole("button", { name: "Disable public playback" }).click();
+  await expect(row.getByText("Public playback", { exact: true })).toHaveCount(
+    0,
+  );
   await row.getByRole("button", { name: "Clear preferred replay" }).click();
   await expect(badge).toHaveCount(0);
 });
