@@ -23,6 +23,7 @@ import {
 import type { ScoringRules } from "../../src/lib/competition-model";
 import {
   commandPickemFixture,
+  pickemAdminRead,
   pickemRead,
   savePickemPick,
   savePickemSettings,
@@ -114,6 +115,57 @@ describe.skipIf(!dbUrl)(
         scoreEnabled: true,
       });
     }
+
+    it("omits exhibition matches from administration and rejects opening predictions for them", async () => {
+      const [stage] = await db()
+        .insert(tournamentStages)
+        .values({ editionSlug: slug, kind: "exhibition" })
+        .returning();
+      const [round] = await db()
+        .insert(tournamentRounds)
+        .values({
+          editionSlug: slug,
+          stageId: stage.id,
+          position: 1,
+          name: "Synthetic Exhibition",
+          scoringRules: rules,
+        })
+        .returning();
+      const [exhibition] = await db()
+        .insert(fixtures)
+        .values({
+          editionSlug: slug,
+          roundId: round.id,
+          label: "Exhibition match",
+          homeTeamId: homeId,
+          awayTeamId: awayId,
+          position: 1,
+          scheduledAt: future(3),
+          publishedAt: new Date(),
+          timeZone: "Asia/Taipei",
+        })
+        .returning();
+      await opened();
+
+      expect(
+        (await pickemAdminRead(slug, admin)).rows.map(({ id }) => id),
+      ).toEqual([fixture.id]);
+      await expect(
+        commandPickemFixture(slug, admin, exhibition.id, {
+          action: "open",
+          closesAt: future(2).toISOString(),
+          fixtureVersion: exhibition.version,
+          scoreEnabled: true,
+        }),
+      ).rejects.toMatchObject({ code: "pickem_cannot_open" });
+      await db()
+        .update(fixtures)
+        .set({ publishedAt: null })
+        .where(eq(fixtures.id, exhibition.id));
+      expect(
+        (await pickemAdminRead(slug, admin)).rows.map(({ id }) => id),
+      ).toEqual([fixture.id]);
+    });
 
     async function publish(
       revision: number,

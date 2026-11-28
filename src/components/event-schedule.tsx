@@ -13,6 +13,7 @@ export function EventSchedule({
   groups = [],
   edition,
   phases,
+  defaultPhase,
   heading = true,
   timeZone,
   reviewMode = false,
@@ -23,6 +24,7 @@ export function EventSchedule({
   groups?: PublicGroup[];
   edition: string;
   phases?: { id: string; label: string }[];
+  defaultPhase?: string;
   heading?: boolean;
   timeZone?: string;
   reviewMode?: boolean;
@@ -53,6 +55,7 @@ export function EventSchedule({
     phaseOptions.find(
       (option) => fragment === `#${encodeURIComponent(option.id)}`,
     )?.id ??
+    defaultPhase ??
     openingPhase();
   useEffect(() => {
     if (linkedMatch && fragment.startsWith("#match-"))

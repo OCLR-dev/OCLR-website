@@ -10,9 +10,10 @@ import {
   pickemWindows,
   teams,
   tournamentRounds,
+  tournamentStages,
   users,
 } from "@/db/schema";
-import { and, asc, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNotNull, isNull, ne, sql } from "drizzle-orm";
 import { createHash } from "node:crypto";
 import type { z } from "zod";
 import type { User } from "./auth/sessions";
@@ -726,7 +727,16 @@ export async function pickemAdminRead(slug: string, actor: User) {
       })
       .from(fixtures)
       .innerJoin(tournamentRounds, eq(tournamentRounds.id, fixtures.roundId))
-      .where(eq(fixtures.editionSlug, slug))
+      .innerJoin(
+        tournamentStages,
+        eq(tournamentStages.id, tournamentRounds.stageId),
+      )
+      .where(
+        and(
+          eq(fixtures.editionSlug, slug),
+          ne(tournamentStages.kind, "exhibition"),
+        ),
+      )
       .orderBy(asc(tournamentRounds.position), asc(fixtures.position));
     const windows = await db()
       .select()
@@ -771,17 +781,15 @@ export async function pickemAdminRead(slug: string, actor: User) {
           item && publicFixture ? project(item, publicFixture, now, []) : null;
         const reason = !publicFixture?.confirmed
           ? "unpublished"
-          : publicFixture.stage === "exhibition"
-            ? "exhibition"
-            : !publicFixture.scheduledAt
-              ? "schedule"
-              : publicFixture.status !== "scheduled" ||
-                  publicFixture.result ||
-                  Date.parse(publicFixture.scheduledAt) <= now.getTime()
-                ? "started"
-                : !rules
-                  ? "rules"
-                  : null;
+          : !publicFixture.scheduledAt
+            ? "schedule"
+            : publicFixture.status !== "scheduled" ||
+                publicFixture.result ||
+                Date.parse(publicFixture.scheduledAt) <= now.getTime()
+              ? "started"
+              : !rules
+                ? "rules"
+                : null;
         return {
           ...row,
           lastVoid: former.get(row.id)?.voidReason ?? null,

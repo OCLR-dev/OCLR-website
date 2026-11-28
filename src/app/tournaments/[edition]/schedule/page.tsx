@@ -4,9 +4,38 @@ import { getAppTranslations } from "@/i18n/server";
 import { getPublicEdition } from "@/lib/content";
 import { formatDate } from "@/lib/editions";
 import { eventPreview, type EventMatch } from "@/lib/event-preview";
-import { publicCompetition } from "@/lib/public-competition";
+import {
+  publicCompetition,
+  type PublicFixture,
+} from "@/lib/public-competition";
 import { remotePage } from "@/lib/remote-page";
 import { notFound } from "next/navigation";
+
+function openingStage(fixtures: PublicFixture[], now = Date.now()) {
+  const live = fixtures.find((fixture) => fixture.status === "in_progress");
+  if (live) return live.stage;
+
+  const dated = fixtures
+    .map((fixture) => ({
+      fixture,
+      startsAt: Date.parse(fixture.scheduledAt ?? ""),
+    }))
+    .filter(
+      ({ fixture, startsAt }) =>
+        fixture.status !== "cancelled" && Number.isFinite(startsAt),
+    )
+    .sort((a, b) => a.startsAt - b.startsAt);
+  const upcoming = dated.find(
+    ({ fixture, startsAt }) =>
+      startsAt >= now && fixture.status === "scheduled" && !fixture.result,
+  )?.fixture;
+  const unscheduled = fixtures.find(
+    (fixture) =>
+      !fixture.scheduledAt && fixture.status === "scheduled" && !fixture.result,
+  );
+  return (upcoming ?? unscheduled ?? dated.at(-1)?.fixture)?.stage;
+}
+
 async function Issue271Page({
   params,
   searchParams,
@@ -39,7 +68,8 @@ async function Issue271Page({
     publicCompetition(slug),
     getAppTranslations(),
   ]);
-  const matches: EventMatch[] = (competition?.fixtures ?? []).map((f) => ({
+  const fixtures = competition?.fixtures ?? [];
+  const matches: EventMatch[] = fixtures.map((f) => ({
     id: f.id,
     label: f.label,
     round: f.roundName,
@@ -73,6 +103,7 @@ async function Issue271Page({
       edition={slug}
       matches={matches}
       groups={competition?.groups}
+      defaultPhase={openingStage(fixtures)}
     />
   );
 }
