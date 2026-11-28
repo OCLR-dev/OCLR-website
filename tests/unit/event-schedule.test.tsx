@@ -97,7 +97,42 @@ async function render() {
 }
 describe("published schedule semantics", () => {
   beforeEach(() => vi.stubGlobal("React", React));
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+  it.each([
+    ["in_progress", "Group stage / Swiss"],
+    ["ended", "Double elimination"],
+  ] as const)(
+    "selects the live or next published stage when the group match is %s",
+    async (status, selectedStage) => {
+      vi.spyOn(Date, "now").mockReturnValue(Date.parse("2026-12-05T12:00:00Z"));
+      const group = { ...fixture(), status, result: null };
+      const knockout = {
+        ...fixture(teams[1], teams[2]),
+        stage: "knockout" as const,
+        roundId: "knockout",
+        roundName: "Semifinals",
+        scheduledAt: "2026-12-12T12:00:00Z",
+        result: null,
+      };
+      const cancelledExhibition = {
+        ...fixture(teams[2], teams[0]),
+        stage: "exhibition" as const,
+        status: "cancelled" as const,
+        scheduledAt: "2026-12-06T12:00:00Z",
+        result: null,
+      };
+      vi.mocked(publicCompetition).mockResolvedValue(
+        competition([group, knockout, cancelledExhibition], policy),
+      );
+
+      expect(await render()).toContain(
+        `aria-pressed="true">${selectedStage}</button>`,
+      );
+    },
+  );
   it.each([
     ["cancelled", "Cancelled"],
     ["ended", "Ended"],
