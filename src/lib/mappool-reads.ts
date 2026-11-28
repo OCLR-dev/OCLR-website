@@ -20,6 +20,7 @@ import { remoteMode } from "./data-source";
 import { previewConfigurations } from "./difficulty-display";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http-error";
+import { compareMappoolSlots } from "./mappool-model";
 import {
   loadSavedDifficulties,
   selectSavedDifficulty,
@@ -152,7 +153,6 @@ async function databaseMappoolWorkspace(
                 pools.map((p) => p.id),
               ),
             )
-            .orderBy(mappoolEntries.category, mappoolEntries.position)
         : [];
       const refereeRules = await tx
         .select({
@@ -210,11 +210,15 @@ export async function mappoolWorkspace(
   actor: User,
   slug: string,
 ): Promise<MappoolWorkspace> {
-  if (remoteMode()) {
-    await assertRemoteSubject(actor.osuId);
-    return frontendResource<MappoolWorkspace>("mappoolWorkspace", { slug });
-  }
-  return databaseMappoolWorkspace(actor, slug);
+  const remote = remoteMode();
+  if (remote) await assertRemoteSubject(actor.osuId);
+  const workspace = remote
+    ? await frontendResource<MappoolWorkspace>("mappoolWorkspace", { slug })
+    : await databaseMappoolWorkspace(actor, slug);
+  return {
+    ...workspace,
+    entries: workspace.entries.toSorted(compareMappoolSlots),
+  };
 }
 
 export type MappoolWorkspace =
@@ -280,7 +284,6 @@ async function databasePublicMappools(
                 pools.map((p) => p.id),
               ),
             )
-            .orderBy(mappoolEntries.category, mappoolEntries.position)
         : [];
       return pools.map((p) => ({
         ...p,
@@ -305,7 +308,7 @@ export async function publicMappools(
   );
   return pools.map((pool) => ({
     ...pool,
-    entries: pool.entries.map((entry) => {
+    entries: pool.entries.toSorted(compareMappoolSlots).map((entry) => {
       if (remote && entry.metadata.difficultySnapshot) return entry;
       const snapshot = selectSavedDifficulty(
         saved,

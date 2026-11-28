@@ -65,6 +65,9 @@ literal. `scoringRules` is the existing nullable scoring model: `first_to.wins` 
 Existing timestamps and map metadata remain unchanged. Read schema/OpenAPI are
 generated from the shared TypeScript models.
 
+Map entries in fixture pools, Showcase pool details, and Showcase replay lists
+use NM, HD, HR, DT, FM, TB order, then ascending slot number within each mod.
+
 For Developer parity, `GET /api/v1/me/tournaments/{edition}/streaming/next` uses
 exactly the same generated response schema and service. It requires the ordinary
 Developer token with `identity:read` **and** the subject's live Streamer grant;

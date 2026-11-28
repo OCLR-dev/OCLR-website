@@ -10,7 +10,8 @@ import type { MappoolBatchPreview } from "@/lib/mappool-write-contracts";
 import type { MappoolWorkspace } from "@/lib/mappool-reads";
 import {
   mappoolBatchSelectionLimit,
-  mappoolEditorCategories,
+  mappoolSlotOrder,
+  compareMappoolSlots,
   slotLabel,
   formatBeatmapDuration,
   formatBeatmapNumber,
@@ -90,14 +91,7 @@ export function MappoolBatch({
     preview.rows.length > 0 &&
     preview.rows.every((r) => !r.error && r.snapshot);
   const orderedEntries =
-    mode === "batch"
-      ? entries.toSorted(
-          (a, b) =>
-            mappoolEditorCategories.indexOf(a.category) -
-              mappoolEditorCategories.indexOf(b.category) ||
-            a.position - b.position,
-        )
-      : [];
+    mode === "batch" ? entries.toSorted(compareMappoolSlots) : [];
   const selectedEntryIds = orderedEntries
     .filter((entry) => selected.includes(entry.id))
     .map((entry) => entry.id);
@@ -143,7 +137,7 @@ export function MappoolBatch({
                   setCategory(event.target.value as MappoolCategory);
                 }}
               >
-                {mappoolEditorCategories.map((c) => (
+                {mappoolSlotOrder.map((c) => (
                   <option key={c}>{c}</option>
                 ))}
               </select>
@@ -426,7 +420,7 @@ export function MappoolBatch({
                       setCategory(e.target.value as MappoolCategory)
                     }
                   >
-                    {mappoolEditorCategories.map((c) => (
+                    {mappoolSlotOrder.map((c) => (
                       <option key={c}>{c}</option>
                     ))}
                   </select>

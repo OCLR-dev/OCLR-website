@@ -7,7 +7,8 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import type { publicMappools } from "@/lib/mappool-reads";
 import {
-  categories,
+  mappoolSlotOrder,
+  compareMappoolSlots,
   fmPolicyName,
   slotLabel,
   formatBeatmapNumber as number,
@@ -200,11 +201,7 @@ export function MappoolBrowser({
       },
       selection,
     );
-  const ordered = categories.flatMap((c) =>
-    pool.entries
-      .filter((e) => e.category === c)
-      .sort((a, b) => a.position - b.position),
-  );
+  const ordered = pool.entries.toSorted(compareMappoolSlots);
   const term = search.trim().toLocaleLowerCase();
   const entries = ordered.filter(
     (e) =>
@@ -343,7 +340,7 @@ export function MappoolBrowser({
             }}
             items={[
               { value: "", label: tr("All mods") },
-              ...categories
+              ...mappoolSlotOrder
                 .filter((c) => pool.entries.some((e) => e.category === c))
                 .map((c) => ({ value: c, label: c, literal: true })),
             ]}

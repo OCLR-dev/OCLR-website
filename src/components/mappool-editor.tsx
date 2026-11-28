@@ -15,7 +15,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import type { MappoolWorkspace } from "@/lib/mappool-reads";
 import type { MappoolSuggesterEditorData } from "@/lib/mappool-suggesters";
 import {
-  mappoolEditorCategories,
+  mappoolSlotOrder,
   difficultyConfigurations,
   type DifficultyConfiguration,
   categoryNames,
@@ -300,7 +300,7 @@ export function EntryForm({
               if (!entry) setPosition(nextPosition(e.target.value));
             }}
           >
-            {mappoolEditorCategories.map((c) => (
+            {mappoolSlotOrder.map((c) => (
               <option key={c} value={c}>
                 {c} — {categoryNames[c]}
               </option>
@@ -598,7 +598,7 @@ function MappoolEditorContent({
   const [roundId, setRoundId] = useState("");
   const [poolId, setPoolId] = useState("");
   const [category, setCategory] =
-    useState<(typeof mappoolEditorCategories)[number]>("NM");
+    useState<(typeof mappoolSlotOrder)[number]>("NM");
   const [task, setTask] = useState<Task>("maps");
   const [creatingPool, setCreatingPool] = useState(false);
   const [editingEntry, setEditingEntry] = useState<string | null>(null);
@@ -928,7 +928,7 @@ function MappoolEditorContent({
                   setCategory(value);
                   setReplayTarget(null);
                 }}
-                items={mappoolEditorCategories.map((c) => ({
+                items={mappoolSlotOrder.map((c) => ({
                   value: c,
                   label: `${c} (${poolEntries.filter((e) => e.category === c).length})`,
                 }))}
@@ -939,7 +939,7 @@ function MappoolEditorContent({
                 aria-labelledby={`${id}-mods-${category}`}
                 tabIndex={0}
               >
-                {mappoolEditorCategories.map((mod) => {
+                {mappoolSlotOrder.map((mod) => {
                   const entries = poolEntries
                     .filter((e) => e.category === mod)
                     .sort((a, b) => a.position - b.position);
