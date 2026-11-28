@@ -25804,7 +25804,7 @@
       "post": {
         "operationId": "changeFixtures",
         "summary": "Manage fixtures, group assignments and round rules",
-        "description": "Requires manage_fixtures. The group schedule preflight returns new match pairings, Saturday and Sunday times, and a fingerprint. Each team can receive at most one match per edition-local calendar week. Confirmation creates unpublished fixtures atomically from the same saved group and schedule snapshot. The force-delete preflight returns a versioned fingerprint, counts and any blocker. Force deletion requires that fingerprint, both fixture and assignment revisions, the exact label and explicit test-fixture confirmation. Approved result history, bracket dependents and published statistics are protected.",
+        "description": "Requires manage_fixtures. The group schedule preflight returns new match pairings, Saturday and Sunday times within the inclusive edition-local date range, and a fingerprint. Confirmation creates unpublished fixtures atomically from the same saved group and schedule snapshot. The force-delete preflight returns a versioned fingerprint, counts and any blocker. Force deletion requires that fingerprint, both fixture and assignment revisions, the exact label and explicit test-fixture confirmation. Approved result history, bracket dependents and published statistics are protected.",
         "security": [
           {
             "browserSession": []
@@ -25879,7 +25879,14 @@
                       "startDate": {
                         "type": "string",
                         "format": "date",
-                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                        "description": "Inclusive first date in the edition time zone."
+                      },
+                      "endDate": {
+                        "type": "string",
+                        "format": "date",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                        "description": "Inclusive last date in the edition time zone, on or after the start date."
                       },
                       "times": {
                         "minItems": 1,
@@ -25901,6 +25908,7 @@
                       "expectedVersion",
                       "roundId",
                       "startDate",
+                      "endDate",
                       "times",
                       "action"
                     ],
@@ -25933,7 +25941,14 @@
                           "startDate": {
                             "type": "string",
                             "format": "date",
-                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                            "description": "Inclusive first date in the edition time zone."
+                          },
+                          "endDate": {
+                            "type": "string",
+                            "format": "date",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                            "description": "Inclusive last date in the edition time zone, on or after the start date."
                           },
                           "times": {
                             "minItems": 1,
@@ -25960,6 +25975,7 @@
                           "expectedVersion",
                           "roundId",
                           "startDate",
+                          "endDate",
                           "times",
                           "action",
                           "expectedFingerprint"

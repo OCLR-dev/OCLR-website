@@ -423,12 +423,20 @@ test("previews the default evening schedule before submitting the confirmed fixt
   await page
     .getByLabel("Schedule start date", { exact: true })
     .fill("2026-12-02");
+  await expect(generate).toBeDisabled();
+  const endDate = page.getByLabel("Schedule end date", { exact: true });
+  await endDate.fill("2026-12-01");
+  await expect(generate).toBeDisabled();
+  await expect(endDate).toHaveAttribute("aria-invalid", "true");
+  await endDate.fill("2026-12-05");
   await generate.click();
   await expect(page.getByText("Atlas · Birch", { exact: true })).toBeVisible();
   expect(requests).toHaveLength(1);
   expect(requests[0]).toMatchObject({
     action: "preview_group_schedule",
     expectedVersion: 7,
+    startDate: "2026-12-02",
+    endDate: "2026-12-05",
     times: ["20:00", "21:00", "22:00"],
   });
   await page
@@ -445,6 +453,7 @@ test("previews the default evening schedule before submitting the confirmed fixt
   expect(requests[1]).toMatchObject({
     action: "create_group_schedule",
     expectedFingerprint: fingerprint,
+    endDate: "2026-12-05",
     confirmed: true,
   });
 });

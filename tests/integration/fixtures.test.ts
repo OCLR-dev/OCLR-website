@@ -775,6 +775,7 @@ describe.skipIf(!url)(
           .version,
         roundId,
         startDate: "2026-12-05",
+        endDate: "2026-12-05",
         times: ["20:00", "21:00", "22:00"],
       };
       const preview = (actor = admin) =>
@@ -782,10 +783,11 @@ describe.skipIf(!url)(
           ...fields,
           action: "preview_group_schedule",
         });
-      const create = (fingerprint: string) =>
+      const create = (fingerprint: string, endDate = fields.endDate) =>
         fixtureCommand(admin, "test-cup", {
           ...fields,
           ...confirm,
+          endDate,
           action: "create_group_schedule",
           expectedFingerprint: fingerprint,
         });
@@ -795,6 +797,11 @@ describe.skipIf(!url)(
       expect(planned.matches).toMatchObject([
         { scheduledAt: "2026-12-05T13:00:00.000Z" },
       ]);
+      await expect(
+        create(planned.fingerprint, "2026-12-06"),
+      ).rejects.toMatchObject({
+        status: 409,
+      });
       expect((await staffFixtures(admin, "test-cup")).fixtures).toHaveLength(1);
       await fixtureCommand(admin, "test-cup", {
         ...occupied,

@@ -33,7 +33,8 @@ async function readGroupSchedule(
   slug: string,
   fields: ScheduleFields,
 ): Promise<GroupSchedulePreview> {
-  const { stageId, expectedVersion, roundId, startDate, times } = fields;
+  const { stageId, expectedVersion, roundId, startDate, endDate, times } =
+    fields;
   const [stage] = await tx
     .select()
     .from(tournamentStages)
@@ -102,6 +103,7 @@ async function readGroupSchedule(
     groupRoundIds: new Set(rounds.map((entry) => entry.id)),
     roundId,
     startDate,
+    endDate,
     times,
     timeZone,
   });
@@ -113,6 +115,9 @@ async function readGroupSchedule(
         expectedVersion,
         round,
         timeZone,
+        startDate,
+        endDate,
+        times,
         existing,
         matches,
       }),
@@ -131,7 +136,7 @@ export async function previewGroupSchedule(
   if (!parsed.success)
     throw new HttpError(
       400,
-      "Choose a round, start date, and distinct match times.",
+      "Choose a round, start and end dates, and distinct match times.",
     );
   return db().transaction(
     async (tx) => {

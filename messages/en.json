@@ -5347,7 +5347,6 @@
     "mebb37b6aa544": "Select a preferred replay before changing public playback.",
     "mf281cd4ac25d": "Automatic group schedule",
     "m9d6fb19c6729": "Save group assignments before scheduling matches.",
-    "m01dc906ebd59": "Matches are scheduled on Saturdays and Sundays, with at most one match per team each week. Times use {timeZone}.",
     "m607f15943f9c": "Schedule start date",
     "m2c68656fe623": "Match time {number}",
     "m7d1d952eecb5": "Choose distinct match times.",
@@ -5360,11 +5359,14 @@
     "m7e318cac7fa8": "{count, plural, one {# match to create} other {# matches to create}}",
     "m9d9cda61d4cb": "All group pairings already have fixtures.",
     "m003b29ddd856": "Choose a round with enough fixture positions for the group schedule.",
-    "mfab985a7c319": "Choose different dates or time slots to fit the group schedule.",
     "mf1f582ade444": "Save at least one group with two teams before scheduling.",
     "m7f910ab5c408": "Save updated group assignments before scheduling.",
     "m5fdeb892dc45": "Choose a round from this Group Stage.",
-    "mbbd3c4ee0f2e": "Choose a round, start date, and distinct match times.",
-    "mda46b8b4a9b7": "The fixtures changed. Preview the group schedule again."
+    "mda46b8b4a9b7": "The fixtures changed. Preview the group schedule again.",
+    "m203036f1a85c": "Matches use Saturday and Sunday slots within these dates. Teams can play zero or multiple matches per week. Times use {timeZone}.",
+    "m40f858d33c5c": "Schedule end date",
+    "me2337a49cb24": "The end date must be on or after the start date.",
+    "mdf6a8d67d30f": "The date range has too few available weekend slots. Extend it or add match times.",
+    "m20cfc6b9bc48": "Choose a round, start and end dates, and distinct match times."
   }
 }

@@ -31,6 +31,7 @@ export function GroupScheduler({
   const formId = useId();
   const [roundId, setRoundId] = useState(rounds[0]?.id ?? "");
   const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [times, setTimes] = useState<string[]>([...defaultGroupScheduleTimes]);
   const [preview, setPreview] = useState<GroupSchedulePreview | null>(null);
   const [pending, setPending] = useState(false);
@@ -39,11 +40,13 @@ export function GroupScheduler({
   const url = `/api/admin/tournaments/${slug}/matches`;
   const timeSlots = times.filter(Boolean);
   const duplicateTimes = new Set(timeSlots).size !== timeSlots.length;
+  const invertedDates = Boolean(startDate && endDate && endDate < startDate);
   const fields = {
     stageId,
     expectedVersion: version,
     roundId,
     startDate,
+    endDate,
     times: timeSlots,
   };
   const canPreview =
@@ -51,6 +54,8 @@ export function GroupScheduler({
     !pending &&
     rounds.some((round) => round.id === roundId) &&
     startDate &&
+    endDate &&
+    !invertedDates &&
     timeSlots.length > 0 &&
     !duplicateTimes;
   const teamNames = new Map(teams.map((team) => [team.id, team.name]));
@@ -92,7 +97,7 @@ export function GroupScheduler({
         )}
         <p className="small muted">
           {tr(
-            "Matches are scheduled on Saturdays and Sundays, with at most one match per team each week. Times use {timeZone}.",
+            "Matches use Saturday and Sunday slots within these dates. Teams can play zero or multiple matches per week. Times use {timeZone}.",
             { timeZone },
           )}
         </p>
@@ -110,23 +115,23 @@ export function GroupScheduler({
             className="form-stack staff-readonly-fields"
             disabled={disabled || pending}
           >
+            <label className="field">
+              <span>{tr("Competition round")}</span>
+              <select
+                value={roundId}
+                onChange={(event) => setRoundId(event.target.value)}
+              >
+                {!rounds.length && (
+                  <option value="">{tr("No rounds configured")}</option>
+                )}
+                {rounds.map((round) => (
+                  <option key={round.id} value={round.id}>
+                    {round.name}
+                  </option>
+                ))}
+              </select>
+            </label>
             <div className="form-grid">
-              <label className="field">
-                <span>{tr("Competition round")}</span>
-                <select
-                  value={roundId}
-                  onChange={(event) => setRoundId(event.target.value)}
-                >
-                  {!rounds.length && (
-                    <option value="">{tr("No rounds configured")}</option>
-                  )}
-                  {rounds.map((round) => (
-                    <option key={round.id} value={round.id}>
-                      {round.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
               <label className="field">
                 <span>{tr("Schedule start date")}</span>
                 <input
@@ -136,7 +141,23 @@ export function GroupScheduler({
                   onChange={(event) => setStartDate(event.target.value)}
                 />
               </label>
+              <label className="field">
+                <span>{tr("Schedule end date")}</span>
+                <input
+                  type="date"
+                  required
+                  min={startDate || undefined}
+                  value={endDate}
+                  aria-invalid={invertedDates || undefined}
+                  onChange={(event) => setEndDate(event.target.value)}
+                />
+              </label>
             </div>
+            {invertedDates && (
+              <p className="small error-text" role="alert">
+                {tr("The end date must be on or after the start date.")}
+              </p>
+            )}
             <div className="form-grid">
               {times.map((time, index) => (
                 <label key={index} className="field">

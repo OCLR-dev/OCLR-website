@@ -22,7 +22,14 @@ const groupScheduleFields = {
   stageId: z.uuid(),
   expectedVersion: z.number().int().nonnegative(),
   roundId: z.uuid(),
-  startDate: z.iso.date(),
+  startDate: z.iso
+    .date()
+    .describe("Inclusive first date in the edition time zone."),
+  endDate: z.iso
+    .date()
+    .describe(
+      "Inclusive last date in the edition time zone, on or after the start date.",
+    ),
   times: z
     .array(z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/))
     .min(1)
@@ -219,7 +226,7 @@ export const changeFixturesWrite = {
   ]),
   summary: "Manage fixtures, group assignments and round rules",
   description:
-    "Requires manage_fixtures. The group schedule preflight returns new match pairings, Saturday and Sunday times, and a fingerprint. Each team can receive at most one match per edition-local calendar week. Confirmation creates unpublished fixtures atomically from the same saved group and schedule snapshot. The force-delete preflight returns a versioned fingerprint, counts and any blocker. Force deletion requires that fingerprint, both fixture and assignment revisions, the exact label and explicit test-fixture confirmation. Approved result history, bracket dependents and published statistics are protected.",
+    "Requires manage_fixtures. The group schedule preflight returns new match pairings, Saturday and Sunday times within the inclusive edition-local date range, and a fingerprint. Confirmation creates unpublished fixtures atomically from the same saved group and schedule snapshot. The force-delete preflight returns a versioned fingerprint, counts and any blocker. Force deletion requires that fingerprint, both fixture and assignment revisions, the exact label and explicit test-fixture confirmation. Approved result history, bracket dependents and published statistics are protected.",
   successDescription:
     "The staff fixture workspace, group schedule preview or force-delete preflight.",
   response: {

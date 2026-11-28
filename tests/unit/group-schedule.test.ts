@@ -9,11 +9,12 @@ const options = {
   groupRoundIds: new Set(["group", "another-group-round"]),
   roundId: "group",
   startDate: "2026-12-02",
+  endDate: "2026-12-12",
   times: defaultGroupScheduleTimes,
   timeZone: "Asia/Taipei",
 };
 
-it("pairs every team with each group opponent once and schedules each team once per week", () => {
+it("pairs every team with each group opponent once in the inclusive weekend range", () => {
   const matches = planGroupSchedule({
     ...options,
     groups: [
@@ -30,33 +31,29 @@ it("pairs every team with each group opponent once and schedules each team once 
       .sort(),
   ).toEqual(["ab", "ac", "ad", "bc", "bd", "cd", "ef", "eg", "fg"]);
 
-  const games = new Set<string>();
   const slots = matches.map(({ scheduledAt }) =>
     localDateTime(scheduledAt, options.timeZone),
   );
   expect(new Set(slots).size).toBe(matches.length);
-  expect(slots.slice(0, 3)).toEqual([
+  expect(slots).toEqual([
     "2026-12-05T20:00",
     "2026-12-05T21:00",
     "2026-12-05T22:00",
+    "2026-12-06T20:00",
+    "2026-12-06T21:00",
+    "2026-12-06T22:00",
+    "2026-12-12T20:00",
+    "2026-12-12T21:00",
+    "2026-12-12T22:00",
   ]);
-  matches.forEach(({ homeTeamId, awayTeamId }, index) => {
-    const date = new Date(`${slots[index].slice(0, 10)}T00:00:00Z`);
-    expect([0, 6]).toContain(date.getUTCDay());
-    if (date.getUTCDay() === 0) date.setUTCDate(date.getUTCDate() - 1);
-    for (const team of [homeTeamId, awayTeamId]) {
-      const key = `${date.toISOString()}:${team}`;
-      expect(games.has(key)).toBe(false);
-      games.add(key);
-    }
-  });
 });
 
-it("skips covered pairings and occupied slots and defers a busy team to the next weekend", () => {
+it("skips covered pairings and occupied slots and permits multiple matches in one week", () => {
   const matches = planGroupSchedule({
     ...options,
     groups: [{ name: "A", teamIds: ["a", "b", "c"] }],
     startDate: "2026-12-06",
+    endDate: "2026-12-06",
     existing: [
       {
         roundId: "another-group-round",
@@ -92,6 +89,22 @@ it("skips covered pairings and occupied slots and defers a busy team to the next
     })),
   ).toEqual([
     { pair: "bc", scheduledAt: "2026-12-06T13:00:00.000Z", position: 5 },
-    { pair: "ac", scheduledAt: "2026-12-12T12:00:00.000Z", position: 6 },
+    { pair: "ac", scheduledAt: "2026-12-06T14:00:00.000Z", position: 6 },
   ]);
+});
+
+it("rejects reversed dates and a range that cannot fit all remaining pairings", () => {
+  const request = {
+    ...options,
+    groups: [{ name: "A", teamIds: ["a", "b", "c"] }],
+    existing: [],
+    startDate: "2026-12-05",
+    times: ["20:00"],
+  };
+  expect(() =>
+    planGroupSchedule({ ...request, endDate: "2026-12-04" }),
+  ).toThrow("The end date must be on or after the start date.");
+  expect(() =>
+    planGroupSchedule({ ...request, endDate: "2026-12-06" }),
+  ).toThrow("The date range has too few available weekend slots.");
 });
