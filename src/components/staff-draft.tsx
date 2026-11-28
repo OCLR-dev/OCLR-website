@@ -283,7 +283,9 @@ export function StaffDraftRoom({
               "Private operational state. This preview is not the public broadcast.",
             )}
           </p>
-          {preview && <DraftBoardView board={preview} privateTiers={tiers} />}
+          {preview && (
+            <DraftBoardView board={preview} slug={slug} privateTiers={tiers} />
+          )}
         </>
       )}
       <Controls

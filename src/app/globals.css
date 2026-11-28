@@ -1340,7 +1340,16 @@ tbody tr:hover {
   gap: 1rem 2rem;
   color: #b9bed4;
   font-size: var(--text-support);
-  padding-left: 1rem;
+  list-style: none;
+  padding: 0;
+}
+.public-pool li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .turn-editor {
   padding: 0;
@@ -6132,7 +6141,7 @@ body:has([data-broadcast]) .site-shell {
   color: var(--color-muted);
   flex-shrink: 0;
 }
-.archive-draft-picks .avatar {
+:is(.archive-draft-picks, .public-pool) .avatar {
   width: 2.5rem;
   height: 2.5rem;
   flex-shrink: 0;

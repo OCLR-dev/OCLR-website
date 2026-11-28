@@ -139,7 +139,7 @@ export function LiveDraft({
               );
             })()
           ) : (
-            <DraftBoardView board={board} />
+            <DraftBoardView board={board} slug={slug} />
           )}
         </>
       ) : (
