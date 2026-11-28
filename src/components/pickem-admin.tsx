@@ -139,15 +139,13 @@ function AdminRow({ slug, row }: { slug: string; row: AdminFixture }) {
   const disabledReason =
     row.reason === "unpublished"
       ? tr("Publish the teams and match first.")
-      : row.reason === "exhibition"
-        ? tr("Exhibition matches do not support predictions.")
-        : row.reason === "schedule"
-          ? tr("Confirm the match time first.")
-          : row.reason === "started"
-            ? tr("This match has already started.")
-            : row.reason === "rules"
-              ? tr("Configure the round scoring rules first.")
-              : null;
+      : row.reason === "schedule"
+        ? tr("Confirm the match time first.")
+        : row.reason === "started"
+          ? tr("This match has already started.")
+          : row.reason === "rules"
+            ? tr("Configure the round scoring rules first.")
+            : null;
   const series = row.rules?.series;
 
   async function save(action: Action) {
