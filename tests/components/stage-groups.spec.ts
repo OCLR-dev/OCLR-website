@@ -214,6 +214,9 @@ test("keeps read-only controls and drag sources disabled", async ({ page }) => {
   await expect(page.getByLabel("Group count", { exact: true })).toBeDisabled();
   await expect(page.getByRole("switch")).toBeDisabled();
   await expect(
+    page.getByRole("button", { name: "Randomize groups", exact: true }),
+  ).toBeDisabled();
+  await expect(
     page.getByRole("button", { name: "Select team Atlas", exact: true }),
   ).toBeDisabled();
   await expect(
@@ -224,6 +227,75 @@ test("keeps read-only controls and drag sources disabled", async ({ page }) => {
   ).toBeDisabled();
   expect(await page.locator('.group-team-card[draggable="true"]').count()).toBe(
     0,
+  );
+});
+test("randomizes a balanced draft and saves it only after confirmation", async ({
+  page,
+}) => {
+  const writes: Record<string, unknown>[] = [];
+  await page.route(
+    "**/api/admin/tournaments/synthetic/matches",
+    async (route) => {
+      writes.push(route.request().postDataJSON());
+      await route.fulfill({ json: {} });
+    },
+  );
+  await page.goto("/stage-groups?saved=1");
+  const randomize = page.getByRole("button", {
+    name: "Randomize groups",
+    exact: true,
+  });
+  const count = page.getByLabel("Group count", { exact: true });
+  await count.selectOption("3");
+  await expect(randomize).toBeDisabled();
+  await count.selectOption("2");
+  await randomize.click();
+  const dialog = page.getByRole("dialog", {
+    name: "Randomize group assignments?",
+  });
+  await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Save group assignments", exact: true }),
+  ).toBeDisabled();
+  await expect(randomize).toBeFocused();
+  await randomize.click();
+  await dialog
+    .getByRole("button", { name: "Randomize groups", exact: true })
+    .click();
+  await expect(dialog).toBeHidden();
+  await expect(
+    page.getByText("Unsaved changes", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "Unassigned teams", exact: true }),
+  ).toContainText("None");
+  expect(writes).toHaveLength(0);
+
+  await page
+    .getByRole("button", { name: "Save group assignments", exact: true })
+    .click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Confirm", exact: true })
+    .click();
+  await expect.poll(() => writes.length).toBe(1);
+  expect(writes[0]).toMatchObject({
+    action: "stage_groups",
+    expectedVersion: 7,
+    published: false,
+    configuration: {
+      groups: [
+        { key: "g-a", name: "Alpha" },
+        { key: "g-b", name: "Beta" },
+      ],
+    },
+  });
+  const { groups } = writes[0].configuration as {
+    groups: { teamIds: string[] }[];
+  };
+  expect(groups.map(({ teamIds }) => teamIds.length).sort()).toEqual([2, 3]);
+  expect(groups.flatMap(({ teamIds }) => teamIds).sort()).toEqual(
+    [1, 2, 3, 4, 5].map(teamId),
   );
 });
 test("keeps the publication switch at the top and applies changes only after save confirmation", async ({
