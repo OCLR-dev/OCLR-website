@@ -2801,11 +2801,16 @@
       "file": "src/app/tournaments/[edition]/teams/[teamId]/page.tsx",
       "kind": "page",
       "authority": "saved-read",
-      "operations": ["publicEnrollment", "publishedTeams"],
+      "operations": [
+        "publicBroadcastDraft",
+        "publicEnrollment",
+        "publishedTeams"
+      ],
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Inherited or static",
       "services": [
         "src/lib/frontend-read-models.ts#publicEnrollment",
+        "src/lib/broadcast.ts#publicBroadcastDraft",
         "src/lib/team-reads.ts#publishedTeams"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
